@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import '../../../core/utils/viewport_letterbox.dart';
 import '../../../models/body_part_guides.dart';
 import '../../../models/camera_guidance.dart';
 import '../../../models/photo_frame_template.dart';
@@ -163,18 +164,10 @@ class FrameGeneratorService {
   }
 
   Rect _cropRectForTemplate(PhotoFrameTemplate template, Size viewportSize) {
-    final targetRatio = template.aspectRatio;
-    final viewRatio = viewportSize.width / viewportSize.height;
-
-    if (viewRatio > targetRatio) {
-      final width = viewportSize.height * targetRatio;
-      final left = (viewportSize.width - width) / 2;
-      return Rect.fromLTWH(left, 0, width, viewportSize.height);
-    }
-
-    final height = viewportSize.width / targetRatio;
-    final top = (viewportSize.height - height) / 2;
-    return Rect.fromLTWH(0, top, viewportSize.width, height);
+    return ViewportLetterbox.cropRectForRatio(
+      template.aspectRatio,
+      viewportSize,
+    );
   }
 
   Rect _mapSubjectZone(Rect normalizedSubject, Rect cropRect) {

@@ -77,6 +77,10 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   bool get _isFreeShootMode =>
       widget.shootSessionMode == ShootSessionMode.free;
 
+  bool _usesGuidanceFrameLetterbox(bool hasLiveAdvice) =>
+      widget.shootSessionMode == ShootSessionMode.guided ||
+      (_isFreeShootMode && hasLiveAdvice);
+
   Future<void> _analyzeLiveScene(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final previous = ref.read(liveSceneAnalysisProvider).value;
@@ -261,7 +265,8 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
             fit: StackFit.expand,
             children: [
               IosCameraPreview(controller: widget.controller),
-              IosAspectRatioOverlay(aspectRatio: aspectRatio),
+              if (!_usesGuidanceFrameLetterbox(hasAdvice))
+                IosAspectRatioOverlay(aspectRatio: aspectRatio),
               widget.overlay,
               if (widget.enablePhase2)
                 ArHorizonOverlay(visible: arOverlayVisible),

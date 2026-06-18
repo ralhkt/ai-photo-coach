@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/viewport_letterbox.dart';
 import '../../../models/body_part_labels.dart';
 import '../../../models/subject_shape_kind.dart';
 import '../../reference/services/frame_generator_service.dart';
@@ -28,16 +29,7 @@ class PhotoFramePainter extends CustomPainter {
     final isHumanFrame = frameSpec.subjectShape == SubjectShapeKind.humanSilhouette &&
         frameSpec.subjectSilhouettePath != null;
 
-    final maskPaint = Paint()..color = Colors.black.withOpacity(0.42);
-    final full = Offset.zero & size;
-    canvas.drawPath(
-      Path.combine(
-        PathOperation.difference,
-        Path()..addRect(full),
-        Path()..addRect(crop),
-      ),
-      maskPaint,
-    );
+    ViewportLetterbox.paintMaskOutsideCrop(canvas, size, crop);
 
     final borderPaint = Paint()
       ..color = isHumanFrame

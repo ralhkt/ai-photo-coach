@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/utils/viewport_letterbox.dart';
 import '../../../../models/camera_aspect_ratio.dart';
 
 class IosAspectRatioOverlay extends StatelessWidget {
@@ -21,47 +22,36 @@ class IosAspectRatioOverlay extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final viewport = Size(constraints.maxWidth, constraints.maxHeight);
-          final crop = _cropRect(ratio, viewport);
-          final paint = Paint()
-            ..color = Colors.white.withOpacity(0.55)
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1.5;
+          final crop = ViewportLetterbox.cropRectForRatio(ratio, viewport);
 
           return CustomPaint(
             size: viewport,
-            painter: _AspectRatioPainter(cropRect: crop, borderPaint: paint),
+            painter: _AspectRatioLetterboxPainter(cropRect: crop),
           );
         },
       ),
     );
   }
-
-  Rect _cropRect(double targetRatio, Size viewport) {
-    final viewRatio = viewport.width / viewport.height;
-    if (viewRatio > targetRatio) {
-      final width = viewport.height * targetRatio;
-      final left = (viewport.width - width) / 2;
-      return Rect.fromLTWH(left, 0, width, viewport.height);
-    }
-    final height = viewport.width / targetRatio;
-    final top = (viewport.height - height) / 2;
-    return Rect.fromLTWH(0, top, viewport.width, height);
-  }
 }
 
-class _AspectRatioPainter extends CustomPainter {
-  _AspectRatioPainter({required this.cropRect, required this.borderPaint});
+class _AspectRatioLetterboxPainter extends CustomPainter {
+  _AspectRatioLetterboxPainter({required this.cropRect});
 
   final Rect cropRect;
-  final Paint borderPaint;
 
   @override
   void paint(Canvas canvas, Size size) {
+    ViewportLetterbox.paintMaskOutsideCrop(canvas, size, cropRect);
+
+    final borderPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.55)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
     canvas.drawRect(cropRect, borderPaint);
   }
 
   @override
-  bool shouldRepaint(covariant _AspectRatioPainter oldDelegate) {
+  bool shouldRepaint(covariant _AspectRatioLetterboxPainter oldDelegate) {
     return oldDelegate.cropRect != cropRect;
   }
 }
