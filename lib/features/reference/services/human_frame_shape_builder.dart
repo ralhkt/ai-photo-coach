@@ -1,0 +1,160 @@
+import 'dart:math' as math;
+import 'dart:ui';
+
+/// Builds smooth, anatomical human outline points and paths for guided framing.
+class HumanFrameShapeBuilder {
+  /// Normalized template points (0–1 within subject rect) with elliptical head.
+  List<Offset> templatePoints() {
+    return _ellipseArc(
+      center: const Offset(0.50, 0.13),
+      rx: 0.16,
+      ry: 0.12,
+      startAngle: math.pi,
+      sweepAngle: math.pi,
+      steps: 10,
+    )
+      ..addAll([
+        const Offset(0.66, 0.24),
+        const Offset(0.74, 0.34),
+        const Offset(0.76, 0.46),
+        const Offset(0.74, 0.58),
+        const Offset(0.68, 0.70),
+        const Offset(0.62, 0.82),
+        const Offset(0.56, 0.94),
+        const Offset(0.50, 0.98),
+        const Offset(0.44, 0.94),
+        const Offset(0.38, 0.82),
+        const Offset(0.32, 0.70),
+        const Offset(0.26, 0.58),
+        const Offset(0.24, 0.46),
+        const Offset(0.26, 0.34),
+        const Offset(0.34, 0.24),
+      ])
+      ..addAll(
+        _ellipseArc(
+          center: const Offset(0.50, 0.13),
+          rx: 0.16,
+          ry: 0.12,
+          startAngle: 0,
+          sweepAngle: math.pi,
+          steps: 10,
+        ),
+      );
+  }
+
+  List<Offset> mapTemplateToSubject(Rect subjectRect) {
+    return templatePoints()
+        .map(
+          (point) => Offset(
+            subjectRect.left + point.dx * subjectRect.width,
+            subjectRect.top + point.dy * subjectRect.height,
+          ),
+        )
+        .toList();
+  }
+
+  /// Blends a raw edge contour with an anatomical template (stronger at head).
+  List<Offset> refineContour(List<Offset> raw, Rect subjectRect) {
+    if (raw.length < 8) {
+      return mapTemplateToSubject(subjectRect);
+    }
+
+    final template = mapTemplateToSubject(subjectRect);
+    final sorted = [...raw]..sort((a, b) => a.dy.compareTo(b.dy));
+    final topY = sorted.first.dy;
+    final bottomY = sorted.last.dy;
+    final height = (bottomY - topY).clamp(0.12, 1.0);
+    final headCutoff = topY + height * 0.28;
+
+    final nearestTemplate = <Offset>[];
+    for (final point in raw) {
+      final templatePoint = _nearestPoint(template, point);
+      final headBlend = point.dy <= headCutoff
+          ? 0.72
+          : (1 - ((point.dy - headCutoff) / (height * 0.25)).clamp(0.0, 1.0)) *
+              0.35;
+      nearestTemplate.add(Offset(
+        point.dx * (1 - headBlend) + templatePoint.dx * headBlend,
+        point.dy * (1 - headBlend) + templatePoint.dy * headBlend,
+      ));
+    }
+
+    return _dedupe(nearestTemplate);
+  }
+
+  Path pointsToSmoothPath(List<Offset> points) {
+    final path = Path();
+    if (points.isEmpty) {
+      return path;
+    }
+    if (points.length < 4) {
+      path.moveTo(points.first.dx, points.first.dy);
+      for (var i = 1; i < points.length; i++) {
+        path.lineTo(points[i].dx, points[i].dy);
+      }
+      path.close();
+      return path;
+    }
+
+    path.moveTo(points.first.dx, points.first.dy);
+    for (var i = 1; i < points.length - 1; i++) {
+      final current = points[i];
+      final next = points[i + 1];
+      final mid = Offset(
+        (current.dx + next.dx) / 2,
+        (current.dy + next.dy) / 2,
+      );
+      path.quadraticBezierTo(current.dx, current.dy, mid.dx, mid.dy);
+    }
+    path.lineTo(points.last.dx, points.last.dy);
+    path.close();
+    return path;
+  }
+
+  List<Offset> _ellipseArc({
+    required Offset center,
+    required double rx,
+    required double ry,
+    required double startAngle,
+    required double sweepAngle,
+    required int steps,
+  }) {
+    final points = <Offset>[];
+    for (var i = 0; i <= steps; i++) {
+      final t = startAngle + sweepAngle * (i / steps);
+      points.add(
+        Offset(
+          center.dx + rx * math.cos(t),
+          center.dy + ry * math.sin(t),
+        ),
+      );
+    }
+    return points;
+  }
+
+  Offset _nearestPoint(List<Offset> candidates, Offset target) {
+    var best = candidates.first;
+    var bestDistance = (best - target).distance;
+    for (final candidate in candidates) {
+      final distance = (candidate - target).distance;
+      if (distance < bestDistance) {
+        best = candidate;
+        bestDistance = distance;
+      }
+    }
+    return best;
+  }
+
+  List<Offset> _dedupe(List<Offset> points) {
+    if (points.length < 3) {
+      return points;
+    }
+    final result = <Offset>[points.first];
+    for (var i = 1; i < points.length; i++) {
+      if ((points[i] - result.last).distance > 0.006) {
+        result.add(points[i]);
+      }
+    }
+    return result;
+  }
+}

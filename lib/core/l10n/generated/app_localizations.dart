@@ -1,0 +1,1154 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_en.dart';
+import 'app_localizations_zh.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'generated/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations? of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('zh'),
+    Locale('zh', 'TW')
+  ];
+
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Photo Coach'**
+  String get appTitle;
+
+  /// No description provided for @cameraPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera permission is required to use this app.'**
+  String get cameraPermissionRequired;
+
+  /// No description provided for @grantPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant Permission'**
+  String get grantPermission;
+
+  /// No description provided for @noCameraFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No camera found on this device.'**
+  String get noCameraFound;
+
+  /// No description provided for @initializingCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing camera...'**
+  String get initializingCamera;
+
+  /// No description provided for @cameraError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to start camera.'**
+  String get cameraError;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @overlayRuleOfThirds.
+  ///
+  /// In en, this message translates to:
+  /// **'Rule of Thirds'**
+  String get overlayRuleOfThirds;
+
+  /// No description provided for @overlayGoldenRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Golden Ratio'**
+  String get overlayGoldenRatio;
+
+  /// No description provided for @overlayCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Center'**
+  String get overlayCenter;
+
+  /// No description provided for @overlayDiagonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagonal'**
+  String get overlayDiagonal;
+
+  /// No description provided for @overlayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Composition'**
+  String get overlayLabel;
+
+  /// No description provided for @toggleOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle overlay'**
+  String get toggleOverlay;
+
+  /// No description provided for @cycleOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle overlay'**
+  String get cycleOverlay;
+
+  /// No description provided for @homeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a reference photo, get camera settings and framing guides.'**
+  String get homeSubtitle;
+
+  /// No description provided for @uploadReferenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze Reference Photo'**
+  String get uploadReferenceTitle;
+
+  /// No description provided for @uploadReferenceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a portrait post or inspiration image. We\'ll analyze composition and generate a shooting frame.'**
+  String get uploadReferenceSubtitle;
+
+  /// No description provided for @openCameraTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Camera'**
+  String get openCameraTitle;
+
+  /// No description provided for @openCameraSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free shooting mode with composition overlays.'**
+  String get openCameraSubtitle;
+
+  /// No description provided for @pickFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get pickFromGallery;
+
+  /// No description provided for @pickFromCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Reference Photo'**
+  String get pickFromCamera;
+
+  /// No description provided for @uploadPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a photo you want to recreate, e.g. portrait post or lifestyle shot.'**
+  String get uploadPrompt;
+
+  /// No description provided for @analyzingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing image...'**
+  String get analyzingImage;
+
+  /// No description provided for @analysisFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Image analysis failed. Please try another photo.'**
+  String get analysisFailed;
+
+  /// No description provided for @analysisResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis Result'**
+  String get analysisResultTitle;
+
+  /// No description provided for @detectedScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected scene: {scene}'**
+  String detectedScene(String scene);
+
+  /// No description provided for @recommendedFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended frame'**
+  String get recommendedFrame;
+
+  /// No description provided for @recommendedComposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Composition'**
+  String get recommendedComposition;
+
+  /// No description provided for @framingGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Framing'**
+  String get framingGuidance;
+
+  /// No description provided for @exposureGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure'**
+  String get exposureGuidance;
+
+  /// No description provided for @distanceGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get distanceGuidance;
+
+  /// No description provided for @angleGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle'**
+  String get angleGuidance;
+
+  /// No description provided for @chooseFrameTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose post frame'**
+  String get chooseFrameTemplate;
+
+  /// No description provided for @startGuidedShoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Guided Shoot'**
+  String get startGuidedShoot;
+
+  /// No description provided for @guidedShootTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided Shoot'**
+  String get guidedShootTitle;
+
+  /// No description provided for @noReferenceLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'No reference analysis loaded.'**
+  String get noReferenceLoaded;
+
+  /// No description provided for @toggleFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle frame'**
+  String get toggleFrame;
+
+  /// No description provided for @cycleFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Cycle frame'**
+  String get cycleFrame;
+
+  /// No description provided for @framePortraitPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait Post (4:5)'**
+  String get framePortraitPost;
+
+  /// No description provided for @frameStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Story (9:16)'**
+  String get frameStory;
+
+  /// No description provided for @frameSquarePost.
+  ///
+  /// In en, this message translates to:
+  /// **'Square Post (1:1)'**
+  String get frameSquarePost;
+
+  /// No description provided for @frameLandscapePost.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape (16:9)'**
+  String get frameLandscapePost;
+
+  /// No description provided for @frameClassicPortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic Portrait (3:4)'**
+  String get frameClassicPortrait;
+
+  /// No description provided for @scenePortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get scenePortrait;
+
+  /// No description provided for @sceneLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get sceneLandscape;
+
+  /// No description provided for @sceneSquare.
+  ///
+  /// In en, this message translates to:
+  /// **'Square social post'**
+  String get sceneSquare;
+
+  /// No description provided for @sceneLifestyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifestyle'**
+  String get sceneLifestyle;
+
+  /// No description provided for @hintFramingLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Place subject on the left third'**
+  String get hintFramingLeft;
+
+  /// No description provided for @hintFramingRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Place subject on the right third'**
+  String get hintFramingRight;
+
+  /// No description provided for @hintFramingHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep subject in the upper area of the frame'**
+  String get hintFramingHigh;
+
+  /// No description provided for @hintFramingLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep subject in the lower area of the frame'**
+  String get hintFramingLow;
+
+  /// No description provided for @hintFramingCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Center the subject in the frame'**
+  String get hintFramingCenter;
+
+  /// No description provided for @hintExposureBrighten.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase exposure slightly (+EV)'**
+  String get hintExposureBrighten;
+
+  /// No description provided for @hintExposureDarken.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease exposure slightly (-EV)'**
+  String get hintExposureDarken;
+
+  /// No description provided for @hintExposureBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure looks balanced'**
+  String get hintExposureBalanced;
+
+  /// No description provided for @hintDistanceCloser.
+  ///
+  /// In en, this message translates to:
+  /// **'Move closer to match subject size'**
+  String get hintDistanceCloser;
+
+  /// No description provided for @hintDistanceFurther.
+  ///
+  /// In en, this message translates to:
+  /// **'Step back for more headroom'**
+  String get hintDistanceFurther;
+
+  /// No description provided for @hintDistanceGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance looks good'**
+  String get hintDistanceGood;
+
+  /// No description provided for @hintAngleLower.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower angle about 8-12°'**
+  String get hintAngleLower;
+
+  /// No description provided for @hintAngleHigher.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise angle about 8-12°'**
+  String get hintAngleHigher;
+
+  /// No description provided for @hintAngleLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep camera level'**
+  String get hintAngleLevel;
+
+  /// No description provided for @cameraModePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'PHOTO'**
+  String get cameraModePhoto;
+
+  /// No description provided for @cameraModeGuided.
+  ///
+  /// In en, this message translates to:
+  /// **'GUIDED'**
+  String get cameraModeGuided;
+
+  /// No description provided for @captureFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to capture photo.'**
+  String get captureFailed;
+
+  /// No description provided for @photoPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get photoPreview;
+
+  /// No description provided for @galleryPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get galleryPreview;
+
+  /// No description provided for @keepShooting.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Shooting'**
+  String get keepShooting;
+
+  /// No description provided for @openGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Gallery'**
+  String get openGallery;
+
+  /// No description provided for @exposureLock.
+  ///
+  /// In en, this message translates to:
+  /// **'AE/AF Lock'**
+  String get exposureLock;
+
+  /// No description provided for @timerOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer'**
+  String get timerOff;
+
+  /// No description provided for @timer3s.
+  ///
+  /// In en, this message translates to:
+  /// **'3s'**
+  String get timer3s;
+
+  /// No description provided for @timer10s.
+  ///
+  /// In en, this message translates to:
+  /// **'10s'**
+  String get timer10s;
+
+  /// No description provided for @aeAfLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'AE/AF LOCK'**
+  String get aeAfLocked;
+
+  /// No description provided for @burstCapturing.
+  ///
+  /// In en, this message translates to:
+  /// **'Burst · {count}'**
+  String burstCapturing(int count);
+
+  /// No description provided for @burstReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Burst {current} of {total}'**
+  String burstReviewTitle(int current, int total);
+
+  /// No description provided for @burstHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold shutter for burst mode'**
+  String get burstHint;
+
+  /// No description provided for @arPlaneDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Plane ×{count}'**
+  String arPlaneDetected(int count);
+
+  /// No description provided for @arPlaneSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding plane'**
+  String get arPlaneSearching;
+
+  /// No description provided for @arUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'AR unavailable'**
+  String get arUnavailable;
+
+  /// No description provided for @arUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'AR unsupported'**
+  String get arUnsupported;
+
+  /// No description provided for @sceneStable.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene locked'**
+  String get sceneStable;
+
+  /// No description provided for @sceneChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene changed'**
+  String get sceneChanged;
+
+  /// No description provided for @sceneMonitoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Watching scene'**
+  String get sceneMonitoring;
+
+  /// No description provided for @sceneIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene idle'**
+  String get sceneIdle;
+
+  /// No description provided for @selectSceneType.
+  ///
+  /// In en, this message translates to:
+  /// **'What is in this photo?'**
+  String get selectSceneType;
+
+  /// No description provided for @selectSceneTypeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choosing a scene helps the analyzer focus on the right subject and framing.'**
+  String get selectSceneTypeHint;
+
+  /// No description provided for @sceneTypeAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto detect'**
+  String get sceneTypeAuto;
+
+  /// No description provided for @sceneTypePortrait.
+  ///
+  /// In en, this message translates to:
+  /// **'Portrait'**
+  String get sceneTypePortrait;
+
+  /// No description provided for @sceneTypeLandscape.
+  ///
+  /// In en, this message translates to:
+  /// **'Landscape'**
+  String get sceneTypeLandscape;
+
+  /// No description provided for @sceneTypeLifestyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifestyle'**
+  String get sceneTypeLifestyle;
+
+  /// No description provided for @sceneTypeSquare.
+  ///
+  /// In en, this message translates to:
+  /// **'Square post'**
+  String get sceneTypeSquare;
+
+  /// No description provided for @sceneTypeGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group photo'**
+  String get sceneTypeGroup;
+
+  /// No description provided for @sceneTypeProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get sceneTypeProduct;
+
+  /// No description provided for @userSelectedScene.
+  ///
+  /// In en, this message translates to:
+  /// **'Your scene choice'**
+  String get userSelectedScene;
+
+  /// No description provided for @analysisDetectedSceneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected scene'**
+  String get analysisDetectedSceneLabel;
+
+  /// No description provided for @subjectShapeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject frame'**
+  String get subjectShapeTitle;
+
+  /// No description provided for @subjectShapeHuman.
+  ///
+  /// In en, this message translates to:
+  /// **'Human silhouette (from reference)'**
+  String get subjectShapeHuman;
+
+  /// No description provided for @basicGuidanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera guidance'**
+  String get basicGuidanceTitle;
+
+  /// No description provided for @deepAnalysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep analysis'**
+  String get deepAnalysisTitle;
+
+  /// No description provided for @deepAnalysisSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device lighting, composition and mood breakdown'**
+  String get deepAnalysisSubtitle;
+
+  /// No description provided for @insightColorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Color tone'**
+  String get insightColorTitle;
+
+  /// No description provided for @insightLightingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighting'**
+  String get insightLightingTitle;
+
+  /// No description provided for @insightBalanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Composition balance'**
+  String get insightBalanceTitle;
+
+  /// No description provided for @insightMoodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood'**
+  String get insightMoodTitle;
+
+  /// No description provided for @insightDepthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth of field'**
+  String get insightDepthTitle;
+
+  /// No description provided for @insightConfidenceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence'**
+  String get insightConfidenceTitle;
+
+  /// No description provided for @insightConfidenceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String insightConfidenceValue(int percent);
+
+  /// No description provided for @insightDetailedTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed tips'**
+  String get insightDetailedTipsTitle;
+
+  /// No description provided for @aiAgentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This MVP uses on-device analysis. For richer feedback (pose, styling, story), a cloud vision AI agent can be plugged in later via PhotoAnalysisAgent.'**
+  String get aiAgentNote;
+
+  /// No description provided for @aiAgentNoteMl.
+  ///
+  /// In en, this message translates to:
+  /// **'Phase 3 ML Kit runs fully on-device (face, pose, scene labels). No cloud API is used.'**
+  String get aiAgentNoteMl;
+
+  /// No description provided for @mlAnalysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device ML'**
+  String get mlAnalysisTitle;
+
+  /// No description provided for @mlFaceDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} face(s) detected'**
+  String mlFaceDetected(int count);
+
+  /// No description provided for @mlPoseDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Body pose detected'**
+  String get mlPoseDetected;
+
+  /// No description provided for @mlInferenceMs.
+  ///
+  /// In en, this message translates to:
+  /// **'Inference {ms} ms'**
+  String mlInferenceMs(int ms);
+
+  /// No description provided for @mlAestheticScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Aesthetic score {score}'**
+  String mlAestheticScore(String score);
+
+  /// No description provided for @mlAnalysisSourceMlKit.
+  ///
+  /// In en, this message translates to:
+  /// **'ML Kit (on-device)'**
+  String get mlAnalysisSourceMlKit;
+
+  /// No description provided for @mlAnalysisSourceFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Heuristic fallback'**
+  String get mlAnalysisSourceFallback;
+
+  /// No description provided for @mlTipFaceDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'ML detected a face — framing aligned to facial bounds'**
+  String get mlTipFaceDetected;
+
+  /// No description provided for @mlTipPoseDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'ML detected body pose — head/shoulder/torso guides refined'**
+  String get mlTipPoseDetected;
+
+  /// No description provided for @mlTipHighAesthetic.
+  ///
+  /// In en, this message translates to:
+  /// **'ML labels suggest strong visual appeal in this reference'**
+  String get mlTipHighAesthetic;
+
+  /// No description provided for @insightColorWarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm tones'**
+  String get insightColorWarm;
+
+  /// No description provided for @insightColorCool.
+  ///
+  /// In en, this message translates to:
+  /// **'Cool tones'**
+  String get insightColorCool;
+
+  /// No description provided for @insightColorNeutral.
+  ///
+  /// In en, this message translates to:
+  /// **'Neutral tones'**
+  String get insightColorNeutral;
+
+  /// No description provided for @insightLightingTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-lit scene'**
+  String get insightLightingTop;
+
+  /// No description provided for @insightLightingBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom-weighted light'**
+  String get insightLightingBottom;
+
+  /// No description provided for @insightLightingBacklit.
+  ///
+  /// In en, this message translates to:
+  /// **'Backlit — add fill light'**
+  String get insightLightingBacklit;
+
+  /// No description provided for @insightLightingEven.
+  ///
+  /// In en, this message translates to:
+  /// **'Even lighting'**
+  String get insightLightingEven;
+
+  /// No description provided for @insightBalanceCentered.
+  ///
+  /// In en, this message translates to:
+  /// **'Centered composition'**
+  String get insightBalanceCentered;
+
+  /// No description provided for @insightBalanceLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject weighted left'**
+  String get insightBalanceLeft;
+
+  /// No description provided for @insightBalanceRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject weighted right'**
+  String get insightBalanceRight;
+
+  /// No description provided for @insightBalanceDynamic.
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamic off-center balance'**
+  String get insightBalanceDynamic;
+
+  /// No description provided for @insightMoodDramatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Dramatic mood'**
+  String get insightMoodDramatic;
+
+  /// No description provided for @insightMoodBrightWarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright & warm'**
+  String get insightMoodBrightWarm;
+
+  /// No description provided for @insightMoodSoft.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft & low contrast'**
+  String get insightMoodSoft;
+
+  /// No description provided for @insightMoodNatural.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural everyday mood'**
+  String get insightMoodNatural;
+
+  /// No description provided for @insightDepthShallow.
+  ///
+  /// In en, this message translates to:
+  /// **'Shallow depth — blurred background likely'**
+  String get insightDepthShallow;
+
+  /// No description provided for @insightDepthDeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep focus — more background detail'**
+  String get insightDepthDeep;
+
+  /// No description provided for @insightDepthModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate depth of field'**
+  String get insightDepthModerate;
+
+  /// No description provided for @insightTipPortraitHeadroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave headroom above the subject for portrait posts'**
+  String get insightTipPortraitHeadroom;
+
+  /// No description provided for @insightTipPortraitCropTight.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference crop is tight — avoid cutting forehead or chin'**
+  String get insightTipPortraitCropTight;
+
+  /// No description provided for @insightTipLandscapeHorizon.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep horizon near upper or lower third, not center'**
+  String get insightTipLandscapeHorizon;
+
+  /// No description provided for @insightTipLandscapeForeground.
+  ///
+  /// In en, this message translates to:
+  /// **'Include foreground interest for depth'**
+  String get insightTipLandscapeForeground;
+
+  /// No description provided for @insightTipProductCleanBg.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a clean background to isolate the product'**
+  String get insightTipProductCleanBg;
+
+  /// No description provided for @insightTipRaiseExposure.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene is dark — raise exposure slightly'**
+  String get insightTipRaiseExposure;
+
+  /// No description provided for @insightTipLowerExposure.
+  ///
+  /// In en, this message translates to:
+  /// **'Scene is bright — lower exposure to protect highlights'**
+  String get insightTipLowerExposure;
+
+  /// No description provided for @insightTipIncreaseContrast.
+  ///
+  /// In en, this message translates to:
+  /// **'Low contrast — add separation between subject and background'**
+  String get insightTipIncreaseContrast;
+
+  /// No description provided for @insightTipBacklitFill.
+  ///
+  /// In en, this message translates to:
+  /// **'Backlit subject — use reflector or increase exposure on face'**
+  String get insightTipBacklitFill;
+
+  /// No description provided for @insightTipKeepNegativeSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Preserve negative space on the opposite side of the subject'**
+  String get insightTipKeepNegativeSpace;
+
+  /// No description provided for @insightTipWarmSkinTones.
+  ///
+  /// In en, this message translates to:
+  /// **'Cool cast detected — warm white balance for skin'**
+  String get insightTipWarmSkinTones;
+
+  /// No description provided for @proMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get proMode;
+
+  /// No description provided for @aspectRatio4x3.
+  ///
+  /// In en, this message translates to:
+  /// **'4:3'**
+  String get aspectRatio4x3;
+
+  /// No description provided for @aspectRatio16x9.
+  ///
+  /// In en, this message translates to:
+  /// **'16:9'**
+  String get aspectRatio16x9;
+
+  /// No description provided for @aspectRatio1x1.
+  ///
+  /// In en, this message translates to:
+  /// **'1:1'**
+  String get aspectRatio1x1;
+
+  /// No description provided for @aspectRatioFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get aspectRatioFull;
+
+  /// No description provided for @histogram.
+  ///
+  /// In en, this message translates to:
+  /// **'Histogram'**
+  String get histogram;
+
+  /// No description provided for @frontMirror.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirror'**
+  String get frontMirror;
+
+  /// No description provided for @exposureEvLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'EV {value}'**
+  String exposureEvLabel(String value);
+
+  /// No description provided for @bodyPartHead.
+  ///
+  /// In en, this message translates to:
+  /// **'Head'**
+  String get bodyPartHead;
+
+  /// No description provided for @bodyPartShoulders.
+  ///
+  /// In en, this message translates to:
+  /// **'Shoulders'**
+  String get bodyPartShoulders;
+
+  /// No description provided for @bodyPartTorso.
+  ///
+  /// In en, this message translates to:
+  /// **'Torso'**
+  String get bodyPartTorso;
+
+  /// No description provided for @bodyPartHips.
+  ///
+  /// In en, this message translates to:
+  /// **'Hips'**
+  String get bodyPartHips;
+
+  /// No description provided for @alignmentGuideTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pose alignment'**
+  String get alignmentGuideTitle;
+
+  /// No description provided for @alignmentStepHead.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Place eyes in the yellow head oval'**
+  String get alignmentStepHead;
+
+  /// No description provided for @alignmentStepShoulders.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Match shoulder width to cyan frame'**
+  String get alignmentStepShoulders;
+
+  /// No description provided for @alignmentStepTorso.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Align torso inside white frame'**
+  String get alignmentStepTorso;
+
+  /// No description provided for @alignmentStepHips.
+  ///
+  /// In en, this message translates to:
+  /// **'4. Match hip position to purple frame'**
+  String get alignmentStepHips;
+
+  /// No description provided for @toggleGhostOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle reference ghost'**
+  String get toggleGhostOverlay;
+
+  /// No description provided for @toggleBodyPartGuides.
+  ///
+  /// In en, this message translates to:
+  /// **'Toggle body-part guides'**
+  String get toggleBodyPartGuides;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['en', 'zh'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'zh':
+      {
+        switch (locale.countryCode) {
+          case 'TW':
+            return AppLocalizationsZhTw();
+        }
+        break;
+      }
+  }
+
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+    case 'zh':
+      return AppLocalizationsZh();
+  }
+
+  throw FlutterError(
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
+}
