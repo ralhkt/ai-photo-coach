@@ -635,7 +635,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingBody1 =>
-      'Upload a reference or open the camera — all analysis runs locally on your phone.';
+      'Pick a sample photo or open the camera — all analysis runs locally on your phone.';
 
   @override
   String get onboardingTitle2 => 'Real-time framing guides';
@@ -712,7 +712,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sessionTipTryGuided =>
-      'Try guided mode with a reference photo for tighter framing.';
+      'Try guided mode with a sample photo for tighter framing.';
 
   @override
   String get sessionTipStrongComposition =>

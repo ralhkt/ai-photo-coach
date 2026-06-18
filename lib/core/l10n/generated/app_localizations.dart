@@ -1260,7 +1260,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingBody1.
   ///
   /// In en, this message translates to:
-  /// **'Upload a reference or open the camera — all analysis runs locally on your phone.'**
+  /// **'Pick a sample photo or open the camera — all analysis runs locally on your phone.'**
   String get onboardingBody1;
 
   /// No description provided for @onboardingTitle2.
@@ -1404,7 +1404,7 @@ abstract class AppLocalizations {
   /// No description provided for @sessionTipTryGuided.
   ///
   /// In en, this message translates to:
-  /// **'Try guided mode with a reference photo for tighter framing.'**
+  /// **'Try guided mode with a sample photo for tighter framing.'**
   String get sessionTipTryGuided;
 
   /// No description provided for @sessionTipStrongComposition.

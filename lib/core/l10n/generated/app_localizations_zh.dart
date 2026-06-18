@@ -606,7 +606,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onboardingTitle1 => '你的本机摄影教练';
 
   @override
-  String get onboardingBody1 => '上传参考图或开启相机，所有分析都在手机本机完成。';
+  String get onboardingBody1 => '选择内置范例相片或开启相机，所有分析都在手机本机完成。';
 
   @override
   String get onboardingTitle2 => '实时取景引导';
@@ -678,7 +678,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sessionTipGuidedPractice => '引导模式用得很好，继续对齐参考构图。';
 
   @override
-  String get sessionTipTryGuided => '试试上传参考图并使用引导拍摄，构图会更精准。';
+  String get sessionTipTryGuided => '试试选择范例相片并使用引导拍摄，构图会更精准。';
 
   @override
   String get sessionTipStrongComposition => '构图表现不错，可维持这种取景方式。';
@@ -1448,7 +1448,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get onboardingTitle1 => '你的本機攝影教練';
 
   @override
-  String get onboardingBody1 => '上傳參考圖或開啟相機，所有分析都在手機本機完成。';
+  String get onboardingBody1 => '選擇內建範例相片或開啟相機，所有分析都在手機本機完成。';
 
   @override
   String get onboardingTitle2 => '即時取景引導';
@@ -1520,7 +1520,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get sessionTipGuidedPractice => '引導模式用得很好，繼續對齊參考構圖。';
 
   @override
-  String get sessionTipTryGuided => '試試上傳參考圖並使用引導拍攝，構圖會更精準。';
+  String get sessionTipTryGuided => '試試選擇範例相片並使用引導拍攝，構圖會更精準。';
 
   @override
   String get sessionTipStrongComposition => '構圖表現不錯，可維持這種取景方式。';
