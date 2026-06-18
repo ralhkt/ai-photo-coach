@@ -53,14 +53,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSubtitle =>
-      'Upload a reference photo, get camera settings and framing guides.';
+      'Pick a sample photo or open the camera for guided framing.';
 
   @override
-  String get uploadReferenceTitle => 'Analyze Reference Photo';
+  String get uploadReferenceTitle => 'Choose Example Photo';
 
   @override
   String get uploadReferenceSubtitle =>
-      'Upload a portrait post or inspiration image. We\'ll analyze composition and generate a shooting frame.';
+      'Pick one of our sample photos to practice guided shooting. Camera upload is not required.';
 
   @override
   String get openCameraTitle => 'Open Camera';
@@ -77,7 +77,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uploadPrompt =>
-      'Pick a photo you want to recreate, e.g. portrait post or lifestyle shot.';
+      'Tap a sample below — we\'ll analyze it and generate a human framing guide.';
+
+  @override
+  String get referenceSamplePortraitClassic => 'Classic Portrait';
+
+  @override
+  String get referenceSamplePortraitClassicHint =>
+      '4:5 portrait post, centered subject';
+
+  @override
+  String get referenceSamplePortraitStory => 'Story Portrait';
+
+  @override
+  String get referenceSamplePortraitStoryHint => '9:16 vertical story framing';
+
+  @override
+  String get referenceSamplePortraitSquare => 'Square Portrait';
+
+  @override
+  String get referenceSamplePortraitSquareHint => '1:1 social post composition';
+
+  @override
+  String get referenceSampleLifestyleCafe => 'Lifestyle Café';
+
+  @override
+  String get referenceSampleLifestyleCafeHint =>
+      'Environmental portrait with offset subject';
 
   @override
   String get analyzingImage => 'Analyzing image...';

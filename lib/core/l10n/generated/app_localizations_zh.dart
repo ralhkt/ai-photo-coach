@@ -51,13 +51,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cycleOverlay => '切換構圖模式';
 
   @override
-  String get homeSubtitle => '上载参考相片，自动分析并生成拍摄 frame 与相机参数建议。';
+  String get homeSubtitle => '选择内置范例相片，或开启相机进行引导拍摄。';
 
   @override
-  String get uploadReferenceTitle => '分析参考相片';
+  String get uploadReferenceTitle => '选择范例相片';
 
   @override
-  String get uploadReferenceSubtitle => '上载人像 post 或参考图，系统会分析构图并生成拍摄框线。';
+  String get uploadReferenceSubtitle => '从内置范例中选择一张练习引导拍摄，无需自行拍照或上传。';
 
   @override
   String get openCameraTitle => '开启相机';
@@ -72,7 +72,31 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pickFromCamera => '拍摄参考图';
 
   @override
-  String get uploadPrompt => '选择你想模仿的相片，例如人像 post 或生活照。';
+  String get uploadPrompt => '点选下方范例，系统会分析并生成人形拍摄引导框。';
+
+  @override
+  String get referenceSamplePortraitClassic => '经典人像';
+
+  @override
+  String get referenceSamplePortraitClassicHint => '4:5 人像 post，主体居中';
+
+  @override
+  String get referenceSamplePortraitStory => 'Story 人像';
+
+  @override
+  String get referenceSamplePortraitStoryHint => '9:16 直式 story 构图';
+
+  @override
+  String get referenceSamplePortraitSquare => '方形人像';
+
+  @override
+  String get referenceSamplePortraitSquareHint => '1:1 社交媒体构图';
+
+  @override
+  String get referenceSampleLifestyleCafe => '咖啡厅生活照';
+
+  @override
+  String get referenceSampleLifestyleCafeHint => '环境人像，主体偏侧';
 
   @override
   String get analyzingImage => '正在分析图片...';
@@ -869,13 +893,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get cycleOverlay => '切換構圖模式';
 
   @override
-  String get homeSubtitle => '上載參考相片，自動分析並生成拍攝 frame 與相機參數建議。';
+  String get homeSubtitle => '選擇內建範例相片，或開啟相機進行引導拍攝。';
 
   @override
-  String get uploadReferenceTitle => '分析參考相片';
+  String get uploadReferenceTitle => '選擇範例相片';
 
   @override
-  String get uploadReferenceSubtitle => '上載人像 post 或參考圖，系統會分析構圖並生成拍攝框線。';
+  String get uploadReferenceSubtitle => '從內建範例中選擇一張練習引導拍攝，無需自行拍照或上傳。';
 
   @override
   String get openCameraTitle => '開啟相機';
@@ -890,7 +914,31 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get pickFromCamera => '拍攝參考圖';
 
   @override
-  String get uploadPrompt => '選擇你想模仿的相片，例如人像 post 或生活照。';
+  String get uploadPrompt => '點選下方範例，系統會分析並生成人形拍攝引導框。';
+
+  @override
+  String get referenceSamplePortraitClassic => '經典人像';
+
+  @override
+  String get referenceSamplePortraitClassicHint => '4:5 人像 post，主體置中';
+
+  @override
+  String get referenceSamplePortraitStory => 'Story 人像';
+
+  @override
+  String get referenceSamplePortraitStoryHint => '9:16 直式 story 構圖';
+
+  @override
+  String get referenceSamplePortraitSquare => '方形人像';
+
+  @override
+  String get referenceSamplePortraitSquareHint => '1:1 社群媒體構圖';
+
+  @override
+  String get referenceSampleLifestyleCafe => '咖啡廳生活照';
+
+  @override
+  String get referenceSampleLifestyleCafeHint => '環境人像，主體偏側';
 
   @override
   String get analyzingImage => '正在分析圖片...';

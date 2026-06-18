@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import '../../../models/body_part_guides.dart';
+
 /// Builds smooth, anatomical human outline points and paths for guided framing.
 class HumanFrameShapeBuilder {
   /// Normalized template points (0–1 within subject rect) with elliptical head.
@@ -53,33 +55,30 @@ class HumanFrameShapeBuilder {
         .toList();
   }
 
-  /// Blends a raw edge contour with an anatomical template (stronger at head).
-  List<Offset> refineContour(List<Offset> raw, Rect subjectRect) {
-    if (raw.length < 8) {
-      return mapTemplateToSubject(subjectRect);
-    }
+  /// Maps the anatomical template onto pose / body-part guides (stable silhouette).
+  List<Offset> silhouetteFromBodyGuides(BodyPartGuides guides) {
+    return mapTemplateToSubject(_subjectBoundsFromGuides(guides));
+  }
 
-    final template = mapTemplateToSubject(subjectRect);
-    final sorted = [...raw]..sort((a, b) => a.dy.compareTo(b.dy));
-    final topY = sorted.first.dy;
-    final bottomY = sorted.last.dy;
-    final height = (bottomY - topY).clamp(0.12, 1.0);
-    final headCutoff = topY + height * 0.28;
+  Rect _subjectBoundsFromGuides(BodyPartGuides guides) {
+    final left = math.min(
+      math.min(guides.shoulders.left, guides.hips.left),
+      guides.torso.left,
+    );
+    final right = math.max(
+      math.max(guides.shoulders.right, guides.hips.right),
+      guides.torso.right,
+    );
+    final top = guides.headOval.top - guides.headOval.height * 0.18;
+    final bottom = guides.hips.bottom + guides.hips.height * 0.22;
+    final padX = (right - left) * 0.06;
 
-    final nearestTemplate = <Offset>[];
-    for (final point in raw) {
-      final templatePoint = _nearestPoint(template, point);
-      final headBlend = point.dy <= headCutoff
-          ? 0.72
-          : (1 - ((point.dy - headCutoff) / (height * 0.25)).clamp(0.0, 1.0)) *
-              0.35;
-      nearestTemplate.add(Offset(
-        point.dx * (1 - headBlend) + templatePoint.dx * headBlend,
-        point.dy * (1 - headBlend) + templatePoint.dy * headBlend,
-      ));
-    }
-
-    return _dedupe(nearestTemplate);
+    return Rect.fromLTRB(
+      (left - padX).clamp(0.0, 1.0),
+      top.clamp(0.0, 1.0),
+      (right + padX).clamp(0.0, 1.0),
+      bottom.clamp(0.0, 1.0),
+    );
   }
 
   Path pointsToSmoothPath(List<Offset> points) {

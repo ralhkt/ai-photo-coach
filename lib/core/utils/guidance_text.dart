@@ -22,6 +22,29 @@ String sceneTypeLabel(AppLocalizations l10n, String sceneTypeKey) {
   };
 }
 
+String referenceSampleTitle(AppLocalizations l10n, String titleKey) {
+  return switch (titleKey) {
+    'referenceSamplePortraitClassic' => l10n.referenceSamplePortraitClassic,
+    'referenceSamplePortraitStory' => l10n.referenceSamplePortraitStory,
+    'referenceSamplePortraitSquare' => l10n.referenceSamplePortraitSquare,
+    'referenceSampleLifestyleCafe' => l10n.referenceSampleLifestyleCafe,
+    _ => titleKey,
+  };
+}
+
+String referenceSampleSubtitle(AppLocalizations l10n, String subtitleKey) {
+  return switch (subtitleKey) {
+    'referenceSamplePortraitClassicHint' =>
+      l10n.referenceSamplePortraitClassicHint,
+    'referenceSamplePortraitStoryHint' => l10n.referenceSamplePortraitStoryHint,
+    'referenceSamplePortraitSquareHint' =>
+      l10n.referenceSamplePortraitSquareHint,
+    'referenceSampleLifestyleCafeHint' =>
+      l10n.referenceSampleLifestyleCafeHint,
+    _ => subtitleKey,
+  };
+}
+
 String sceneTypeChoiceLabel(AppLocalizations l10n, SceneType scene) {
   return switch (scene) {
     SceneType.auto => l10n.sceneTypeAuto,

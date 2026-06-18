@@ -16,7 +16,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('攝影師'), findsOneWidget);
-    expect(find.text('分析參考相片'), findsOneWidget);
+    expect(find.text('選擇範例相片'), findsOneWidget);
     expect(find.text('開啟相機'), findsOneWidget);
   });
 }

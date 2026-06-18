@@ -186,19 +186,19 @@ abstract class AppLocalizations {
   /// No description provided for @homeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Upload a reference photo, get camera settings and framing guides.'**
+  /// **'Pick a sample photo or open the camera for guided framing.'**
   String get homeSubtitle;
 
   /// No description provided for @uploadReferenceTitle.
   ///
   /// In en, this message translates to:
-  /// **'Analyze Reference Photo'**
+  /// **'Choose Example Photo'**
   String get uploadReferenceTitle;
 
   /// No description provided for @uploadReferenceSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Upload a portrait post or inspiration image. We\'ll analyze composition and generate a shooting frame.'**
+  /// **'Pick one of our sample photos to practice guided shooting. Camera upload is not required.'**
   String get uploadReferenceSubtitle;
 
   /// No description provided for @openCameraTitle.
@@ -228,8 +228,56 @@ abstract class AppLocalizations {
   /// No description provided for @uploadPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Pick a photo you want to recreate, e.g. portrait post or lifestyle shot.'**
+  /// **'Tap a sample below — we\'ll analyze it and generate a human framing guide.'**
   String get uploadPrompt;
+
+  /// No description provided for @referenceSamplePortraitClassic.
+  ///
+  /// In en, this message translates to:
+  /// **'Classic Portrait'**
+  String get referenceSamplePortraitClassic;
+
+  /// No description provided for @referenceSamplePortraitClassicHint.
+  ///
+  /// In en, this message translates to:
+  /// **'4:5 portrait post, centered subject'**
+  String get referenceSamplePortraitClassicHint;
+
+  /// No description provided for @referenceSamplePortraitStory.
+  ///
+  /// In en, this message translates to:
+  /// **'Story Portrait'**
+  String get referenceSamplePortraitStory;
+
+  /// No description provided for @referenceSamplePortraitStoryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'9:16 vertical story framing'**
+  String get referenceSamplePortraitStoryHint;
+
+  /// No description provided for @referenceSamplePortraitSquare.
+  ///
+  /// In en, this message translates to:
+  /// **'Square Portrait'**
+  String get referenceSamplePortraitSquare;
+
+  /// No description provided for @referenceSamplePortraitSquareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'1:1 social post composition'**
+  String get referenceSamplePortraitSquareHint;
+
+  /// No description provided for @referenceSampleLifestyleCafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifestyle Café'**
+  String get referenceSampleLifestyleCafe;
+
+  /// No description provided for @referenceSampleLifestyleCafeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Environmental portrait with offset subject'**
+  String get referenceSampleLifestyleCafeHint;
 
   /// No description provided for @analyzingImage.
   ///

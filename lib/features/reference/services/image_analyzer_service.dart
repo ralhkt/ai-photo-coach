@@ -19,6 +19,7 @@ import '../../ml/services/vision_analyzer.dart';
 import 'body_part_guide_service.dart';
 import 'deep_analysis_service.dart';
 import 'photo_analysis_agent.dart';
+import 'human_frame_shape_builder.dart';
 import 'subject_silhouette_service.dart';
 
 class ImageAnalyzerService {
@@ -98,22 +99,22 @@ class ImageAnalyzerService {
       prefersHuman = true;
     }
 
+    BodyPartGuides? bodyPartGuides = mlDetection.bodyPartGuides;
+
     List<Offset>? silhouettePoints;
     var subjectShape = SubjectShapeKind.rectangle;
     if (prefersHuman) {
-      silhouettePoints =
-          _silhouetteService.extractPortraitSilhouette(decoded, subjectRect);
-      subjectShape = SubjectShapeKind.humanSilhouette;
-    }
-
-    BodyPartGuides? bodyPartGuides;
-    if (mlDetection.bodyPartGuides != null) {
-      bodyPartGuides = mlDetection.bodyPartGuides;
-    } else if (subjectShape == SubjectShapeKind.humanSilhouette) {
-      bodyPartGuides = _bodyPartGuideService.derive(
+      bodyPartGuides ??= _bodyPartGuideService.derive(
         subjectRect: subjectRect,
-        silhouettePoints: silhouettePoints,
+        silhouettePoints: HumanFrameShapeBuilder()
+            .mapTemplateToSubject(subjectRect),
       );
+      silhouettePoints = _silhouetteService.extractPortraitSilhouette(
+        decoded,
+        subjectRect,
+        bodyPartGuides: bodyPartGuides,
+      );
+      subjectShape = SubjectShapeKind.humanSilhouette;
     }
 
     final guidance = _buildGuidance(
