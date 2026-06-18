@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/settings/app_settings_provider.dart';
 import '../../../core/utils/guidance_text.dart';
+import '../../../core/utils/viewport_letterbox.dart';
 import '../../../core/utils/prompt_strength.dart';
 import '../../../models/shoot_session.dart';
 import '../../../models/photo_frame_template.dart';
@@ -95,10 +96,14 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                 constraints.maxWidth,
                 constraints.maxHeight,
               );
+              final cropViewport = ViewportLetterbox.cropViewportSize(
+                guidance.frameTemplate.aspectRatio,
+                viewport,
+              );
               final frameSpec = ref.read(frameGeneratorProvider).generate(
                     template: guidance.frameTemplate,
                     guidance: guidance,
-                    viewportSize: viewport,
+                    viewportSize: cropViewport,
                   );
 
               return CameraModeScope(
@@ -144,7 +149,7 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                       ),
                     ],
                   ),
-                  overlay: Stack(
+                  croppedOverlay: Stack(
                     fit: StackFit.expand,
                     children: [
                       CompositionOverlay(
@@ -164,6 +169,11 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                         bodyPartLabels: partLabels,
                         showBodyParts: bodyPartsVisible,
                       ),
+                    ],
+                  ),
+                  overlay: Stack(
+                    fit: StackFit.expand,
+                    children: [
                       Positioned(
                         right: 12,
                         top: 120,

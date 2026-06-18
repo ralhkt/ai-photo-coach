@@ -9,6 +9,7 @@ import '../../../../core/settings/app_settings_provider.dart';
 import '../../../../core/utils/guidance_text.dart';
 import '../../../../models/camera_aspect_ratio.dart';
 import '../../../../models/camera_timer_duration.dart';
+import '../../../../models/photo_frame_template.dart';
 import '../../../../models/captured_photo.dart';
 import '../../../../models/shoot_session.dart';
 import '../../../session/presentation/session_flow.dart';
@@ -17,6 +18,7 @@ import '../../../ar/presentation/ar_horizon_overlay.dart';
 import '../../../ar/presentation/ar_status_chip.dart';
 import '../../../ar/providers/ar_providers.dart';
 import '../../../ar/services/ar_platform_service.dart';
+import '../../../reference/providers/reference_providers.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
@@ -33,6 +35,7 @@ import '../photo_review_screen.dart';
 import 'ios_aspect_ratio_overlay.dart';
 import 'ios_camera_bottom_bar.dart';
 import 'ios_camera_preview.dart';
+import 'letterboxed_camera_viewport.dart';
 import 'ios_camera_top_bar.dart';
 import 'ios_countdown_overlay.dart';
 import 'ios_histogram_overlay.dart';
@@ -42,6 +45,7 @@ class IosCameraScaffold extends ConsumerStatefulWidget {
     super.key,
     required this.controller,
     required this.overlay,
+    this.croppedOverlay,
     this.guidanceChip,
     this.modeLabel,
     this.centerTopLabel,
@@ -57,6 +61,7 @@ class IosCameraScaffold extends ConsumerStatefulWidget {
 
   final CameraController controller;
   final Widget overlay;
+  final Widget? croppedOverlay;
   final Widget? guidanceChip;
   final bool enablePhase2;
   final ShootSessionMode? shootSessionMode;
@@ -80,6 +85,26 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   bool _usesGuidanceFrameLetterbox(bool hasLiveAdvice) =>
       widget.shootSessionMode == ShootSessionMode.guided ||
       (_isFreeShootMode && hasLiveAdvice);
+
+  double? _resolveCropAspectRatio(WidgetRef ref, bool hasLiveAdvice) {
+    if (widget.shootSessionMode == ShootSessionMode.guided) {
+      return ref
+          .watch(referenceAnalysisProvider)
+          .value
+          ?.guidance
+          .frameTemplate
+          .aspectRatio;
+    }
+    if (_isFreeShootMode && hasLiveAdvice) {
+      return ref
+          .watch(liveSceneAnalysisProvider)
+          .value
+          ?.guidance
+          .frameTemplate
+          .aspectRatio;
+    }
+    return ref.watch(cameraAspectRatioProvider).targetRatio;
+  }
 
   Future<void> _analyzeLiveScene(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
@@ -257,6 +282,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
         !coachDismissed &&
         !hasAdvice &&
         !isLiveAnalyzing;
+    final cropAspectRatio = _resolveCropAspectRatio(ref, hasAdvice);
 
     return Column(
       children: [
@@ -264,9 +290,20 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              IosCameraPreview(controller: widget.controller),
-              if (!_usesGuidanceFrameLetterbox(hasAdvice))
-                IosAspectRatioOverlay(aspectRatio: aspectRatio),
+              LetterboxedCameraViewport(
+                cropAspectRatio: cropAspectRatio,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    IosCameraPreview(controller: widget.controller),
+                    if (!_usesGuidanceFrameLetterbox(hasAdvice))
+                      IosAspectRatioOverlay(aspectRatio: aspectRatio),
+                    if (widget.croppedOverlay != null) widget.croppedOverlay!,
+                    if (_isFreeShootMode && hasAdvice)
+                      const LiveSceneGuidanceFrameOverlay(),
+                  ],
+                ),
+              ),
               widget.overlay,
               if (widget.enablePhase2)
                 ArHorizonOverlay(visible: arOverlayVisible),
@@ -323,8 +360,6 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                 ),
               if (showHistogram)
                 IosHistogramOverlay(brightness: 0.45 + manualEv * 0.1),
-              if (_isFreeShootMode && hasAdvice)
-                const LiveSceneGuidanceFrameOverlay(),
               if (_isFreeShootMode)
                 liveAnalysis.maybeWhen(
                   data: (analysis) {

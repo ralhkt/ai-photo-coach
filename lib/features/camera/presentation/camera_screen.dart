@@ -60,13 +60,13 @@ class CameraScreen extends ConsumerWidget {
               onGridTap: () {
                 ref.read(overlayVisibleProvider.notifier).state = !overlayVisible;
               },
+              croppedOverlay: CompositionOverlay(
+                type: overlayType,
+                visible: overlayVisible,
+              ),
               overlay: Stack(
                 fit: StackFit.expand,
                 children: [
-                  CompositionOverlay(
-                    type: overlayType,
-                    visible: overlayVisible,
-                  ),
                   if (overlayVisible)
                     Positioned(
                       left: 0,

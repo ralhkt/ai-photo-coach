@@ -41,8 +41,6 @@ class _AspectRatioLetterboxPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    ViewportLetterbox.paintMaskOutsideCrop(canvas, size, cropRect);
-
     final borderPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.55)
       ..style = PaintingStyle.stroke

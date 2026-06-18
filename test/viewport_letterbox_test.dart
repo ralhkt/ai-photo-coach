@@ -26,4 +26,16 @@ void main() {
     expect(crop.top, closeTo((viewport.height - crop.height) / 2, 0.01));
     expect(crop.left, greaterThan(0));
   });
+
+  test('cropViewportSize matches crop rect dimensions', () {
+    const viewport = Size(390, 844);
+    const ratio = 4 / 5;
+
+    final crop = ViewportLetterbox.cropRectForRatio(ratio, viewport);
+    final cropViewport = ViewportLetterbox.cropViewportSize(ratio, viewport);
+
+    expect(cropViewport.width, crop.width);
+    expect(cropViewport.height, crop.height);
+    expect(cropViewport.width / cropViewport.height, closeTo(ratio, 0.001));
+  });
 }

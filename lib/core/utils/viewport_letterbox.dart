@@ -20,21 +20,9 @@ class ViewportLetterbox {
     return Rect.fromLTWH(0, top, viewport.width, height);
   }
 
-  /// Paints a solid mask over everything outside [crop].
-  static void paintMaskOutsideCrop(
-    Canvas canvas,
-    Size size,
-    Rect crop, {
-    Color color = Colors.black,
-  }) {
-    final full = Offset.zero & size;
-    canvas.drawPath(
-      Path.combine(
-        PathOperation.difference,
-        Path()..addRect(full),
-        Path()..addRect(crop),
-      ),
-      Paint()..color = color,
-    );
+  /// Viewport size of the centered crop for [targetRatio] inside [viewport].
+  static Size cropViewportSize(double targetRatio, Size viewport) {
+    final crop = cropRectForRatio(targetRatio, viewport);
+    return Size(crop.width, crop.height);
   }
 }
