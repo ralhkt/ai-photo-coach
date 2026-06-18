@@ -198,7 +198,7 @@ abstract class AppLocalizations {
   /// No description provided for @uploadReferenceSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pick one of our sample photos to practice guided shooting. Camera upload is not required.'**
+  /// **'Pick a built-in sample or upload your own photo from the gallery.'**
   String get uploadReferenceSubtitle;
 
   /// No description provided for @openCameraTitle.
@@ -228,8 +228,20 @@ abstract class AppLocalizations {
   /// No description provided for @uploadPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Tap a sample below — we\'ll analyze it and generate a human framing guide.'**
+  /// **'Samples are ready to practice. You can also upload your own photo below.'**
   String get uploadPrompt;
+
+  /// No description provided for @referenceSamplesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in samples'**
+  String get referenceSamplesSection;
+
+  /// No description provided for @uploadOwnPhotoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Or upload your photo'**
+  String get uploadOwnPhotoSection;
 
   /// No description provided for @referenceSamplePortraitClassic.
   ///
@@ -812,6 +824,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On-device ML'**
   String get mlAnalysisTitle;
+
+  /// No description provided for @mlSourceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis source'**
+  String get mlSourceLabel;
+
+  /// No description provided for @mlFaceCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Face detection'**
+  String get mlFaceCountLabel;
+
+  /// No description provided for @mlPerformanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get mlPerformanceLabel;
 
   /// No description provided for @mlFaceDetected.
   ///

@@ -32,6 +32,7 @@ class LiveSceneGuidanceFrameOverlay extends ConsumerWidget {
                 constraints.maxWidth,
                 constraints.maxHeight,
               ),
+              viewportIsCropArea: true,
             );
 
         return PhotoFrameOverlay(

@@ -36,10 +36,10 @@ class _CameraModeScopeState extends ConsumerState<CameraModeScope> {
   }
 
   @override
-  void dispose() {
-    final notifier = ref.read(cameraModeSettingsProvider.notifier);
-    Future.microtask(notifier.persistActiveFromProviders);
-    super.dispose();
+  void deactivate() {
+    // 【修復】在 widget 仍掛載時持久化設定，避免 dispose 後再用 ref
+    ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
+    super.deactivate();
   }
 
   @override

@@ -476,13 +476,19 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
     ref.invalidate(liveSceneAnalysisProvider);
 
     if (widget.shootSessionMode == null) {
-      Navigator.of(context).maybePop();
+      ref.invalidate(cameraControllerProvider);
+      if (context.mounted) {
+        Navigator.of(context).maybePop();
+      }
       return;
     }
 
     final shouldPop = await confirmEndSessionOnClose(context, ref);
     if (shouldPop && context.mounted) {
-      Navigator.of(context).maybePop();
+      ref.invalidate(cameraControllerProvider);
+      if (context.mounted) {
+        Navigator.of(context).maybePop();
+      }
     }
   }
 

@@ -53,9 +53,20 @@ class FrameGeneratorService {
     required PhotoFrameTemplate template,
     required CameraGuidance guidance,
     required Size viewportSize,
+    bool viewportIsCropArea = false,
+    double? sourceAspectRatio,
+    double? targetAspectRatio,
   }) {
-    final cropRect = _cropRectForTemplate(template, viewportSize);
-    final subjectZone = _mapSubjectZone(guidance.subjectTargetRect, cropRect);
+    final cropRect = viewportIsCropArea
+        ? (Offset.zero & viewportSize)
+        : _cropRectForTemplate(template, viewportSize);
+    final subjectZone = _mapImageNormalizedRect(
+      guidance.subjectTargetRect,
+      cropRect,
+      sourceAspectRatio: sourceAspectRatio,
+      targetAspectRatio: targetAspectRatio,
+      remapForCropArea: viewportIsCropArea,
+    );
     final safePadding = switch (template) {
       PhotoFrameTemplate.story => 0.06,
       PhotoFrameTemplate.portraitPost => 0.05,
@@ -64,40 +75,40 @@ class FrameGeneratorService {
       PhotoFrameTemplate.classicPortrait => 0.05,
     };
 
-    final normalizedSubject = guidance.subjectTargetRect;
-
     Path? silhouettePath;
     if (guidance.subjectShape == SubjectShapeKind.humanSilhouette) {
       final points = guidance.subjectSilhouettePoints;
       if (points != null && points.length >= 8) {
         silhouettePath = _mapSilhouettePath(
           points,
-          normalizedSubject,
-          subjectZone,
+          cropRect,
+          sourceAspectRatio: sourceAspectRatio,
+          targetAspectRatio: targetAspectRatio,
+          remapForCropArea: viewportIsCropArea,
         );
       } else {
-        final templatePoints =
-            _shapeBuilder.mapTemplateToSubject(normalizedSubject);
-        final mappedPoints = templatePoints
-            .map(
-              (point) => _mapNormalizedPoint(
-                point,
-                normalizedSubject,
-                subjectZone,
-              ),
-            )
-            .toList();
-        silhouettePath = _shapeBuilder.pointsToSmoothPath(mappedPoints);
+        final templatePoints = _shapeBuilder.mapTemplateToSubject(
+          guidance.subjectTargetRect,
+        );
+        silhouettePath = _mapSilhouettePath(
+          templatePoints,
+          cropRect,
+          sourceAspectRatio: sourceAspectRatio,
+          targetAspectRatio: targetAspectRatio,
+          remapForCropArea: viewportIsCropArea,
+        );
       }
     }
 
     MappedBodyPartGuides? bodyParts;
     Offset? headCenter;
     if (guidance.bodyPartGuides != null) {
-      bodyParts = _mapBodyPartGuides(
+      bodyParts = _mapBodyPartGuidesToCrop(
         guidance.bodyPartGuides!,
-        normalizedSubject,
-        subjectZone,
+        cropRect,
+        sourceAspectRatio: sourceAspectRatio,
+        targetAspectRatio: targetAspectRatio,
+        remapForCropArea: viewportIsCropArea,
       );
       headCenter = bodyParts.headOval.center;
     }
@@ -114,52 +125,105 @@ class FrameGeneratorService {
     );
   }
 
-  MappedBodyPartGuides _mapBodyPartGuides(
+  MappedBodyPartGuides _mapBodyPartGuidesToCrop(
     BodyPartGuides guides,
-    Rect normalizedSubject,
-    Rect mappedSubject,
-  ) {
+    Rect cropRect, {
+    double? sourceAspectRatio,
+    double? targetAspectRatio,
+    bool remapForCropArea = false,
+  }) {
     return MappedBodyPartGuides(
-      headOval: _mapNormalizedRect(guides.headOval, normalizedSubject, mappedSubject),
-      shoulders:
-          _mapNormalizedRect(guides.shoulders, normalizedSubject, mappedSubject),
-      torso: _mapNormalizedRect(guides.torso, normalizedSubject, mappedSubject),
-      hips: _mapNormalizedRect(guides.hips, normalizedSubject, mappedSubject),
+      headOval: _mapImageNormalizedRect(
+        guides.headOval,
+        cropRect,
+        sourceAspectRatio: sourceAspectRatio,
+        targetAspectRatio: targetAspectRatio,
+        remapForCropArea: remapForCropArea,
+      ),
+      shoulders: _mapImageNormalizedRect(
+        guides.shoulders,
+        cropRect,
+        sourceAspectRatio: sourceAspectRatio,
+        targetAspectRatio: targetAspectRatio,
+        remapForCropArea: remapForCropArea,
+      ),
+      torso: _mapImageNormalizedRect(
+        guides.torso,
+        cropRect,
+        sourceAspectRatio: sourceAspectRatio,
+        targetAspectRatio: targetAspectRatio,
+        remapForCropArea: remapForCropArea,
+      ),
+      hips: _mapImageNormalizedRect(
+        guides.hips,
+        cropRect,
+        sourceAspectRatio: sourceAspectRatio,
+        targetAspectRatio: targetAspectRatio,
+        remapForCropArea: remapForCropArea,
+      ),
     );
   }
 
-  Rect _mapNormalizedRect(
-    Rect normalized,
-    Rect normalizedSubject,
-    Rect mappedSubject,
-  ) {
-    final topLeft =
-        _mapNormalizedPoint(normalized.topLeft, normalizedSubject, mappedSubject);
-    final bottomRight = _mapNormalizedPoint(
-      normalized.bottomRight,
-      normalizedSubject,
-      mappedSubject,
+  Rect _mapImageNormalizedRect(
+    Rect imageRect,
+    Rect cropRect, {
+    double? sourceAspectRatio,
+    double? targetAspectRatio,
+    bool remapForCropArea = false,
+  }) {
+    return Rect.fromPoints(
+      _mapImageNormalizedPoint(
+        imageRect.topLeft,
+        cropRect,
+        sourceAspectRatio: sourceAspectRatio,
+        targetAspectRatio: targetAspectRatio,
+        remapForCropArea: remapForCropArea,
+      ),
+      _mapImageNormalizedPoint(
+        imageRect.bottomRight,
+        cropRect,
+        sourceAspectRatio: sourceAspectRatio,
+        targetAspectRatio: targetAspectRatio,
+        remapForCropArea: remapForCropArea,
+      ),
     );
-    return Rect.fromPoints(topLeft, bottomRight);
   }
 
-  Offset _mapNormalizedPoint(
-    Offset point,
-    Rect normalizedSubject,
-    Rect mappedSubject,
-  ) {
-    final relX = normalizedSubject.width == 0
-        ? 0.5
-        : ((point.dx - normalizedSubject.left) / normalizedSubject.width)
-            .clamp(0.0, 1.2);
-    final relY = normalizedSubject.height == 0
-        ? 0.5
-        : ((point.dy - normalizedSubject.top) / normalizedSubject.height)
-            .clamp(0.0, 1.2);
-
+  Offset _mapImageNormalizedPoint(
+    Offset imagePoint,
+    Rect cropRect, {
+    double? sourceAspectRatio,
+    double? targetAspectRatio,
+    bool remapForCropArea = false,
+  }) {
+    final normalized = _remapSourcePoint(
+      imagePoint,
+      sourceAspectRatio: sourceAspectRatio,
+      targetAspectRatio: targetAspectRatio,
+      remapForCropArea: remapForCropArea,
+    );
     return Offset(
-      mappedSubject.left + relX * mappedSubject.width,
-      mappedSubject.top + relY * mappedSubject.height,
+      cropRect.left + normalized.dx * cropRect.width,
+      cropRect.top + normalized.dy * cropRect.height,
+    );
+  }
+
+  Offset _remapSourcePoint(
+    Offset imagePoint, {
+    double? sourceAspectRatio,
+    double? targetAspectRatio,
+    bool remapForCropArea = false,
+  }) {
+    if (!remapForCropArea ||
+        sourceAspectRatio == null ||
+        targetAspectRatio == null) {
+      return imagePoint;
+    }
+
+    return ViewportLetterbox.mapNormalizedPointCoverFit(
+      imagePoint,
+      sourceAspectRatio: sourceAspectRatio,
+      targetAspectRatio: targetAspectRatio,
     );
   }
 
@@ -170,24 +234,22 @@ class FrameGeneratorService {
     );
   }
 
-  Rect _mapSubjectZone(Rect normalizedSubject, Rect cropRect) {
-    return Rect.fromLTWH(
-      cropRect.left + normalizedSubject.left * cropRect.width,
-      cropRect.top + normalizedSubject.top * cropRect.height,
-      normalizedSubject.width * cropRect.width,
-      normalizedSubject.height * cropRect.height,
-    );
-  }
-
   Path _mapSilhouettePath(
-    List<Offset> normalizedPoints,
-    Rect normalizedSubject,
-    Rect mappedSubject,
-  ) {
-    final mappedPoints = normalizedPoints
+    List<Offset> imageNormalizedPoints,
+    Rect cropRect, {
+    double? sourceAspectRatio,
+    double? targetAspectRatio,
+    bool remapForCropArea = false,
+  }) {
+    final mappedPoints = imageNormalizedPoints
         .map(
-          (point) =>
-              _mapNormalizedPoint(point, normalizedSubject, mappedSubject),
+          (point) => _mapImageNormalizedPoint(
+            point,
+            cropRect,
+            sourceAspectRatio: sourceAspectRatio,
+            targetAspectRatio: targetAspectRatio,
+            remapForCropArea: remapForCropArea,
+          ),
         )
         .toList();
     return _shapeBuilder.pointsToSmoothPath(mappedPoints);

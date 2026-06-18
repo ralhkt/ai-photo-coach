@@ -30,6 +30,9 @@ class CameraSessionLifecycle extends ConsumerStatefulWidget {
 }
 
 class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle> {
+  /// 【修復】僅在首次進入相機頁時建立 session，前後鏡頭切換不重置已拍照片
+  bool _sessionStarted = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,20 +43,22 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
   void didUpdateWidget(covariant CameraSessionLifecycle oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.controller, widget.controller)) {
-      Future.microtask(_restartServices);
+      // 【修復】只重啟 AR / 場景監測，不呼叫 startSession 清空 captures
+      Future.microtask(_restartHardwareServices);
     }
   }
 
   @override
   void dispose() {
-    Future.microtask(_stopServices);
+    _stopServices();
     super.dispose();
   }
 
   Future<void> _startServices() async {
     final mode = widget.shootSessionMode;
-    if (mode != null) {
+    if (mode != null && !_sessionStarted) {
       ref.read(shootSessionProvider.notifier).startSession(mode);
+      _sessionStarted = true;
       await ref.read(batterySessionTrackerProvider).begin();
     }
     await ref.read(cameraFrameMonitorProvider).start(widget.controller);
@@ -65,9 +70,17 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
     }
   }
 
-  Future<void> _restartServices() async {
-    await _stopServices();
-    await _startServices();
+  Future<void> _restartHardwareServices() async {
+    await ref.read(cameraFrameMonitorProvider).stop();
+    if (widget.enableAr) {
+      await ref.read(arSessionProvider.notifier).stop();
+    }
+    await ref.read(cameraFrameMonitorProvider).start(widget.controller);
+
+    final powerSave = ref.read(powerSaveEnabledProvider);
+    if (widget.enableAr && !powerSave) {
+      await ref.read(arSessionProvider.notifier).start();
+    }
   }
 
   Future<void> _stopServices() async {

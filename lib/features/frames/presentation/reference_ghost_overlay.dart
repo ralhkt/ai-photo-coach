@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/viewport_letterbox.dart';
 import '../../reference/services/frame_generator_service.dart';
 
 /// Faint reference image inside the crop area to help match pose.
@@ -87,8 +88,17 @@ class _ReferenceGhostPainter extends CustomPainter {
       image.width.toDouble(),
       image.height.toDouble(),
     );
+    final imageAspect = image.width / image.height;
+    final dest = ViewportLetterbox.coverFitDestRect(
+      cropRect: cropRect,
+      imageAspectRatio: imageAspect,
+    );
     final paint = Paint()..color = Colors.white.withOpacity(opacity);
-    canvas.drawImageRect(image, src, cropRect, paint);
+
+    canvas.save();
+    canvas.clipRect(cropRect);
+    canvas.drawImageRect(image, src, dest, paint);
+    canvas.restore();
   }
 
   @override

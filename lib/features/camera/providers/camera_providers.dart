@@ -371,6 +371,10 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
 
     _burstTimer?.cancel();
     _burstTimer = Timer.periodic(const Duration(milliseconds: 220), (_) async {
+      // 【修復】上一張尚未完成時跳過 tick，避免 takePicture 重疊崩潰
+      if (ref.read(isCapturingProvider)) {
+        return;
+      }
       final photo = await capturePhoto(silent: true);
       if (photo == null) {
         return;

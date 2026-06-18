@@ -60,7 +60,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uploadReferenceSubtitle =>
-      'Pick one of our sample photos to practice guided shooting. Camera upload is not required.';
+      'Pick a built-in sample or upload your own photo from the gallery.';
 
   @override
   String get openCameraTitle => 'Open Camera';
@@ -77,7 +77,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uploadPrompt =>
-      'Tap a sample below — we\'ll analyze it and generate a human framing guide.';
+      'Samples are ready to practice. You can also upload your own photo below.';
+
+  @override
+  String get referenceSamplesSection => 'Built-in samples';
+
+  @override
+  String get uploadOwnPhotoSection => 'Or upload your photo';
 
   @override
   String get referenceSamplePortraitClassic => 'Classic Portrait';
@@ -386,6 +392,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mlAnalysisTitle => 'On-device ML';
+
+  @override
+  String get mlSourceLabel => 'Analysis source';
+
+  @override
+  String get mlFaceCountLabel => 'Face detection';
+
+  @override
+  String get mlPerformanceLabel => 'Performance';
 
   @override
   String mlFaceDetected(int count) {

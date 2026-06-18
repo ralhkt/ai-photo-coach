@@ -1,6 +1,6 @@
 import '../../../models/scene_type.dart';
 
-/// Bundled reference photo offered in the picker (no camera / gallery upload).
+/// Bundled reference photos offered alongside gallery upload in the picker.
 class ReferenceSample {
   const ReferenceSample({
     required this.id,

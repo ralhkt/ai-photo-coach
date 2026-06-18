@@ -57,7 +57,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get uploadReferenceTitle => '选择范例相片';
 
   @override
-  String get uploadReferenceSubtitle => '从内置范例中选择一张练习引导拍摄，无需自行拍照或上传。';
+  String get uploadReferenceSubtitle => '可选择内置范例，或从相册上传自己的相片。';
 
   @override
   String get openCameraTitle => '开启相机';
@@ -72,7 +72,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pickFromCamera => '拍摄参考图';
 
   @override
-  String get uploadPrompt => '点选下方范例，系统会分析并生成人形拍摄引导框。';
+  String get uploadPrompt => '先选范例快速练习，也可在下方上传自己的相片。';
+
+  @override
+  String get referenceSamplesSection => '内置范例';
+
+  @override
+  String get uploadOwnPhotoSection => '或上传自己的相片';
 
   @override
   String get referenceSamplePortraitClassic => '经典人像';
@@ -374,6 +380,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get mlAnalysisTitle => '本机 ML 分析';
+
+  @override
+  String get mlSourceLabel => '分析来源';
+
+  @override
+  String get mlFaceCountLabel => '人脸检测';
+
+  @override
+  String get mlPerformanceLabel => '效能指标';
 
   @override
   String mlFaceDetected(int count) {
@@ -899,7 +914,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get uploadReferenceTitle => '選擇範例相片';
 
   @override
-  String get uploadReferenceSubtitle => '從內建範例中選擇一張練習引導拍攝，無需自行拍照或上傳。';
+  String get uploadReferenceSubtitle => '可選擇內建範例，或從相簿上傳自己的相片。';
 
   @override
   String get openCameraTitle => '開啟相機';
@@ -914,7 +929,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get pickFromCamera => '拍攝參考圖';
 
   @override
-  String get uploadPrompt => '點選下方範例，系統會分析並生成人形拍攝引導框。';
+  String get uploadPrompt => '先選範例快速練習，也可在下方上傳自己的相片。';
+
+  @override
+  String get referenceSamplesSection => '內建範例';
+
+  @override
+  String get uploadOwnPhotoSection => '或上傳自己的相片';
 
   @override
   String get referenceSamplePortraitClassic => '經典人像';
@@ -1216,6 +1237,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get mlAnalysisTitle => '本機 ML 分析';
+
+  @override
+  String get mlSourceLabel => '分析來源';
+
+  @override
+  String get mlFaceCountLabel => '人臉偵測';
+
+  @override
+  String get mlPerformanceLabel => '效能指標';
 
   @override
   String mlFaceDetected(int count) {

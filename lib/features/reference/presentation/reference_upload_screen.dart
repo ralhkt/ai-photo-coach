@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/guidance_text.dart';
+import '../../../models/scene_type.dart';
 import '../data/reference_sample_catalog.dart';
 import '../providers/reference_providers.dart';
 import 'analysis_result_screen.dart';
@@ -17,48 +19,91 @@ class ReferenceUploadScreen extends ConsumerStatefulWidget {
 }
 
 class _ReferenceUploadScreenState extends ConsumerState<ReferenceUploadScreen> {
+  final _picker = ImagePicker();
   String? _activeSampleId;
+  bool _isPickingGallery = false;
+
+  Future<void> _runAnalysis(Uint8List bytes, SceneType sceneType) async {
+    final l10n = AppLocalizations.of(context)!;
+    ref.read(selectedSceneTypeProvider.notifier).state = sceneType;
+
+    await ref.read(referenceAnalysisProvider.notifier).analyze(
+          bytes,
+          userSceneType: sceneType,
+        );
+
+    if (!mounted) {
+      return;
+    }
+
+    final analysis = ref.read(referenceAnalysisProvider);
+    if (analysis.hasError) {
+      final detail = analysis.error?.toString();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            detail == null || detail.isEmpty
+                ? l10n.analysisFailed
+                : '${l10n.analysisFailed}\n$detail',
+          ),
+          action: SnackBarAction(
+            label: l10n.retry,
+            onPressed: () => _runAnalysis(bytes, sceneType),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (analysis.hasValue && analysis.value != null) {
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const AnalysisResultScreen(),
+        ),
+      );
+    }
+  }
 
   Future<void> _analyzeSample(ReferenceSample sample) async {
-    if (_activeSampleId != null) {
+    if (_activeSampleId != null || _isPickingGallery) {
       return;
     }
 
     setState(() => _activeSampleId = sample.id);
-    final l10n = AppLocalizations.of(context)!;
 
     try {
       final data = await rootBundle.load(sample.assetPath);
-      final bytes = data.buffer.asUint8List();
-      ref.read(selectedSceneTypeProvider.notifier).state = sample.sceneType;
-
-      await ref.read(referenceAnalysisProvider.notifier).analyze(
-            bytes,
-            userSceneType: sample.sceneType,
-          );
-
-      if (!mounted) {
-        return;
-      }
-
-      final analysis = ref.read(referenceAnalysisProvider);
-      if (analysis.hasError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.analysisFailed)),
-        );
-        return;
-      }
-
-      if (analysis.hasValue && analysis.value != null) {
-        await Navigator.of(context).push(
-          MaterialPageRoute<void>(
-            builder: (_) => const AnalysisResultScreen(),
-          ),
-        );
-      }
+      await _runAnalysis(data.buffer.asUint8List(), sample.sceneType);
     } finally {
       if (mounted) {
         setState(() => _activeSampleId = null);
+      }
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    if (_activeSampleId != null || _isPickingGallery) {
+      return;
+    }
+
+    setState(() => _isPickingGallery = true);
+
+    try {
+      final file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 2048,
+        imageQuality: 92,
+      );
+      if (!mounted || file == null) {
+        return;
+      }
+
+      final bytes = await file.readAsBytes();
+      final sceneType = ref.read(selectedSceneTypeProvider);
+      await _runAnalysis(bytes, sceneType);
+    } finally {
+      if (mounted) {
+        setState(() => _isPickingGallery = false);
       }
     }
   }
@@ -67,71 +112,132 @@ class _ReferenceUploadScreenState extends ConsumerState<ReferenceUploadScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final analysisState = ref.watch(referenceAnalysisProvider);
-    final isAnalyzing = analysisState.isLoading || _activeSampleId != null;
+    final selectedScene = ref.watch(selectedSceneTypeProvider);
+    final isAnalyzing = analysisState.isLoading ||
+        _activeSampleId != null ||
+        _isPickingGallery;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.uploadReferenceTitle)),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l10n.uploadReferenceSubtitle,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.white70,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.uploadPrompt,
-                style: const TextStyle(color: Colors.white38, fontSize: 13),
-              ),
-              const SizedBox(height: 20),
-              if (isAnalyzing) ...[
-                const Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                      ],
+        child: isAnalyzing
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(l10n.analyzingImage),
+                  ],
+                ),
+              )
+            : CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    sliver: SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            l10n.uploadReferenceSubtitle,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(color: Colors.white70),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.uploadPrompt,
+                            style: const TextStyle(
+                              color: Colors.white38,
+                              fontSize: 13,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.referenceSamplesSection,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Text(
-                  l10n.analyzingImage,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white70),
-                ),
-              ] else
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 14,
-                      crossAxisSpacing: 14,
-                      childAspectRatio: 0.72,
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 14,
+                        crossAxisSpacing: 14,
+                        childAspectRatio: 0.72,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final sample = referenceSampleCatalog[index];
+                          return _ReferenceSampleCard(
+                            sample: sample,
+                            title: referenceSampleTitle(l10n, sample.titleKey),
+                            subtitle: referenceSampleSubtitle(
+                              l10n,
+                              sample.subtitleKey,
+                            ),
+                            onTap: () => _analyzeSample(sample),
+                          );
+                        },
+                        childCount: referenceSampleCatalog.length,
+                      ),
                     ),
-                    itemCount: referenceSampleCatalog.length,
-                    itemBuilder: (context, index) {
-                      final sample = referenceSampleCatalog[index];
-                      return _ReferenceSampleCard(
-                        sample: sample,
-                        title: referenceSampleTitle(l10n, sample.titleKey),
-                        subtitle:
-                            referenceSampleSubtitle(l10n, sample.subtitleKey),
-                        onTap: () => _analyzeSample(sample),
-                      );
-                    },
                   ),
-                ),
-            ],
-          ),
-        ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                    sliver: SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            l10n.uploadOwnPhotoSection,
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            l10n.selectSceneTypeHint,
+                            style: const TextStyle(
+                              color: Colors.white38,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: SceneType.values.map((scene) {
+                              final isSelected = selectedScene == scene;
+                              return ChoiceChip(
+                                label: Text(sceneTypeChoiceLabel(l10n, scene)),
+                                selected: isSelected,
+                                onSelected: (_) {
+                                  ref
+                                      .read(selectedSceneTypeProvider.notifier)
+                                      .state = scene;
+                                },
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(height: 16),
+                          FilledButton.icon(
+                            onPressed: _pickFromGallery,
+                            icon: const Icon(Icons.photo_library_outlined),
+                            label: Text(l10n.pickFromGallery),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+                ],
+              ),
       ),
     );
   }

@@ -22,4 +22,17 @@ void main() {
     expect(path.getBounds().height, greaterThan(0.45));
     expect(path.getBounds().top, lessThan(guides.headOval.top + 0.05));
   });
+
+  test('template contour has no large jumps between consecutive points', () {
+    final builder = HumanFrameShapeBuilder();
+    final points = builder.templatePoints();
+
+    for (var i = 1; i < points.length; i++) {
+      expect(
+        (points[i] - points[i - 1]).distance,
+        lessThan(0.22),
+        reason: 'jump at index $i',
+      );
+    }
+  });
 }

@@ -6,6 +6,7 @@ import '../../../core/settings/app_settings_provider.dart';
 import '../../../core/utils/guidance_text.dart';
 import '../../../core/utils/coaching_guidance_helper.dart';
 import '../../../core/utils/prompt_strength.dart';
+import '../../../models/camera_aspect_ratio.dart';
 import '../../../models/shoot_session.dart';
 import '../../../models/photo_frame_template.dart';
 import '../../../models/subject_shape_kind.dart';
@@ -18,6 +19,8 @@ import '../../reference/providers/guided_frame_providers.dart';
 import '../../reference/providers/reference_providers.dart';
 import '../providers/camera_mode_settings_provider.dart';
 import '../providers/camera_providers.dart';
+import '../providers/camera_settings_provider.dart';
+import 'widgets/camera_error_view.dart';
 import 'widgets/camera_mode_scope.dart';
 import 'widgets/camera_session_lifecycle.dart';
 import 'widgets/ios_camera_scaffold.dart';
@@ -56,6 +59,7 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
     final overlayType = ref.watch(overlayTypeProvider);
     final ghostVisible = ref.watch(referenceGhostVisibleProvider);
     final bodyPartsVisible = ref.watch(bodyPartGuidesVisibleProvider);
+    final cameraAspectRatio = ref.watch(cameraAspectRatioProvider);
 
     if (analysis == null) {
       return Scaffold(
@@ -82,12 +86,19 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
             ],
           ),
         ),
-        error: (error, _) => Center(
-          child: Text('${l10n.cameraError}\n$error'),
+        error: (error, _) => CameraErrorView(
+          message: l10n.cameraError,
+          detail: error.toString(),
+          retryLabel: l10n.retry,
+          onRetry: () => ref.read(cameraControllerProvider.notifier).retry(),
         ),
         data: (controller) {
           if (controller == null || !controller.value.isInitialized) {
-            return Center(child: Text(l10n.noCameraFound));
+            return CameraErrorView(
+              message: l10n.noCameraFound,
+              retryLabel: l10n.retry,
+              onRetry: () => ref.read(cameraControllerProvider.notifier).retry(),
+            );
           }
 
           final coachingGuidance =
@@ -142,11 +153,16 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                         constraints.maxWidth,
                         constraints.maxHeight,
                       );
+                      final cropAspectRatio =
+                          cameraAspectRatio.displayCropRatio(viewport);
                       final frameSpec =
                           ref.read(frameGeneratorProvider).generate(
                                 template: coachingGuidance.frameTemplate,
                                 guidance: coachingGuidance,
                                 viewportSize: viewport,
+                                viewportIsCropArea: true,
+                                sourceAspectRatio: analysis.sourceAspectRatio,
+                                targetAspectRatio: cropAspectRatio,
                               );
 
                       return Stack(
@@ -209,6 +225,7 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                               ),
                             const SizedBox(height: 8),
                             _FrameCycleButton(
+                              tooltip: l10n.chooseFrameTemplate,
                               onTap: () {
                                 ref
                                     .read(referenceAnalysisProvider.notifier)
@@ -302,8 +319,8 @@ class _OverlayToggleButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          width: 40,
-          height: 40,
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
             color: active
                 ? const Color(0x55FFD60A)
@@ -321,17 +338,20 @@ class _OverlayToggleButton extends StatelessWidget {
 }
 
 class _FrameCycleButton extends StatelessWidget {
-  const _FrameCycleButton({required this.onTap});
+  const _FrameCycleButton({required this.onTap, required this.tooltip});
 
   final VoidCallback onTap;
+  final String tooltip;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Tooltip(
+      message: tooltip,
+      child: GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40,
-        height: 40,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.45),
           shape: BoxShape.circle,
@@ -341,6 +361,7 @@ class _FrameCycleButton extends StatelessWidget {
           color: Colors.white,
           size: 20,
         ),
+      ),
       ),
     );
   }

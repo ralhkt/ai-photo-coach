@@ -19,4 +19,26 @@ void main() {
     expect(find.text('選擇範例相片'), findsOneWidget);
     expect(find.text('開啟相機'), findsOneWidget);
   });
+
+  testWidgets('reference screen offers gallery upload', (tester) async {
+    SharedPreferences.setMockInitialValues({'onboarding_completed': true});
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: AiPhotoCoachApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('選擇範例相片'));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.text('從相簿選擇'),
+      120,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('從相簿選擇'), findsOneWidget);
+    expect(find.text('或上傳自己的相片'), findsOneWidget);
+  });
 }

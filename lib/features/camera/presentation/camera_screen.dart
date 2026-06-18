@@ -8,6 +8,7 @@ import '../../overlays/presentation/composition_overlay.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_mode_settings_provider.dart';
+import 'widgets/camera_error_view.dart';
 import 'widgets/camera_mode_scope.dart';
 import 'widgets/camera_session_lifecycle.dart';
 import 'widgets/ios_camera_scaffold.dart';
@@ -26,7 +27,7 @@ class CameraScreen extends ConsumerWidget {
       backgroundColor: Colors.black,
       body: cameraState.when(
         loading: () => _LoadingView(message: l10n.initializingCamera),
-        error: (error, _) => _ErrorView(
+        error: (error, _) => CameraErrorView(
           message: l10n.cameraError,
           detail: error.toString(),
           retryLabel: l10n.retry,
@@ -34,7 +35,7 @@ class CameraScreen extends ConsumerWidget {
         ),
         data: (controller) {
           if (controller == null) {
-            return _ErrorView(
+            return CameraErrorView(
               message: l10n.noCameraFound,
               retryLabel: l10n.retry,
               onRetry: () => ref.read(cameraControllerProvider.notifier).retry(),
@@ -161,47 +162,3 @@ class _LoadingView extends StatelessWidget {
   }
 }
 
-class _ErrorView extends StatelessWidget {
-  const _ErrorView({
-    required this.message,
-    required this.retryLabel,
-    required this.onRetry,
-    this.detail,
-  });
-
-  final String message;
-  final String? detail;
-  final String retryLabel;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.videocam_off_rounded, color: Colors.white54, size: 48),
-            const SizedBox(height: 16),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            if (detail != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                detail!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
-              ),
-            ],
-            const SizedBox(height: 20),
-            FilledButton(onPressed: onRetry, child: Text(retryLabel)),
-          ],
-        ),
-      ),
-    );
-  }
-}

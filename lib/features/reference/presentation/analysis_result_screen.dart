@@ -73,13 +73,13 @@ class AnalysisResultScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
                     _InfoTile(
                       icon: Icons.psychology_outlined,
-                      title: l10n.mlAnalysisTitle,
+                      title: l10n.mlSourceLabel,
                       value: mlAnalysisSourceLabel(l10n, ml.source),
                     ),
                     if (ml.faceCount > 0)
                       _InfoTile(
                         icon: Icons.face_retouching_natural_outlined,
-                        title: l10n.mlAnalysisTitle,
+                        title: l10n.mlFaceCountLabel,
                         value: l10n.mlFaceDetected(ml.faceCount),
                       ),
                     if (ml.hasPose)
@@ -90,12 +90,10 @@ class AnalysisResultScreen extends ConsumerWidget {
                       ),
                     _InfoTile(
                       icon: Icons.speed_outlined,
-                      title: l10n.mlInferenceMs(ml.inferenceMs),
+                      title: l10n.mlPerformanceLabel,
                       value: ml.aestheticScore == null
                           ? l10n.mlInferenceMs(ml.inferenceMs)
-                          : l10n.mlAestheticScore(
-                              ml.aestheticScore!.toStringAsFixed(2),
-                            ),
+                          : '${l10n.mlInferenceMs(ml.inferenceMs)} · ${l10n.mlAestheticScore(ml.aestheticScore!.toStringAsFixed(2))}',
                     ),
                   ],
                   const SizedBox(height: 8),

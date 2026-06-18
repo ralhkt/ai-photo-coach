@@ -38,4 +38,38 @@ void main() {
     expect(cropViewport.height, crop.height);
     expect(cropViewport.width / cropViewport.height, closeTo(ratio, 0.001));
   });
+
+  test('cover-fit mapping keeps image center aligned across aspect ratios', () {
+    const sourceCenter = Offset(0.5, 0.5);
+
+    final widerTarget = ViewportLetterbox.mapNormalizedPointCoverFit(
+      sourceCenter,
+      sourceAspectRatio: 0.8,
+      targetAspectRatio: 9 / 16,
+    );
+    final tallerTarget = ViewportLetterbox.mapNormalizedPointCoverFit(
+      sourceCenter,
+      sourceAspectRatio: 9 / 16,
+      targetAspectRatio: 0.8,
+    );
+
+    expect(widerTarget.dx, closeTo(0.5, 0.01));
+    expect(widerTarget.dy, closeTo(0.5, 0.01));
+    expect(tallerTarget.dx, closeTo(0.5, 0.01));
+    expect(tallerTarget.dy, closeTo(0.5, 0.01));
+  });
+
+  test('cover-fit dest rect preserves image aspect inside crop', () {
+    const crop = Rect.fromLTWH(0, 40, 390, 520);
+
+    final dest = ViewportLetterbox.coverFitDestRect(
+      cropRect: crop,
+      imageAspectRatio: 0.8,
+    );
+
+    expect(dest.width / dest.height, closeTo(0.8, 0.001));
+    expect(crop.contains(dest.center), isTrue);
+    expect(dest.width, greaterThanOrEqualTo(crop.width));
+    expect(dest.height, greaterThanOrEqualTo(crop.height));
+  });
 }
