@@ -302,5 +302,21 @@
   "diagnosticsOverBudget": "above MVP budget",
   "diagnosticsRunBenchmark": "Run quick-score benchmark",
   "diagnosticsRunningBenchmark": "Running benchmark...",
-  "diagnosticsClearSamples": "Clear timing samples"
+  "diagnosticsClearSamples": "Clear timing samples",
+  "liveSceneAnalyze": "Analyze scene",
+  "liveSceneAnalyzing": "Analyzing scene...",
+  "liveSceneAdviceTitle": "AI shooting advice",
+  "liveSceneAnalyzeFailed": "Could not analyze the current scene. Try again.",
+  "liveSceneReanalyze": "Analyze again",
+  "liveSceneOverlayApplied": "Composition overlay: {overlay}",
+  "@liveSceneOverlayApplied": {
+    "placeholders": { "overlay": { "type": "String" } }
+  },
+  "liveSceneMlSummary": "{source} · aesthetic {score}",
+  "@liveSceneMlSummary": {
+    "placeholders": {
+      "source": { "type": "String" },
+      "score": { "type": "String" }
+    }
+  }
 }

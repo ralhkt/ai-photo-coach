@@ -17,6 +17,10 @@ class IosCameraTopBar extends StatelessWidget {
     this.hdrEnabled = false,
     this.aeAfLocked = false,
     this.aeAfLockLabel,
+    this.showAiAnalyzeButton = false,
+    this.aiAnalyzing = false,
+    this.onAiAnalyzeTap,
+    this.aiAnalyzeTooltip,
   });
 
   final FlashMode flashMode;
@@ -32,6 +36,10 @@ class IosCameraTopBar extends StatelessWidget {
   final bool hdrEnabled;
   final bool aeAfLocked;
   final String? aeAfLockLabel;
+  final bool showAiAnalyzeButton;
+  final bool aiAnalyzing;
+  final VoidCallback? onAiAnalyzeTap;
+  final String? aiAnalyzeTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +92,12 @@ class IosCameraTopBar extends StatelessWidget {
                       icon: Icons.crop_free_rounded,
                       onTap: onFrameTap,
                       isActive: frameEnabled,
+                    )
+                  else if (showAiAnalyzeButton)
+                    _AiAnalyzeButton(
+                      analyzing: aiAnalyzing,
+                      onTap: onAiAnalyzeTap,
+                      tooltip: aiAnalyzeTooltip,
                     )
                   else
                     const SizedBox(width: 44),
@@ -195,6 +209,44 @@ class _FlashButton extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _AiAnalyzeButton extends StatelessWidget {
+  const _AiAnalyzeButton({
+    required this.analyzing,
+    required this.onTap,
+    this.tooltip,
+  });
+
+  final bool analyzing;
+  final VoidCallback? onTap;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: IconButton(
+        onPressed: analyzing ? null : onTap,
+        tooltip: tooltip,
+        icon: analyzing
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFFFFD60A),
+                ),
+              )
+            : const Icon(
+                Icons.auto_awesome_rounded,
+                color: Color(0xFFFFD60A),
+                size: 22,
+              ),
       ),
     );
   }

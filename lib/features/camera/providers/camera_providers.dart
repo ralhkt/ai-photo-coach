@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
@@ -246,6 +247,31 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     if (indicator != null) {
       ref.read(focusIndicatorProvider.notifier).state =
           indicator.copyWith(isLocked: false, visible: false);
+    }
+  }
+
+  /// Captures the current preview frame for on-device analysis (no gallery save).
+  Future<Uint8List?> capturePreviewFrame() async {
+    final controller = state.value;
+    if (controller == null ||
+        !controller.value.isInitialized ||
+        controller.value.isTakingPicture) {
+      return null;
+    }
+
+    final savedFlash = ref.read(flashModeProvider);
+    ref.read(isCapturingProvider.notifier).state = true;
+    try {
+      await controller.setFlashMode(FlashMode.off);
+      final file = await controller.takePicture();
+      return await file.readAsBytes();
+    } catch (_) {
+      return null;
+    } finally {
+      try {
+        await controller.setFlashMode(savedFlash);
+      } catch (_) {}
+      ref.read(isCapturingProvider.notifier).state = false;
     }
   }
 

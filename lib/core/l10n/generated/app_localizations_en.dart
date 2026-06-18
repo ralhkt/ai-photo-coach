@@ -794,4 +794,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get diagnosticsClearSamples => 'Clear timing samples';
+
+  @override
+  String get liveSceneAnalyze => 'Analyze scene';
+
+  @override
+  String get liveSceneAnalyzing => 'Analyzing scene...';
+
+  @override
+  String get liveSceneAdviceTitle => 'AI shooting advice';
+
+  @override
+  String get liveSceneAnalyzeFailed =>
+      'Could not analyze the current scene. Try again.';
+
+  @override
+  String get liveSceneReanalyze => 'Analyze again';
+
+  @override
+  String liveSceneOverlayApplied(String overlay) {
+    return 'Composition overlay: $overlay';
+  }
+
+  @override
+  String liveSceneMlSummary(String source, String score) {
+    return '$source · aesthetic $score';
+  }
 }

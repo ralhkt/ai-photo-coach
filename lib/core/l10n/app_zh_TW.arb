@@ -238,5 +238,12 @@
   "diagnosticsOverBudget": "超出 MVP 目標",
   "diagnosticsRunBenchmark": "執行快速評分基準測試",
   "diagnosticsRunningBenchmark": "基準測試執行中...",
-  "diagnosticsClearSamples": "清除計時樣本"
+  "diagnosticsClearSamples": "清除計時樣本",
+  "liveSceneAnalyze": "分析場景",
+  "liveSceneAnalyzing": "正在分析場景...",
+  "liveSceneAdviceTitle": "AI 拍攝建議",
+  "liveSceneAnalyzeFailed": "無法分析目前場景，請再試一次。",
+  "liveSceneReanalyze": "重新分析",
+  "liveSceneOverlayApplied": "構圖疊層：{overlay}",
+  "liveSceneMlSummary": "{source} · 美學分 {score}"
 }

@@ -752,6 +752,31 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get diagnosticsClearSamples => '清除计时样本';
+
+  @override
+  String get liveSceneAnalyze => '分析场景';
+
+  @override
+  String get liveSceneAnalyzing => '正在分析场景...';
+
+  @override
+  String get liveSceneAdviceTitle => 'AI 拍摄建议';
+
+  @override
+  String get liveSceneAnalyzeFailed => '无法分析目前场景，请再试一次。';
+
+  @override
+  String get liveSceneReanalyze => '重新分析';
+
+  @override
+  String liveSceneOverlayApplied(String overlay) {
+    return '构图叠层：$overlay';
+  }
+
+  @override
+  String liveSceneMlSummary(String source, String score) {
+    return '$source · 美学分 $score';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1502,4 +1527,29 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get diagnosticsClearSamples => '清除計時樣本';
+
+  @override
+  String get liveSceneAnalyze => '分析場景';
+
+  @override
+  String get liveSceneAnalyzing => '正在分析場景...';
+
+  @override
+  String get liveSceneAdviceTitle => 'AI 拍攝建議';
+
+  @override
+  String get liveSceneAnalyzeFailed => '無法分析目前場景，請再試一次。';
+
+  @override
+  String get liveSceneReanalyze => '重新分析';
+
+  @override
+  String liveSceneOverlayApplied(String overlay) {
+    return '構圖疊層：$overlay';
+  }
+
+  @override
+  String liveSceneMlSummary(String source, String score) {
+    return '$source · 美學分 $score';
+  }
 }

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/services/voice_guidance_service.dart';
+import '../../../../core/utils/guidance_text.dart';
 import '../../../../models/camera_aspect_ratio.dart';
 import '../../../../models/camera_timer_duration.dart';
 import '../../../../models/captured_photo.dart';
@@ -19,6 +20,8 @@ import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
+import '../../providers/live_scene_analysis_provider.dart';
+import 'live_scene_advice_panel.dart';
 import '../burst_review_screen.dart';
 import '../photo_review_screen.dart';
 import 'ios_aspect_ratio_overlay.dart';
@@ -65,9 +68,41 @@ class IosCameraScaffold extends ConsumerStatefulWidget {
 }
 
 class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
+  bool get _isFreeShootMode =>
+      widget.shootSessionMode == ShootSessionMode.free;
+
+  Future<void> _analyzeLiveScene(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    await ref.read(liveSceneAnalysisProvider.notifier).analyzeCurrentScene();
+
+    if (!context.mounted) {
+      return;
+    }
+
+    final state = ref.read(liveSceneAnalysisProvider);
+    state.whenOrNull(
+      data: (analysis) {
+        if (analysis == null) {
+          return;
+        }
+        ref.read(voiceGuidanceServiceProvider).speak(
+              context,
+              guidanceHintLabel(l10n, analysis.guidance.framingHintKey),
+            );
+      },
+      error: (_, __) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.liveSceneAnalyzeFailed)),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final liveAnalysis = ref.watch(liveSceneAnalysisProvider);
+    final isLiveAnalyzing = liveAnalysis.isLoading;
     final lastCapture = ref.watch(lastCaptureProvider);
     final isCapturing = ref.watch(isCapturingProvider);
     final showFlash = ref.watch(captureFlashProvider);
@@ -126,6 +161,10 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                   frameEnabled: widget.frameEnabled,
                   showGridButton: widget.showGridButton,
                   showFrameButton: widget.showFrameButton,
+                  showAiAnalyzeButton: _isFreeShootMode,
+                  aiAnalyzing: isLiveAnalyzing,
+                  onAiAnalyzeTap: () => _analyzeLiveScene(context),
+                  aiAnalyzeTooltip: l10n.liveSceneAnalyze,
                   centerLabel: widget.centerTopLabel,
                 ),
               ),
@@ -148,6 +187,25 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: widget.guidanceChip!,
           ),
+        liveAnalysis.maybeWhen(
+          data: (analysis) {
+            if (analysis == null || !_isFreeShootMode) {
+              return const SizedBox.shrink();
+            }
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+              child: LiveSceneAdvicePanel(
+                analysis: analysis,
+                isAnalyzing: isLiveAnalyzing,
+                onDismiss: () {
+                  ref.read(liveSceneAnalysisProvider.notifier).clear();
+                },
+                onReanalyze: () => _analyzeLiveScene(context),
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        ),
         IosCameraBottomBar(
           modeLabel: widget.modeLabel ?? l10n.cameraModePhoto,
           thumbnailBytes: lastCapture?.bytes,
@@ -213,6 +271,8 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   }
 
   Future<void> _handleClose(BuildContext context) async {
+    ref.invalidate(liveSceneAnalysisProvider);
+
     if (widget.shootSessionMode == null) {
       Navigator.of(context).maybePop();
       return;

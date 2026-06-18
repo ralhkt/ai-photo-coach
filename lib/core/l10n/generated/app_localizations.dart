@@ -1532,6 +1532,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear timing samples'**
   String get diagnosticsClearSamples;
+
+  /// No description provided for @liveSceneAnalyze.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze scene'**
+  String get liveSceneAnalyze;
+
+  /// No description provided for @liveSceneAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing scene...'**
+  String get liveSceneAnalyzing;
+
+  /// No description provided for @liveSceneAdviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI shooting advice'**
+  String get liveSceneAdviceTitle;
+
+  /// No description provided for @liveSceneAnalyzeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not analyze the current scene. Try again.'**
+  String get liveSceneAnalyzeFailed;
+
+  /// No description provided for @liveSceneReanalyze.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze again'**
+  String get liveSceneReanalyze;
+
+  /// No description provided for @liveSceneOverlayApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Composition overlay: {overlay}'**
+  String liveSceneOverlayApplied(String overlay);
+
+  /// No description provided for @liveSceneMlSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{source} · aesthetic {score}'**
+  String liveSceneMlSummary(String source, String score);
 }
 
 class _AppLocalizationsDelegate
