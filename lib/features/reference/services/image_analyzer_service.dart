@@ -85,21 +85,20 @@ class ImageAnalyzerService {
     );
     sceneTypeKey = _preferMlSceneKey(sceneTypeKey, mlDetection, userSceneType);
 
-    final prefersHuman = userSceneType.prefersHumanSilhouette ||
-        sceneTypeKey == 'scenePortrait' ||
-        mlDetection.hasFaces ||
-        mlDetection.hasPose;
+    final prefersHuman = _shouldUseHumanSilhouette(
+      userSceneType: userSceneType,
+      sceneTypeKey: sceneTypeKey,
+      subjectRect: subjectRect,
+      aspectRatio: aspectRatio,
+      mlDetection: mlDetection,
+    );
 
     List<Offset>? silhouettePoints;
     var subjectShape = SubjectShapeKind.rectangle;
     if (prefersHuman) {
       silhouettePoints =
           _silhouetteService.extractPortraitSilhouette(decoded, subjectRect);
-      if (silhouettePoints != null && silhouettePoints.length >= 8) {
-        subjectShape = SubjectShapeKind.humanSilhouette;
-      } else if (mlDetection.hasPose || mlDetection.hasFaces) {
-        subjectShape = SubjectShapeKind.humanSilhouette;
-      }
+      subjectShape = SubjectShapeKind.humanSilhouette;
     }
 
     BodyPartGuides? bodyPartGuides;
@@ -454,8 +453,39 @@ class ImageAnalyzerService {
     return _sceneTypeKey(subjectRect, aspectRatio);
   }
 
+  bool _shouldUseHumanSilhouette({
+    required SceneType userSceneType,
+    required String sceneTypeKey,
+    required Rect subjectRect,
+    required double aspectRatio,
+    required MlDetectionResult mlDetection,
+  }) {
+    if (userSceneType.prefersHumanSilhouette) {
+      return true;
+    }
+    if (sceneTypeKey == 'scenePortrait') {
+      return true;
+    }
+    if (mlDetection.hasFaces || mlDetection.hasPose) {
+      return true;
+    }
+
+    final tallSubject = subjectRect.height > subjectRect.width * 1.08;
+    final centeredSubject = subjectRect.center.dx > 0.22 &&
+        subjectRect.center.dx < 0.78;
+    final portraitImage = aspectRatio < 1.05;
+    final subjectFill = subjectRect.width * subjectRect.height;
+
+    return tallSubject &&
+        centeredSubject &&
+        portraitImage &&
+        subjectFill > 0.06 &&
+        subjectFill < 0.72;
+  }
+
   String _sceneTypeKey(Rect subjectRect, double aspectRatio) {
-    if (subjectRect.height > subjectRect.width * 1.2 && aspectRatio < 1.0) {
+    final tallSubject = subjectRect.height > subjectRect.width * 1.08;
+    if (tallSubject && aspectRatio < 1.1) {
       return 'scenePortrait';
     }
     if (aspectRatio > 1.2) {

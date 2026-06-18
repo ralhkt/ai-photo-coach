@@ -27,6 +27,7 @@ import 'live_scene_advice_panel.dart';
 import 'live_scene_analyzing_overlay.dart';
 import 'live_scene_auto_analyzer.dart';
 import 'live_scene_coach_banner.dart';
+import 'live_scene_guidance_frame_overlay.dart';
 import '../burst_review_screen.dart';
 import '../photo_review_screen.dart';
 import 'ios_aspect_ratio_overlay.dart';
@@ -317,6 +318,8 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                 ),
               if (showHistogram)
                 IosHistogramOverlay(brightness: 0.45 + manualEv * 0.1),
+              if (_isFreeShootMode && hasAdvice)
+                const LiveSceneGuidanceFrameOverlay(),
               if (_isFreeShootMode)
                 liveAnalysis.maybeWhen(
                   data: (analysis) {

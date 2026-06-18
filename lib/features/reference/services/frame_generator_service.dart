@@ -66,14 +66,28 @@ class FrameGeneratorService {
     final normalizedSubject = guidance.subjectTargetRect;
 
     Path? silhouettePath;
-    if (guidance.subjectShape == SubjectShapeKind.humanSilhouette &&
-        guidance.subjectSilhouettePoints != null &&
-        guidance.subjectSilhouettePoints!.length >= 8) {
-      silhouettePath = _mapSilhouettePath(
-        guidance.subjectSilhouettePoints!,
-        normalizedSubject,
-        subjectZone,
-      );
+    if (guidance.subjectShape == SubjectShapeKind.humanSilhouette) {
+      final points = guidance.subjectSilhouettePoints;
+      if (points != null && points.length >= 8) {
+        silhouettePath = _mapSilhouettePath(
+          points,
+          normalizedSubject,
+          subjectZone,
+        );
+      } else {
+        final templatePoints =
+            _shapeBuilder.mapTemplateToSubject(normalizedSubject);
+        final mappedPoints = templatePoints
+            .map(
+              (point) => _mapNormalizedPoint(
+                point,
+                normalizedSubject,
+                subjectZone,
+              ),
+            )
+            .toList();
+        silhouettePath = _shapeBuilder.pointsToSmoothPath(mappedPoints);
+      }
     }
 
     MappedBodyPartGuides? bodyParts;
