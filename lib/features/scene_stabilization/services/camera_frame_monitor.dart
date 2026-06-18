@@ -4,6 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/performance/performance_budget.dart';
+import '../../../core/settings/app_settings_provider.dart';
 import '../providers/scene_stability_provider.dart';
 import 'scene_change_detector.dart';
 
@@ -15,7 +17,8 @@ class CameraFrameMonitor {
   CameraController? _controller;
   bool _isMonitoring = false;
   DateTime _lastProcessed = DateTime.fromMillisecondsSinceEpoch(0);
-  static const _minInterval = Duration(milliseconds: 800);
+  Duration _minInterval =
+      const Duration(milliseconds: PerformanceBudget.phashFrameIntervalMs);
 
   Future<void> start(CameraController controller) async {
     if (_isMonitoring && identical(_controller, controller)) {
@@ -24,6 +27,12 @@ class CameraFrameMonitor {
 
     await stop();
     _controller = controller;
+    final powerSave = _ref.read(powerSaveEnabledProvider);
+    _minInterval = Duration(
+      milliseconds: powerSave
+          ? PerformanceBudget.phashFrameIntervalPowerSaveMs
+          : PerformanceBudget.phashFrameIntervalMs,
+    );
     _detector.reset();
     _ref.read(sceneStabilityProvider.notifier).setMonitoring();
 

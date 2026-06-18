@@ -715,4 +715,83 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sessionTipGreatVolume =>
       'Nice volume of shots — pick the sharpest expression or pose.';
+
+  @override
+  String sessionSummaryProgress(int completed, int total) {
+    return 'Analyzing $completed / $total';
+  }
+
+  @override
+  String get sessionStatAnalysisTime => 'Analysis time';
+
+  @override
+  String sessionStatAnalysisMs(int ms) {
+    return '$ms ms';
+  }
+
+  @override
+  String get sessionStatBattery => 'Battery used';
+
+  @override
+  String sessionStatBatteryDelta(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get settingsPerformanceSection => 'Performance';
+
+  @override
+  String get settingsPowerSave => 'Power save mode';
+
+  @override
+  String get settingsPowerSaveSubtitle =>
+      'Slower scene checks, skip AR, faster session analysis';
+
+  @override
+  String get diagnosticsTitle => 'Performance diagnostics';
+
+  @override
+  String get diagnosticsEntrySubtitle =>
+      'Timing samples and battery session stats';
+
+  @override
+  String get diagnosticsSubtitle =>
+      'On-device budgets for MVP targets (ML < 150 ms, 10 min < 7% battery).';
+
+  @override
+  String get diagnosticsMlBudget => 'ML quick inference';
+
+  @override
+  String get diagnosticsSessionPhotoBudget => 'Session photo quick score';
+
+  @override
+  String get diagnosticsSessionTotalBudget => 'Session summary total';
+
+  @override
+  String diagnosticsBudgetValue(String avg, String budget, String count) {
+    return 'avg $avg ms / $budget ms (over $count)';
+  }
+
+  @override
+  String get diagnosticsLastBattery => 'Last camera session battery';
+
+  @override
+  String diagnosticsBatteryDetail(int delta, String per10, String status) {
+    return 'Used $delta% ($per10%/10 min) — $status';
+  }
+
+  @override
+  String get diagnosticsWithinBudget => 'within MVP budget';
+
+  @override
+  String get diagnosticsOverBudget => 'above MVP budget';
+
+  @override
+  String get diagnosticsRunBenchmark => 'Run quick-score benchmark';
+
+  @override
+  String get diagnosticsRunningBenchmark => 'Running benchmark...';
+
+  @override
+  String get diagnosticsClearSamples => 'Clear timing samples';
 }

@@ -10,12 +10,14 @@ class AppSettings {
     this.voiceGuidanceEnabled = false,
     this.promptStrength = PromptStrength.medium,
     this.localeOption = AppLocaleOption.zhTw,
+    this.powerSaveEnabled = false,
   });
 
   final bool onboardingCompleted;
   final bool voiceGuidanceEnabled;
   final PromptStrength promptStrength;
   final AppLocaleOption localeOption;
+  final bool powerSaveEnabled;
 
   Locale get locale => switch (localeOption) {
         AppLocaleOption.zhTw => const Locale('zh', 'TW'),
@@ -28,12 +30,14 @@ class AppSettings {
     bool? voiceGuidanceEnabled,
     PromptStrength? promptStrength,
     AppLocaleOption? localeOption,
+    bool? powerSaveEnabled,
   }) {
     return AppSettings(
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
       voiceGuidanceEnabled: voiceGuidanceEnabled ?? this.voiceGuidanceEnabled,
       promptStrength: promptStrength ?? this.promptStrength,
       localeOption: localeOption ?? this.localeOption,
+      powerSaveEnabled: powerSaveEnabled ?? this.powerSaveEnabled,
     );
   }
 }

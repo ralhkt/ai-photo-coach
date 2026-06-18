@@ -1400,6 +1400,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nice volume of shots — pick the sharpest expression or pose.'**
   String get sessionTipGreatVolume;
+
+  /// No description provided for @sessionSummaryProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing {completed} / {total}'**
+  String sessionSummaryProgress(int completed, int total);
+
+  /// No description provided for @sessionStatAnalysisTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis time'**
+  String get sessionStatAnalysisTime;
+
+  /// No description provided for @sessionStatAnalysisMs.
+  ///
+  /// In en, this message translates to:
+  /// **'{ms} ms'**
+  String sessionStatAnalysisMs(int ms);
+
+  /// No description provided for @sessionStatBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery used'**
+  String get sessionStatBattery;
+
+  /// No description provided for @sessionStatBatteryDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String sessionStatBatteryDelta(int percent);
+
+  /// No description provided for @settingsPerformanceSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get settingsPerformanceSection;
+
+  /// No description provided for @settingsPowerSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Power save mode'**
+  String get settingsPowerSave;
+
+  /// No description provided for @settingsPowerSaveSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Slower scene checks, skip AR, faster session analysis'**
+  String get settingsPowerSaveSubtitle;
+
+  /// No description provided for @diagnosticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance diagnostics'**
+  String get diagnosticsTitle;
+
+  /// No description provided for @diagnosticsEntrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Timing samples and battery session stats'**
+  String get diagnosticsEntrySubtitle;
+
+  /// No description provided for @diagnosticsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device budgets for MVP targets (ML < 150 ms, 10 min < 7% battery).'**
+  String get diagnosticsSubtitle;
+
+  /// No description provided for @diagnosticsMlBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'ML quick inference'**
+  String get diagnosticsMlBudget;
+
+  /// No description provided for @diagnosticsSessionPhotoBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Session photo quick score'**
+  String get diagnosticsSessionPhotoBudget;
+
+  /// No description provided for @diagnosticsSessionTotalBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Session summary total'**
+  String get diagnosticsSessionTotalBudget;
+
+  /// No description provided for @diagnosticsBudgetValue.
+  ///
+  /// In en, this message translates to:
+  /// **'avg {avg} ms / {budget} ms (over {count})'**
+  String diagnosticsBudgetValue(String avg, String budget, String count);
+
+  /// No description provided for @diagnosticsLastBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'Last camera session battery'**
+  String get diagnosticsLastBattery;
+
+  /// No description provided for @diagnosticsBatteryDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Used {delta}% ({per10}%/10 min) — {status}'**
+  String diagnosticsBatteryDetail(int delta, String per10, String status);
+
+  /// No description provided for @diagnosticsWithinBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'within MVP budget'**
+  String get diagnosticsWithinBudget;
+
+  /// No description provided for @diagnosticsOverBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'above MVP budget'**
+  String get diagnosticsOverBudget;
+
+  /// No description provided for @diagnosticsRunBenchmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Run quick-score benchmark'**
+  String get diagnosticsRunBenchmark;
+
+  /// No description provided for @diagnosticsRunningBenchmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Running benchmark...'**
+  String get diagnosticsRunningBenchmark;
+
+  /// No description provided for @diagnosticsClearSamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear timing samples'**
+  String get diagnosticsClearSamples;
 }
 
 class _AppLocalizationsDelegate

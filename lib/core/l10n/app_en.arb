@@ -254,5 +254,53 @@
   "sessionTipTooDark": "Several shots were underexposed — brighten the scene or raise EV.",
   "sessionTipTooBright": "Highlights are clipping — lower exposure slightly.",
   "sessionTipBalancedExposure": "Exposure balance looks good across this session.",
-  "sessionTipGreatVolume": "Nice volume of shots — pick the sharpest expression or pose."
+  "sessionTipGreatVolume": "Nice volume of shots — pick the sharpest expression or pose.",
+  "sessionSummaryProgress": "Analyzing {completed} / {total}",
+  "@sessionSummaryProgress": {
+    "placeholders": {
+      "completed": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "sessionStatAnalysisTime": "Analysis time",
+  "sessionStatAnalysisMs": "{ms} ms",
+  "@sessionStatAnalysisMs": {
+    "placeholders": { "ms": { "type": "int" } }
+  },
+  "sessionStatBattery": "Battery used",
+  "sessionStatBatteryDelta": "{percent}%",
+  "@sessionStatBatteryDelta": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "settingsPerformanceSection": "Performance",
+  "settingsPowerSave": "Power save mode",
+  "settingsPowerSaveSubtitle": "Slower scene checks, skip AR, faster session analysis",
+  "diagnosticsTitle": "Performance diagnostics",
+  "diagnosticsEntrySubtitle": "Timing samples and battery session stats",
+  "diagnosticsSubtitle": "On-device budgets for MVP targets (ML < 150 ms, 10 min < 7% battery).",
+  "diagnosticsMlBudget": "ML quick inference",
+  "diagnosticsSessionPhotoBudget": "Session photo quick score",
+  "diagnosticsSessionTotalBudget": "Session summary total",
+  "diagnosticsBudgetValue": "avg {avg} ms / {budget} ms (over {count})",
+  "@diagnosticsBudgetValue": {
+    "placeholders": {
+      "avg": { "type": "String" },
+      "budget": { "type": "String" },
+      "count": { "type": "String" }
+    }
+  },
+  "diagnosticsLastBattery": "Last camera session battery",
+  "diagnosticsBatteryDetail": "Used {delta}% ({per10}%/10 min) — {status}",
+  "@diagnosticsBatteryDetail": {
+    "placeholders": {
+      "delta": { "type": "int" },
+      "per10": { "type": "String" },
+      "status": { "type": "String" }
+    }
+  },
+  "diagnosticsWithinBudget": "within MVP budget",
+  "diagnosticsOverBudget": "above MVP budget",
+  "diagnosticsRunBenchmark": "Run quick-score benchmark",
+  "diagnosticsRunningBenchmark": "Running benchmark...",
+  "diagnosticsClearSamples": "Clear timing samples"
 }

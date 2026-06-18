@@ -7,9 +7,14 @@ import '../../../models/shoot_session.dart';
 import '../services/session_summary_builder.dart';
 
 class SessionSummaryScreen extends ConsumerStatefulWidget {
-  const SessionSummaryScreen({super.key, required this.session});
+  const SessionSummaryScreen({
+    super.key,
+    required this.session,
+    this.batteryDeltaPercent,
+  });
 
   final ShootSession session;
+  final int? batteryDeltaPercent;
 
   @override
   ConsumerState<SessionSummaryScreen> createState() =>
@@ -19,6 +24,8 @@ class SessionSummaryScreen extends ConsumerStatefulWidget {
 class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen> {
   SessionSummary? _summary;
   Object? _error;
+  int _progressCompleted = 0;
+  int _progressTotal = 0;
 
   @override
   void initState() {
@@ -28,9 +35,19 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen> {
 
   Future<void> _loadSummary() async {
     try {
-      final summary = await ref
-          .read(sessionSummaryBuilderProvider)
-          .build(widget.session);
+      final summary = await ref.read(sessionSummaryBuilderProvider).build(
+            widget.session,
+            batteryDeltaPercent: widget.batteryDeltaPercent,
+            onProgress: (completed, total) {
+              if (!mounted) {
+                return;
+              }
+              setState(() {
+                _progressCompleted = completed;
+                _progressTotal = total;
+              });
+            },
+          );
       if (!mounted) {
         return;
       }
@@ -73,6 +90,10 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen> {
               const CircularProgressIndicator(),
               const SizedBox(height: 16),
               Text(l10n.sessionSummaryLoading),
+              if (_progressTotal > 0) ...[
+                const SizedBox(height: 8),
+                Text(l10n.sessionSummaryProgress(_progressCompleted, _progressTotal)),
+              ],
             ],
           ),
         ),
@@ -128,6 +149,23 @@ class _SessionSummaryScreenState extends ConsumerState<SessionSummaryScreen> {
             _StatCard(
               label: l10n.sessionStatAesthetic,
               value: summary.averageAestheticScore!.toStringAsFixed(2),
+              fullWidth: true,
+            ),
+          ],
+          if (summary.analysisDurationMs > 0) ...[
+            const SizedBox(height: 12),
+            _StatCard(
+              label: l10n.sessionStatAnalysisTime,
+              value: l10n.sessionStatAnalysisMs(summary.analysisDurationMs),
+              fullWidth: true,
+            ),
+          ],
+          if (summary.batteryDeltaPercent != null &&
+              summary.batteryDeltaPercent! >= 0) ...[
+            const SizedBox(height: 12),
+            _StatCard(
+              label: l10n.sessionStatBattery,
+              value: l10n.sessionStatBatteryDelta(summary.batteryDeltaPercent!),
               fullWidth: true,
             ),
           ],

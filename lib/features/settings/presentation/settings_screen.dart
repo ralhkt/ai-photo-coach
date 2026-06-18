@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/settings/app_settings_provider.dart';
 import '../../../models/app_settings.dart';
+import '../../diagnostics/presentation/performance_diagnostics_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -73,6 +74,28 @@ class SettingsScreen extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.white54,
                     ),
+              ),
+              const SizedBox(height: 20),
+              _SectionHeader(title: l10n.settingsPerformanceSection),
+              SwitchListTile(
+                title: Text(l10n.settingsPowerSave),
+                subtitle: Text(l10n.settingsPowerSaveSubtitle),
+                value: settings.powerSaveEnabled,
+                onChanged: (value) {
+                  ref.read(appSettingsProvider.notifier).setPowerSave(value);
+                },
+              ),
+              ListTile(
+                title: Text(l10n.diagnosticsTitle),
+                subtitle: Text(l10n.diagnosticsEntrySubtitle),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const PerformanceDiagnosticsScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           );

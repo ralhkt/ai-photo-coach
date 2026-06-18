@@ -12,6 +12,7 @@ class SettingsRepository {
   static const _voiceKey = 'voice_guidance_enabled';
   static const _promptKey = 'prompt_strength';
   static const _localeKey = 'locale_option';
+  static const _powerSaveKey = 'power_save_enabled';
 
   Future<AppSettings> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -20,6 +21,7 @@ class SettingsRepository {
       voiceGuidanceEnabled: prefs.getBool(_voiceKey) ?? false,
       promptStrength: _parsePromptStrength(prefs.getString(_promptKey)),
       localeOption: _parseLocaleOption(prefs.getString(_localeKey)),
+      powerSaveEnabled: prefs.getBool(_powerSaveKey) ?? false,
     );
   }
 
@@ -29,6 +31,7 @@ class SettingsRepository {
     await prefs.setBool(_voiceKey, settings.voiceGuidanceEnabled);
     await prefs.setString(_promptKey, settings.promptStrength.name);
     await prefs.setString(_localeKey, settings.localeOption.name);
+    await prefs.setBool(_powerSaveKey, settings.powerSaveEnabled);
   }
 
   PromptStrength _parsePromptStrength(String? value) {

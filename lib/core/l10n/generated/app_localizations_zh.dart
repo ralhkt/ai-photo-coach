@@ -676,6 +676,82 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sessionTipGreatVolume => '拍摄张数充足，可挑选最清晰的神态或姿势。';
+
+  @override
+  String sessionSummaryProgress(int completed, int total) {
+    return '正在分析 $completed / $total';
+  }
+
+  @override
+  String get sessionStatAnalysisTime => '分析耗时';
+
+  @override
+  String sessionStatAnalysisMs(int ms) {
+    return '$ms 毫秒';
+  }
+
+  @override
+  String get sessionStatBattery => '电池消耗';
+
+  @override
+  String sessionStatBatteryDelta(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get settingsPerformanceSection => '性能';
+
+  @override
+  String get settingsPowerSave => '省电模式';
+
+  @override
+  String get settingsPowerSaveSubtitle => '降低场景检测频率、关闭 AR、加快拍摄总结';
+
+  @override
+  String get diagnosticsTitle => '性能诊断';
+
+  @override
+  String get diagnosticsEntrySubtitle => '计时样本与电池 session 统计';
+
+  @override
+  String get diagnosticsSubtitle => '本机 MVP 目标（ML < 150 ms，10 分钟 < 7% 电量）。';
+
+  @override
+  String get diagnosticsMlBudget => 'ML 快速推理';
+
+  @override
+  String get diagnosticsSessionPhotoBudget => 'Session 照片快速评分';
+
+  @override
+  String get diagnosticsSessionTotalBudget => 'Session 总结总耗时';
+
+  @override
+  String diagnosticsBudgetValue(String avg, String budget, String count) {
+    return '平均 $avg ms / 上限 $budget ms（超标 $count 次）';
+  }
+
+  @override
+  String get diagnosticsLastBattery => '上次相机 session 电池';
+
+  @override
+  String diagnosticsBatteryDetail(int delta, String per10, String status) {
+    return '消耗 $delta%（$per10%/10 分钟）— $status';
+  }
+
+  @override
+  String get diagnosticsWithinBudget => '符合 MVP 目标';
+
+  @override
+  String get diagnosticsOverBudget => '超出 MVP 目标';
+
+  @override
+  String get diagnosticsRunBenchmark => '运行快速评分基准测试';
+
+  @override
+  String get diagnosticsRunningBenchmark => '基准测试运行中...';
+
+  @override
+  String get diagnosticsClearSamples => '清除计时样本';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1350,4 +1426,80 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get sessionTipGreatVolume => '拍攝張數充足，可挑選最清晰的神態或姿勢。';
+
+  @override
+  String sessionSummaryProgress(int completed, int total) {
+    return '正在分析 $completed / $total';
+  }
+
+  @override
+  String get sessionStatAnalysisTime => '分析耗時';
+
+  @override
+  String sessionStatAnalysisMs(int ms) {
+    return '$ms 毫秒';
+  }
+
+  @override
+  String get sessionStatBattery => '電池消耗';
+
+  @override
+  String sessionStatBatteryDelta(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get settingsPerformanceSection => '效能';
+
+  @override
+  String get settingsPowerSave => '省電模式';
+
+  @override
+  String get settingsPowerSaveSubtitle => '降低場景偵測頻率、關閉 AR、加快拍攝總結';
+
+  @override
+  String get diagnosticsTitle => '效能診斷';
+
+  @override
+  String get diagnosticsEntrySubtitle => '計時樣本與電池 session 統計';
+
+  @override
+  String get diagnosticsSubtitle => '本機 MVP 目標（ML < 150 ms，10 分鐘 < 7% 電量）。';
+
+  @override
+  String get diagnosticsMlBudget => 'ML 快速推論';
+
+  @override
+  String get diagnosticsSessionPhotoBudget => 'Session 照片快速評分';
+
+  @override
+  String get diagnosticsSessionTotalBudget => 'Session 總結總耗時';
+
+  @override
+  String diagnosticsBudgetValue(String avg, String budget, String count) {
+    return '平均 $avg ms / 上限 $budget ms（超標 $count 次）';
+  }
+
+  @override
+  String get diagnosticsLastBattery => '上次相機 session 電池';
+
+  @override
+  String diagnosticsBatteryDetail(int delta, String per10, String status) {
+    return '消耗 $delta%（$per10%/10 分鐘）— $status';
+  }
+
+  @override
+  String get diagnosticsWithinBudget => '符合 MVP 目標';
+
+  @override
+  String get diagnosticsOverBudget => '超出 MVP 目標';
+
+  @override
+  String get diagnosticsRunBenchmark => '執行快速評分基準測試';
+
+  @override
+  String get diagnosticsRunningBenchmark => '基準測試執行中...';
+
+  @override
+  String get diagnosticsClearSamples => '清除計時樣本';
 }

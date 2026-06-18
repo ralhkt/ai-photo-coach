@@ -2,6 +2,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/performance/battery_session_tracker.dart';
+import '../../../../core/settings/app_settings_provider.dart';
 import '../../../../models/shoot_session.dart';
 import '../../../ar/providers/ar_providers.dart';
 import '../../../scene_stabilization/services/camera_frame_monitor.dart';
@@ -52,9 +54,13 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
     final mode = widget.shootSessionMode;
     if (mode != null) {
       ref.read(shootSessionProvider.notifier).startSession(mode);
+      await ref.read(batterySessionTrackerProvider).begin();
     }
     await ref.read(cameraFrameMonitorProvider).start(widget.controller);
-    if (widget.enableAr) {
+
+    final powerSave = ref.read(powerSaveEnabledProvider);
+    final shouldRunAr = widget.enableAr && !powerSave;
+    if (shouldRunAr) {
       await ref.read(arSessionProvider.notifier).start();
     }
   }
@@ -68,6 +74,13 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
     await ref.read(cameraFrameMonitorProvider).stop();
     if (widget.enableAr) {
       await ref.read(arSessionProvider.notifier).stop();
+    }
+
+    if (widget.shootSessionMode != null) {
+      final report = await ref.read(batterySessionTrackerProvider).end();
+      if (report != null && report.startPercent >= 0 && report.endPercent >= 0) {
+        ref.read(lastBatteryReportProvider.notifier).state = report;
+      }
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/performance/battery_session_tracker.dart';
 import '../providers/shoot_session_provider.dart';
 import 'session_summary_screen.dart';
 
@@ -11,6 +12,13 @@ Future<void> endShootSession(BuildContext context, WidgetRef ref) async {
     return;
   }
 
+  final batteryReport = await ref.read(batterySessionTrackerProvider).end();
+  if (batteryReport != null &&
+      batteryReport.startPercent >= 0 &&
+      batteryReport.endPercent >= 0) {
+    ref.read(lastBatteryReportProvider.notifier).state = batteryReport;
+  }
+
   Navigator.of(context).popUntil((route) => route.isFirst);
   if (!context.mounted) {
     return;
@@ -18,7 +26,10 @@ Future<void> endShootSession(BuildContext context, WidgetRef ref) async {
 
   await Navigator.of(context).push(
     MaterialPageRoute<void>(
-      builder: (_) => SessionSummaryScreen(session: session),
+      builder: (_) => SessionSummaryScreen(
+        session: session,
+        batteryDeltaPercent: batteryReport?.deltaPercent,
+      ),
     ),
   );
 }

@@ -210,11 +210,33 @@ Architecture:
 
 Clear app data on the device/emulator, or delete SharedPreferences keys in debug.
 
-## Next Phase (Phase 5)
+## Phase 5 — Testing + Optimization
 
-- Device testing + battery profiling
-- Optional TFLite NIMA aesthetic model asset
-- Performance tuning for session summary batch analysis
+Delivered in this phase:
+
+- **Quick session analysis** — downscaled photos + NIMA-like heuristic scorer (< 120 ms/photo target)
+- **Power save mode** — settings toggle: slower pHash sampling, AR off, skip ML in quick scorer
+- **Performance tracker** — records inference and summary timings against MVP budgets
+- **Battery session tracker** — measures camera-session battery delta (MVP: < 7% per 10 min)
+- **Diagnostics screen** — settings → Performance diagnostics (budgets, benchmark, last battery report)
+
+Architecture:
+
+- `lib/core/performance/` — `PerformanceTracker`, `BatterySessionTracker`, budgets
+- `lib/features/session/services/quick_photo_scorer.dart` — optimized batch scoring
+- `lib/features/ml/services/nima_like_scorer.dart` — NIMA-inspired score without TFLite asset
+- `lib/features/diagnostics/` — on-device performance UI
+
+### Device testing checklist
+
+1. Enable **Power save** off → shoot 10 min guided session → check diagnostics battery report.
+2. Capture 8+ photos → finish session → confirm summary progress and analysis time.
+3. Compare summary speed with power save on vs off.
+4. Verify AR chip hidden/disabled when power save is on.
+
+### Optional future work
+
+- Bundle quantized NIMA TFLite asset for Android/iOS when model file is available.
 
 ## License
 

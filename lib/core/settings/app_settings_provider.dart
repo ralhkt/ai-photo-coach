@@ -38,7 +38,19 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final current = state.requireValue;
     await saveSettings(current.copyWith(localeOption: option));
   }
+
+  Future<void> setPowerSave(bool enabled) async {
+    final current = state.requireValue;
+    await saveSettings(current.copyWith(powerSaveEnabled: enabled));
+  }
 }
+
+final powerSaveEnabledProvider = Provider<bool>((ref) {
+  return ref.watch(appSettingsProvider).maybeWhen(
+        data: (settings) => settings.powerSaveEnabled,
+        orElse: () => false,
+      );
+});
 
 final promptStrengthProvider = Provider<PromptStrength>((ref) {
   return ref.watch(appSettingsProvider).maybeWhen(

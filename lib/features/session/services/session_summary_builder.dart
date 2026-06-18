@@ -1,55 +1,79 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/performance/performance_budget.dart';
+import '../../../core/performance/performance_tracker.dart';
+import '../../../core/settings/app_settings_provider.dart';
 import '../../../models/shoot_session.dart';
-import '../../reference/providers/reference_providers.dart';
-import '../../reference/services/image_analyzer_service.dart';
+import 'quick_photo_scorer.dart';
+
+typedef SessionBuildProgress = void Function(int completed, int total);
 
 final sessionSummaryBuilderProvider = Provider<SessionSummaryBuilder>((ref) {
   return SessionSummaryBuilder(
-    analyzer: ref.watch(imageAnalyzerProvider),
+    quickScorer: ref.watch(quickPhotoScorerProvider),
+    tracker: ref.watch(performanceTrackerProvider),
+    powerSave: ref.watch(powerSaveEnabledProvider),
   );
 });
 
 class SessionSummaryBuilder {
-  SessionSummaryBuilder({required this.analyzer});
+  SessionSummaryBuilder({
+    required this.quickScorer,
+    required this.tracker,
+    required this.powerSave,
+    this.maxAnalyzedPhotos = 12,
+  });
 
-  final ImageAnalyzerService analyzer;
+  final QuickPhotoScorer quickScorer;
+  final PerformanceTracker tracker;
+  final bool powerSave;
+  final int maxAnalyzedPhotos;
 
-  Future<SessionSummary> build(ShootSession session) async {
+  Future<SessionSummary> build(
+    ShootSession session, {
+    SessionBuildProgress? onProgress,
+    int? batteryDeltaPercent,
+  }) async {
+    final stopwatch = Stopwatch()..start();
+    final selected = _selectCaptures(session.captures);
     final insights = <SessionPhotoInsight>[];
     var aestheticTotal = 0.0;
     var aestheticCount = 0;
     int? bestIndex;
     double? bestScore;
 
-    for (var i = 0; i < session.captures.length; i++) {
-      final capture = session.captures[i];
-      final analysis = await analyzer.analyze(capture.photo.bytes);
-      final score = analysis.mlDetection?.aestheticScore;
+    for (var i = 0; i < selected.length; i++) {
+      final entry = selected[i];
+      final scoreResult = await quickScorer.score(
+        entry.capture.photo.bytes,
+        powerSave: powerSave,
+      );
+
       insights.add(
         SessionPhotoInsight(
-          index: i,
-          brightness: analysis.brightness,
-          aestheticScore: score,
-          thumbnailBytes: capture.photo.bytes,
+          index: entry.originalIndex,
+          brightness: scoreResult.brightness,
+          aestheticScore: scoreResult.aestheticScore,
+          thumbnailBytes: scoreResult.thumbnailBytes,
         ),
       );
 
-      if (score != null) {
-        aestheticTotal += score;
-        aestheticCount++;
-        if (bestScore == null || score > bestScore) {
-          bestScore = score;
-          bestIndex = i;
-        }
+      aestheticTotal += scoreResult.aestheticScore;
+      aestheticCount++;
+      if (bestScore == null || scoreResult.aestheticScore > bestScore) {
+        bestScore = scoreResult.aestheticScore;
+        bestIndex = entry.originalIndex;
       }
+
+      onProgress?.call(i + 1, selected.length);
     }
 
     final average = aestheticCount > 0 ? aestheticTotal / aestheticCount : null;
-    final tipKeys = _deriveTipKeys(
-      session: session,
-      insights: insights,
-      averageScore: average,
+    final elapsed = stopwatch.elapsedMilliseconds;
+    tracker.record(
+      'session_summary_total',
+      elapsed,
+      budgetMs: PerformanceBudget.sessionTotalAnalysisMs,
     );
 
     return SessionSummary(
@@ -57,8 +81,33 @@ class SessionSummaryBuilder {
       photoInsights: insights,
       averageAestheticScore: average,
       bestPhotoIndex: bestIndex,
-      feedbackTipKeys: tipKeys,
+      feedbackTipKeys: _deriveTipKeys(
+        session: session,
+        insights: insights,
+        averageScore: average,
+      ),
+      analysisDurationMs: elapsed,
+      batteryDeltaPercent: batteryDeltaPercent,
     );
+  }
+
+  List<_IndexedCapture> _selectCaptures(List<SessionCapture> captures) {
+    if (captures.length <= maxAnalyzedPhotos) {
+      return [
+        for (var i = 0; i < captures.length; i++)
+          _IndexedCapture(originalIndex: i, capture: captures[i]),
+      ];
+    }
+
+    final selected = <_IndexedCapture>[];
+    final step = (captures.length - 1) / (maxAnalyzedPhotos - 1);
+    for (var i = 0; i < maxAnalyzedPhotos; i++) {
+      final index = (i * step).round().clamp(0, captures.length - 1);
+      selected.add(
+        _IndexedCapture(originalIndex: index, capture: captures[index]),
+      );
+    }
+    return selected;
   }
 
   List<String> _deriveTipKeys({
@@ -103,4 +152,14 @@ class SessionSummaryBuilder {
 
     return tips.take(4).toList();
   }
+}
+
+class _IndexedCapture {
+  const _IndexedCapture({
+    required this.originalIndex,
+    required this.capture,
+  });
+
+  final int originalIndex;
+  final SessionCapture capture;
 }

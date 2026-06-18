@@ -67,6 +67,8 @@ class SessionSummary {
     required this.averageAestheticScore,
     required this.bestPhotoIndex,
     required this.feedbackTipKeys,
+    this.analysisDurationMs = 0,
+    this.batteryDeltaPercent,
   });
 
   final ShootSession session;
@@ -74,4 +76,6 @@ class SessionSummary {
   final double? averageAestheticScore;
   final int? bestPhotoIndex;
   final List<String> feedbackTipKeys;
+  final int analysisDurationMs;
+  final int? batteryDeltaPercent;
 }
