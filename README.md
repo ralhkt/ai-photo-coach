@@ -189,11 +189,32 @@ flutter run -d emulator-5554
 
 Upload a portrait reference with **人像** scene — analysis screen should show **ML Kit (on-device)** when running on a real device or emulator.
 
-## Next Phase (Phase 4)
+## Phase 4 — Onboarding, Settings, Session Summary
 
-- Session summary after shooting
-- Onboarding + settings (voice, language, prompt strength)
+Delivered in this phase:
+
+- **Onboarding** — 3-step first-launch walkthrough (skippable), persisted via `shared_preferences`
+- **Settings** — language (繁中 / 简中 / EN), voice guidance toggle, prompt strength (low / medium / high)
+- **Session tracking** — free and guided camera sessions record captures locally
+- **Session summary** — after shooting, on-device analysis of session photos with best-shot highlight and tips
+- **Close-camera dialog** — prompts to view summary or discard when leaving mid-session
+
+Architecture:
+
+- `lib/core/settings/` — `SettingsRepository` + `appSettingsProvider`
+- `lib/features/onboarding/` — first-run UI
+- `lib/features/settings/` — settings screen (home → gear icon)
+- `lib/features/session/` — `ShootSessionNotifier`, `SessionSummaryBuilder`, summary UI
+
+### Reset onboarding (dev)
+
+Clear app data on the device/emulator, or delete SharedPreferences keys in debug.
+
+## Next Phase (Phase 5)
+
+- Device testing + battery profiling
 - Optional TFLite NIMA aesthetic model asset
+- Performance tuning for session summary batch analysis
 
 ## License
 

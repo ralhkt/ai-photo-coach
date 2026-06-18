@@ -553,4 +553,166 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toggleBodyPartGuides => 'Toggle body-part guides';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsLanguageSection => 'Language';
+
+  @override
+  String get settingsGuidanceSection => 'Guidance';
+
+  @override
+  String get settingsVoiceGuidance => 'Voice guidance';
+
+  @override
+  String get settingsVoiceGuidanceSubtitle =>
+      'Speak tips aloud while shooting (snackbar preview)';
+
+  @override
+  String get settingsPromptStrength => 'Prompt strength';
+
+  @override
+  String get settingsPromptStrengthHint =>
+      'Controls how many hints appear on the camera screen';
+
+  @override
+  String get promptStrengthLow => 'Low';
+
+  @override
+  String get promptStrengthMedium => 'Medium';
+
+  @override
+  String get promptStrengthHigh => 'High';
+
+  @override
+  String get localeZhTw => 'Traditional Chinese';
+
+  @override
+  String get localeZhCn => 'Simplified Chinese';
+
+  @override
+  String get localeEn => 'English';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingGetStarted => 'Get started';
+
+  @override
+  String get onboardingTitle1 => 'Your on-device photo coach';
+
+  @override
+  String get onboardingBody1 =>
+      'Upload a reference or open the camera — all analysis runs locally on your phone.';
+
+  @override
+  String get onboardingTitle2 => 'Real-time framing guides';
+
+  @override
+  String get onboardingBody2 =>
+      'Composition grids, pose alignment, and exposure hints help you match the shot.';
+
+  @override
+  String get onboardingTitle3 => 'Session feedback';
+
+  @override
+  String get onboardingBody3 =>
+      'When you finish shooting, get a quick summary with your best shot and tips.';
+
+  @override
+  String get endSession => 'Finish session';
+
+  @override
+  String get sessionSummaryTitle => 'Session summary';
+
+  @override
+  String get sessionSummarySubtitle => 'Here\'s how this shoot went';
+
+  @override
+  String get sessionSummaryLoading => 'Analyzing your photos...';
+
+  @override
+  String get sessionStatPhotos => 'Photos';
+
+  @override
+  String get sessionStatDuration => 'Duration';
+
+  @override
+  String get sessionStatMode => 'Mode';
+
+  @override
+  String get sessionStatAesthetic => 'Avg. aesthetic';
+
+  @override
+  String get sessionModeFree => 'Free shoot';
+
+  @override
+  String get sessionModeGuided => 'Guided shoot';
+
+  @override
+  String get sessionBestShot => 'Best shot';
+
+  @override
+  String get sessionFeedbackTitle => 'Tips for next time';
+
+  @override
+  String get sessionDone => 'Back to home';
+
+  @override
+  String get sessionEndDialogTitle => 'End this session?';
+
+  @override
+  String get sessionEndDialogBody =>
+      'You have captured photos. View a summary or leave without saving the session.';
+
+  @override
+  String get sessionEndDialogCancel => 'Keep shooting';
+
+  @override
+  String get sessionEndDialogDiscard => 'Leave';
+
+  @override
+  String get sessionEndDialogSummarize => 'View summary';
+
+  @override
+  String get sessionTipGuidedPractice =>
+      'Great job using guided mode — keep matching the reference frame.';
+
+  @override
+  String get sessionTipTryGuided =>
+      'Try guided mode with a reference photo for tighter framing.';
+
+  @override
+  String get sessionTipStrongComposition =>
+      'Composition looks strong — keep this framing style.';
+
+  @override
+  String get sessionTipImproveLighting =>
+      'Try softer light or adjust exposure for richer tones.';
+
+  @override
+  String get sessionTipRefineFraming =>
+      'Small framing tweaks (headroom, horizon) can lift the shot.';
+
+  @override
+  String get sessionTipTooDark =>
+      'Several shots were underexposed — brighten the scene or raise EV.';
+
+  @override
+  String get sessionTipTooBright =>
+      'Highlights are clipping — lower exposure slightly.';
+
+  @override
+  String get sessionTipBalancedExposure =>
+      'Exposure balance looks good across this session.';
+
+  @override
+  String get sessionTipGreatVolume =>
+      'Nice volume of shots — pick the sharpest expression or pose.';
 }

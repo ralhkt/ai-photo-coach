@@ -1106,6 +1106,300 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Toggle body-part guides'**
   String get toggleBodyPartGuides;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsLanguageSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguageSection;
+
+  /// No description provided for @settingsGuidanceSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Guidance'**
+  String get settingsGuidanceSection;
+
+  /// No description provided for @settingsVoiceGuidance.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice guidance'**
+  String get settingsVoiceGuidance;
+
+  /// No description provided for @settingsVoiceGuidanceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speak tips aloud while shooting (snackbar preview)'**
+  String get settingsVoiceGuidanceSubtitle;
+
+  /// No description provided for @settingsPromptStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Prompt strength'**
+  String get settingsPromptStrength;
+
+  /// No description provided for @settingsPromptStrengthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Controls how many hints appear on the camera screen'**
+  String get settingsPromptStrengthHint;
+
+  /// No description provided for @promptStrengthLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get promptStrengthLow;
+
+  /// No description provided for @promptStrengthMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get promptStrengthMedium;
+
+  /// No description provided for @promptStrengthHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get promptStrengthHigh;
+
+  /// No description provided for @localeZhTw.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditional Chinese'**
+  String get localeZhTw;
+
+  /// No description provided for @localeZhCn.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplified Chinese'**
+  String get localeZhCn;
+
+  /// No description provided for @localeEn.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get localeEn;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingGetStarted;
+
+  /// No description provided for @onboardingTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Your on-device photo coach'**
+  String get onboardingTitle1;
+
+  /// No description provided for @onboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a reference or open the camera — all analysis runs locally on your phone.'**
+  String get onboardingBody1;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'Real-time framing guides'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Composition grids, pose alignment, and exposure hints help you match the shot.'**
+  String get onboardingBody2;
+
+  /// No description provided for @onboardingTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Session feedback'**
+  String get onboardingTitle3;
+
+  /// No description provided for @onboardingBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'When you finish shooting, get a quick summary with your best shot and tips.'**
+  String get onboardingBody3;
+
+  /// No description provided for @endSession.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish session'**
+  String get endSession;
+
+  /// No description provided for @sessionSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Session summary'**
+  String get sessionSummaryTitle;
+
+  /// No description provided for @sessionSummarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s how this shoot went'**
+  String get sessionSummarySubtitle;
+
+  /// No description provided for @sessionSummaryLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing your photos...'**
+  String get sessionSummaryLoading;
+
+  /// No description provided for @sessionStatPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get sessionStatPhotos;
+
+  /// No description provided for @sessionStatDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get sessionStatDuration;
+
+  /// No description provided for @sessionStatMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get sessionStatMode;
+
+  /// No description provided for @sessionStatAesthetic.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. aesthetic'**
+  String get sessionStatAesthetic;
+
+  /// No description provided for @sessionModeFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free shoot'**
+  String get sessionModeFree;
+
+  /// No description provided for @sessionModeGuided.
+  ///
+  /// In en, this message translates to:
+  /// **'Guided shoot'**
+  String get sessionModeGuided;
+
+  /// No description provided for @sessionBestShot.
+  ///
+  /// In en, this message translates to:
+  /// **'Best shot'**
+  String get sessionBestShot;
+
+  /// No description provided for @sessionFeedbackTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips for next time'**
+  String get sessionFeedbackTitle;
+
+  /// No description provided for @sessionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to home'**
+  String get sessionDone;
+
+  /// No description provided for @sessionEndDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End this session?'**
+  String get sessionEndDialogTitle;
+
+  /// No description provided for @sessionEndDialogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have captured photos. View a summary or leave without saving the session.'**
+  String get sessionEndDialogBody;
+
+  /// No description provided for @sessionEndDialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep shooting'**
+  String get sessionEndDialogCancel;
+
+  /// No description provided for @sessionEndDialogDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get sessionEndDialogDiscard;
+
+  /// No description provided for @sessionEndDialogSummarize.
+  ///
+  /// In en, this message translates to:
+  /// **'View summary'**
+  String get sessionEndDialogSummarize;
+
+  /// No description provided for @sessionTipGuidedPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Great job using guided mode — keep matching the reference frame.'**
+  String get sessionTipGuidedPractice;
+
+  /// No description provided for @sessionTipTryGuided.
+  ///
+  /// In en, this message translates to:
+  /// **'Try guided mode with a reference photo for tighter framing.'**
+  String get sessionTipTryGuided;
+
+  /// No description provided for @sessionTipStrongComposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Composition looks strong — keep this framing style.'**
+  String get sessionTipStrongComposition;
+
+  /// No description provided for @sessionTipImproveLighting.
+  ///
+  /// In en, this message translates to:
+  /// **'Try softer light or adjust exposure for richer tones.'**
+  String get sessionTipImproveLighting;
+
+  /// No description provided for @sessionTipRefineFraming.
+  ///
+  /// In en, this message translates to:
+  /// **'Small framing tweaks (headroom, horizon) can lift the shot.'**
+  String get sessionTipRefineFraming;
+
+  /// No description provided for @sessionTipTooDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Several shots were underexposed — brighten the scene or raise EV.'**
+  String get sessionTipTooDark;
+
+  /// No description provided for @sessionTipTooBright.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlights are clipping — lower exposure slightly.'**
+  String get sessionTipTooBright;
+
+  /// No description provided for @sessionTipBalancedExposure.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure balance looks good across this session.'**
+  String get sessionTipBalancedExposure;
+
+  /// No description provided for @sessionTipGreatVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Nice volume of shots — pick the sharpest expression or pose.'**
+  String get sessionTipGreatVolume;
 }
 
 class _AppLocalizationsDelegate

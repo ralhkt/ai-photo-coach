@@ -2,8 +2,10 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../models/shoot_session.dart';
 import '../../../ar/providers/ar_providers.dart';
 import '../../../scene_stabilization/services/camera_frame_monitor.dart';
+import '../../../session/providers/shoot_session_provider.dart';
 
 /// Starts/stops Phase 2 AR session + pHash scene monitor with camera lifecycle.
 class CameraSessionLifecycle extends ConsumerStatefulWidget {
@@ -12,11 +14,13 @@ class CameraSessionLifecycle extends ConsumerStatefulWidget {
     required this.controller,
     required this.enableAr,
     required this.child,
+    this.shootSessionMode,
   });
 
   final CameraController controller;
   final bool enableAr;
   final Widget child;
+  final ShootSessionMode? shootSessionMode;
 
   @override
   ConsumerState<CameraSessionLifecycle> createState() =>
@@ -45,6 +49,10 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
   }
 
   Future<void> _startServices() async {
+    final mode = widget.shootSessionMode;
+    if (mode != null) {
+      ref.read(shootSessionProvider.notifier).startSession(mode);
+    }
     await ref.read(cameraFrameMonitorProvider).start(widget.controller);
     if (widget.enableAr) {
       await ref.read(arSessionProvider.notifier).start();

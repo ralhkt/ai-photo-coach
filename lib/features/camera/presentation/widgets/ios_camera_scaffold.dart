@@ -4,9 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/services/voice_guidance_service.dart';
 import '../../../../models/camera_aspect_ratio.dart';
 import '../../../../models/camera_timer_duration.dart';
 import '../../../../models/captured_photo.dart';
+import '../../../../models/shoot_session.dart';
+import '../../../session/presentation/session_flow.dart';
+import '../../../session/providers/shoot_session_provider.dart';
 import '../../../ar/presentation/ar_horizon_overlay.dart';
 import '../../../ar/presentation/ar_status_chip.dart';
 import '../../../ar/providers/ar_providers.dart';
@@ -39,12 +43,14 @@ class IosCameraScaffold extends ConsumerStatefulWidget {
     this.onGridTap,
     this.onFrameTap,
     this.enablePhase2 = true,
+    this.shootSessionMode,
   });
 
   final CameraController controller;
   final Widget overlay;
   final Widget? guidanceChip;
   final bool enablePhase2;
+  final ShootSessionMode? shootSessionMode;
   final String? modeLabel;
   final String? centerTopLabel;
   final bool showGridButton;
@@ -111,7 +117,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                   hdrEnabled: hdrEnabled,
                   aeAfLocked: aeAfLocked,
                   aeAfLockLabel: l10n.aeAfLocked,
-                  onClose: () => Navigator.of(context).maybePop(),
+                  onClose: () => _handleClose(context),
                   onFlashTap: () =>
                       ref.read(cameraControllerProvider.notifier).cycleFlashMode(),
                   onGridTap: widget.onGridTap,
@@ -206,6 +212,18 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
     );
   }
 
+  Future<void> _handleClose(BuildContext context) async {
+    if (widget.shootSessionMode == null) {
+      Navigator.of(context).maybePop();
+      return;
+    }
+
+    final shouldPop = await confirmEndSessionOnClose(context, ref);
+    if (shouldPop && context.mounted) {
+      Navigator.of(context).maybePop();
+    }
+  }
+
   Future<void> _capture(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     try {
@@ -215,9 +233,16 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
       if (!context.mounted || photo == null) {
         return;
       }
+      if (widget.shootSessionMode != null) {
+        ref.read(shootSessionProvider.notifier).recordCapture(photo);
+        ref.read(voiceGuidanceServiceProvider).speak(context, l10n.photoPreview);
+      }
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => PhotoReviewScreen(photo: photo),
+          builder: (_) => PhotoReviewScreen(
+            photo: photo,
+            isSessionCapture: widget.shootSessionMode != null,
+          ),
         ),
       );
     } catch (_) {
@@ -236,10 +261,19 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
       return;
     }
 
+    if (widget.shootSessionMode != null) {
+      for (final photo in photos) {
+        ref.read(shootSessionProvider.notifier).recordCapture(photo);
+      }
+    }
+
     if (photos.length == 1) {
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => PhotoReviewScreen(photo: photos.first),
+          builder: (_) => PhotoReviewScreen(
+            photo: photos.first,
+            isSessionCapture: widget.shootSessionMode != null,
+          ),
         ),
       );
       return;

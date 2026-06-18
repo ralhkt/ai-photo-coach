@@ -525,10 +525,157 @@ class AppLocalizationsZh extends AppLocalizations {
   String get alignmentStepHips => '4. 腰部對齊紫色臀框';
 
   @override
-  String get toggleGhostOverlay => '切換參考半透明圖';
+  String get toggleGhostOverlay => '切换参考半透明图';
 
   @override
-  String get toggleBodyPartGuides => '切換身體部位框';
+  String get toggleBodyPartGuides => '切换身体部位框';
+
+  @override
+  String get settingsTitle => '设置';
+
+  @override
+  String get settingsLanguageSection => '语言';
+
+  @override
+  String get settingsGuidanceSection => '引导提示';
+
+  @override
+  String get settingsVoiceGuidance => '语音引导';
+
+  @override
+  String get settingsVoiceGuidanceSubtitle => '拍摄时朗读提示（目前以浮动消息预览）';
+
+  @override
+  String get settingsPromptStrength => '提示强度';
+
+  @override
+  String get settingsPromptStrengthHint => '控制相机画面上显示多少引导信息';
+
+  @override
+  String get promptStrengthLow => '低';
+
+  @override
+  String get promptStrengthMedium => '中';
+
+  @override
+  String get promptStrengthHigh => '高';
+
+  @override
+  String get localeZhTw => '繁体中文';
+
+  @override
+  String get localeZhCn => '简体中文';
+
+  @override
+  String get localeEn => 'English';
+
+  @override
+  String get onboardingSkip => '跳过';
+
+  @override
+  String get onboardingNext => '下一步';
+
+  @override
+  String get onboardingGetStarted => '开始使用';
+
+  @override
+  String get onboardingTitle1 => '你的本机摄影教练';
+
+  @override
+  String get onboardingBody1 => '上传参考图或开启相机，所有分析都在手机本机完成。';
+
+  @override
+  String get onboardingTitle2 => '实时取景引导';
+
+  @override
+  String get onboardingBody2 => '构图格线、姿势对齐与曝光提示，帮你拍出参考同款构图。';
+
+  @override
+  String get onboardingTitle3 => '拍摄总结';
+
+  @override
+  String get onboardingBody3 => '结束拍摄后，快速查看最佳照片与改进建议。';
+
+  @override
+  String get endSession => '完成拍摄';
+
+  @override
+  String get sessionSummaryTitle => '拍摄总结';
+
+  @override
+  String get sessionSummarySubtitle => '本次拍摄表现如下';
+
+  @override
+  String get sessionSummaryLoading => '正在分析你的照片...';
+
+  @override
+  String get sessionStatPhotos => '张数';
+
+  @override
+  String get sessionStatDuration => '时长';
+
+  @override
+  String get sessionStatMode => '模式';
+
+  @override
+  String get sessionStatAesthetic => '平均美学分';
+
+  @override
+  String get sessionModeFree => '自由拍摄';
+
+  @override
+  String get sessionModeGuided => '引导拍摄';
+
+  @override
+  String get sessionBestShot => '最佳照片';
+
+  @override
+  String get sessionFeedbackTitle => '下次可以试试';
+
+  @override
+  String get sessionDone => '返回首页';
+
+  @override
+  String get sessionEndDialogTitle => '结束本次拍摄？';
+
+  @override
+  String get sessionEndDialogBody => '你已拍下照片。可查看总结，或直接离开不保存本次记录。';
+
+  @override
+  String get sessionEndDialogCancel => '继续拍摄';
+
+  @override
+  String get sessionEndDialogDiscard => '直接离开';
+
+  @override
+  String get sessionEndDialogSummarize => '查看总结';
+
+  @override
+  String get sessionTipGuidedPractice => '引导模式用得很好，继续对齐参考构图。';
+
+  @override
+  String get sessionTipTryGuided => '试试上传参考图并使用引导拍摄，构图会更精准。';
+
+  @override
+  String get sessionTipStrongComposition => '构图表现不错，可维持这种取景方式。';
+
+  @override
+  String get sessionTipImproveLighting => '试试更柔和的光线或调整曝光，画面会更有层次。';
+
+  @override
+  String get sessionTipRefineFraming => '微调取景（头顶留白、地平线）能让照片更出色。';
+
+  @override
+  String get sessionTipTooDark => '多张照片偏暗，可提高现场亮度或增加 EV。';
+
+  @override
+  String get sessionTipTooBright => '高光略过曝，可稍微降低曝光。';
+
+  @override
+  String get sessionTipBalancedExposure => '本次曝光平衡表现良好。';
+
+  @override
+  String get sessionTipGreatVolume => '拍摄张数充足，可挑选最清晰的神态或姿势。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1056,4 +1203,151 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get toggleBodyPartGuides => '切換身體部位框';
+
+  @override
+  String get settingsTitle => '設定';
+
+  @override
+  String get settingsLanguageSection => '語言';
+
+  @override
+  String get settingsGuidanceSection => '引導提示';
+
+  @override
+  String get settingsVoiceGuidance => '語音引導';
+
+  @override
+  String get settingsVoiceGuidanceSubtitle => '拍攝時朗讀提示（目前以浮動訊息預覽）';
+
+  @override
+  String get settingsPromptStrength => '提示強度';
+
+  @override
+  String get settingsPromptStrengthHint => '控制相機畫面上顯示多少引導資訊';
+
+  @override
+  String get promptStrengthLow => '低';
+
+  @override
+  String get promptStrengthMedium => '中';
+
+  @override
+  String get promptStrengthHigh => '高';
+
+  @override
+  String get localeZhTw => '繁體中文';
+
+  @override
+  String get localeZhCn => '簡體中文';
+
+  @override
+  String get localeEn => 'English';
+
+  @override
+  String get onboardingSkip => '略過';
+
+  @override
+  String get onboardingNext => '下一步';
+
+  @override
+  String get onboardingGetStarted => '開始使用';
+
+  @override
+  String get onboardingTitle1 => '你的本機攝影教練';
+
+  @override
+  String get onboardingBody1 => '上傳參考圖或開啟相機，所有分析都在手機本機完成。';
+
+  @override
+  String get onboardingTitle2 => '即時取景引導';
+
+  @override
+  String get onboardingBody2 => '構圖格線、姿勢對齊與曝光提示，幫你拍出參考同款構圖。';
+
+  @override
+  String get onboardingTitle3 => '拍攝總結';
+
+  @override
+  String get onboardingBody3 => '結束拍攝後，快速查看最佳照片與改進建議。';
+
+  @override
+  String get endSession => '完成拍攝';
+
+  @override
+  String get sessionSummaryTitle => '拍攝總結';
+
+  @override
+  String get sessionSummarySubtitle => '本次拍攝表現如下';
+
+  @override
+  String get sessionSummaryLoading => '正在分析你的照片...';
+
+  @override
+  String get sessionStatPhotos => '張數';
+
+  @override
+  String get sessionStatDuration => '時長';
+
+  @override
+  String get sessionStatMode => '模式';
+
+  @override
+  String get sessionStatAesthetic => '平均美學分';
+
+  @override
+  String get sessionModeFree => '自由拍攝';
+
+  @override
+  String get sessionModeGuided => '引導拍攝';
+
+  @override
+  String get sessionBestShot => '最佳照片';
+
+  @override
+  String get sessionFeedbackTitle => '下次可以試試';
+
+  @override
+  String get sessionDone => '返回首頁';
+
+  @override
+  String get sessionEndDialogTitle => '結束本次拍攝？';
+
+  @override
+  String get sessionEndDialogBody => '你已拍下照片。可查看總結，或直接離開不儲存本次紀錄。';
+
+  @override
+  String get sessionEndDialogCancel => '繼續拍攝';
+
+  @override
+  String get sessionEndDialogDiscard => '直接離開';
+
+  @override
+  String get sessionEndDialogSummarize => '查看總結';
+
+  @override
+  String get sessionTipGuidedPractice => '引導模式用得很好，繼續對齊參考構圖。';
+
+  @override
+  String get sessionTipTryGuided => '試試上傳參考圖並使用引導拍攝，構圖會更精準。';
+
+  @override
+  String get sessionTipStrongComposition => '構圖表現不錯，可維持這種取景方式。';
+
+  @override
+  String get sessionTipImproveLighting => '試試更柔和的光線或調整曝光，畫面會更有層次。';
+
+  @override
+  String get sessionTipRefineFraming => '微調取景（頭頂留白、地平線）能讓照片更出色。';
+
+  @override
+  String get sessionTipTooDark => '多張照片偏暗，可提高現場亮度或增加 EV。';
+
+  @override
+  String get sessionTipTooBright => '高光略過曝，可稍微降低曝光。';
+
+  @override
+  String get sessionTipBalancedExposure => '本次曝光平衡表現良好。';
+
+  @override
+  String get sessionTipGreatVolume => '拍攝張數充足，可挑選最清晰的神態或姿勢。';
 }

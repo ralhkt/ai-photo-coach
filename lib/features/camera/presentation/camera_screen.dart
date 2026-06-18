@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../models/composition_overlay_type.dart';
+import '../../../models/shoot_session.dart';
 import '../../overlays/presentation/composition_overlay.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../providers/camera_providers.dart';
@@ -49,7 +50,9 @@ class CameraScreen extends ConsumerWidget {
             child: CameraSessionLifecycle(
             controller: controller,
             enableAr: true,
+            shootSessionMode: ShootSessionMode.free,
             child: IosCameraScaffold(
+              shootSessionMode: ShootSessionMode.free,
               controller: controller,
               modeLabel: l10n.cameraModePhoto,
               gridEnabled: overlayVisible,

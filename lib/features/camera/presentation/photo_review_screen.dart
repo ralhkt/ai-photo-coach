@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../models/captured_photo.dart';
+import '../../session/presentation/session_flow.dart';
+import '../../session/providers/shoot_session_provider.dart';
 
-class PhotoReviewScreen extends StatelessWidget {
+class PhotoReviewScreen extends ConsumerWidget {
   const PhotoReviewScreen({
     super.key,
     required this.photo,
     this.isFromGallery = false,
+    this.isSessionCapture = false,
   });
 
   final CapturedPhoto photo;
   final bool isFromGallery;
+  final bool isSessionCapture;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final session = ref.watch(shootSessionProvider);
+    final showEndSession = isSessionCapture &&
+        !isFromGallery &&
+        (session?.captures.isNotEmpty ?? false);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -94,6 +103,15 @@ class PhotoReviewScreen extends StatelessWidget {
                         child: Text(l10n.keepShooting),
                       ),
                     ),
+                    if (showEndSession) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () => endShootSession(context, ref),
+                          child: Text(l10n.endSession),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

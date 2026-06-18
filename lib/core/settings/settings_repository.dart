@@ -1,0 +1,47 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../models/app_settings.dart';
+
+final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
+  return SettingsRepository();
+});
+
+class SettingsRepository {
+  static const _onboardingKey = 'onboarding_completed';
+  static const _voiceKey = 'voice_guidance_enabled';
+  static const _promptKey = 'prompt_strength';
+  static const _localeKey = 'locale_option';
+
+  Future<AppSettings> load() async {
+    final prefs = await SharedPreferences.getInstance();
+    return AppSettings(
+      onboardingCompleted: prefs.getBool(_onboardingKey) ?? false,
+      voiceGuidanceEnabled: prefs.getBool(_voiceKey) ?? false,
+      promptStrength: _parsePromptStrength(prefs.getString(_promptKey)),
+      localeOption: _parseLocaleOption(prefs.getString(_localeKey)),
+    );
+  }
+
+  Future<void> save(AppSettings settings) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_onboardingKey, settings.onboardingCompleted);
+    await prefs.setBool(_voiceKey, settings.voiceGuidanceEnabled);
+    await prefs.setString(_promptKey, settings.promptStrength.name);
+    await prefs.setString(_localeKey, settings.localeOption.name);
+  }
+
+  PromptStrength _parsePromptStrength(String? value) {
+    return PromptStrength.values.firstWhere(
+      (item) => item.name == value,
+      orElse: () => PromptStrength.medium,
+    );
+  }
+
+  AppLocaleOption _parseLocaleOption(String? value) {
+    return AppLocaleOption.values.firstWhere(
+      (item) => item.name == value,
+      orElse: () => AppLocaleOption.zhTw,
+    );
+  }
+}

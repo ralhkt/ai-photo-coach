@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/settings/app_settings_provider.dart';
 import '../../../core/utils/guidance_text.dart';
+import '../../../core/utils/prompt_strength.dart';
+import '../../../models/shoot_session.dart';
 import '../../../models/photo_frame_template.dart';
 import '../../../models/subject_shape_kind.dart';
 import '../../frames/presentation/body_part_alignment_chip.dart';
@@ -63,6 +66,7 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
     final guidance = analysis.guidance;
     final hasBodyParts = guidance.bodyPartGuides != null;
     final partLabels = bodyPartLabels(l10n);
+    final promptFilter = PromptStrengthFilter(ref.watch(promptStrengthProvider));
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -103,8 +107,10 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                 child: CameraSessionLifecycle(
                 controller: controller,
                 enableAr: true,
+                shootSessionMode: ShootSessionMode.guided,
                 child: IosCameraScaffold(
                   controller: controller,
+                  shootSessionMode: ShootSessionMode.guided,
                   modeLabel: l10n.cameraModeGuided,
                   centerTopLabel:
                       frameTemplateLabel(l10n, guidance.frameTemplate),
@@ -118,19 +124,23 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                   guidanceChip: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (hasBodyParts)
+                      if (hasBodyParts && promptFilter.showBodyPartSteps)
                         BodyPartAlignmentChip(
                           labels: partLabels,
                           title: l10n.alignmentGuideTitle,
                           hasBodyParts: true,
+                          maxSteps: promptFilter.bodyPartStepCount,
                         ),
-                      if (hasBodyParts) const SizedBox(height: 8),
+                      if (hasBodyParts && promptFilter.showBodyPartSteps)
+                        const SizedBox(height: 8),
                       _GuidanceChip(
                         hint: guidanceHintLabel(l10n, guidance.framingHintKey),
-                        secondaryHint:
-                            guidanceHintLabel(l10n, guidance.distanceHintKey),
-                        exposureHint:
-                            guidanceHintLabel(l10n, guidance.exposureHintKey),
+                        secondaryHint: promptFilter.showSecondaryHints
+                            ? guidanceHintLabel(l10n, guidance.distanceHintKey)
+                            : '',
+                        exposureHint: promptFilter.showExposureHints
+                            ? guidanceHintLabel(l10n, guidance.exposureHintKey)
+                            : '',
                       ),
                     ],
                   ),
@@ -240,16 +250,20 @@ class _GuidanceChip extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            secondaryHint,
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            exposureHint,
-            style: const TextStyle(color: Color(0xFFFFD60A), fontSize: 11),
-          ),
+          if (secondaryHint.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              secondaryHint,
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+          ],
+          if (exposureHint.isNotEmpty) ...[
+            const SizedBox(height: 2),
+            Text(
+              exposureHint,
+              style: const TextStyle(color: Color(0xFFFFD60A), fontSize: 11),
+            ),
+          ],
         ],
       ),
     );

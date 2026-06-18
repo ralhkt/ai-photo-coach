@@ -8,11 +8,13 @@ class BodyPartAlignmentChip extends StatelessWidget {
     required this.labels,
     required this.title,
     required this.hasBodyParts,
+    this.maxSteps = 4,
   });
 
   final BodyPartLabels labels;
   final String title;
   final bool hasBodyParts;
+  final int maxSteps;
 
   @override
   Widget build(BuildContext context) {
@@ -50,25 +52,31 @@ class BodyPartAlignmentChip extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          _StepRow(
-            icon: Icons.face_retouching_natural_rounded,
-            text: labels.alignHead,
-          ),
-          _StepRow(
-            icon: Icons.switch_access_shortcut_rounded,
-            text: labels.alignShoulders,
-          ),
-          _StepRow(
-            icon: Icons.person_outline_rounded,
-            text: labels.alignTorso,
-          ),
-          _StepRow(
-            icon: Icons.airline_seat_legroom_normal_rounded,
-            text: labels.alignHips,
-          ),
+          ..._steps().take(maxSteps),
         ],
       ),
     );
+  }
+
+  List<Widget> _steps() {
+    return [
+      _StepRow(
+        icon: Icons.face_retouching_natural_rounded,
+        text: labels.alignHead,
+      ),
+      _StepRow(
+        icon: Icons.switch_access_shortcut_rounded,
+        text: labels.alignShoulders,
+      ),
+      _StepRow(
+        icon: Icons.person_outline_rounded,
+        text: labels.alignTorso,
+      ),
+      _StepRow(
+        icon: Icons.airline_seat_legroom_normal_rounded,
+        text: labels.alignHips,
+      ),
+    ];
   }
 }
 
