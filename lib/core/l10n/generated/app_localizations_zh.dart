@@ -766,6 +766,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get liveSceneAnalyzeFailed => '无法分析目前场景，请再试一次。';
 
   @override
+  String get liveSceneCameraBusy => '相机忙碌中（倒数／连拍／拍照），请稍后再试。';
+
+  @override
+  String get liveSceneCameraNotReady => '相机尚未就绪。';
+
+  @override
   String get liveSceneReanalyze => '重新分析';
 
   @override
@@ -1539,6 +1545,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get liveSceneAnalyzeFailed => '無法分析目前場景，請再試一次。';
+
+  @override
+  String get liveSceneCameraBusy => '相機忙碌中（倒數／連拍／拍照），請稍後再試。';
+
+  @override
+  String get liveSceneCameraNotReady => '相機尚未就緒。';
 
   @override
   String get liveSceneReanalyze => '重新分析';

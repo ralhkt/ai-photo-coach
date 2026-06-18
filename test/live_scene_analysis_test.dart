@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:ai_photo_coach/core/l10n/generated/app_localizations.dart';
 import 'package:ai_photo_coach/core/utils/prompt_strength.dart';
 import 'package:ai_photo_coach/features/camera/presentation/widgets/live_scene_advice_panel.dart';
+import 'package:ai_photo_coach/features/camera/providers/live_scene_analysis_provider.dart';
 import 'package:ai_photo_coach/models/app_settings.dart';
 import 'package:ai_photo_coach/models/body_part_guides.dart';
 import 'package:ai_photo_coach/models/camera_guidance.dart';
@@ -75,6 +76,17 @@ void main() {
 
     expect(find.text('AI 拍攝建議'), findsOneWidget);
     expect(find.textContaining('構圖'), findsWidgets);
+  });
+
+  test('live scene failure enum covers busy and capture cases', () {
+    expect(
+      LiveSceneAnalysisException(LiveSceneAnalysisFailure.cameraBusy).reason,
+      LiveSceneAnalysisFailure.cameraBusy,
+    );
+    expect(
+      LiveSceneAnalysisException(LiveSceneAnalysisFailure.captureFailed).reason,
+      LiveSceneAnalysisFailure.captureFailed,
+    );
   });
 
   test('prompt filter controls live advice detail tiers', () {

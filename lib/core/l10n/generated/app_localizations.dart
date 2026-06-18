@@ -1557,6 +1557,18 @@ abstract class AppLocalizations {
   /// **'Could not analyze the current scene. Try again.'**
   String get liveSceneAnalyzeFailed;
 
+  /// No description provided for @liveSceneCameraBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera is busy (timer/burst/capture). Try again shortly.'**
+  String get liveSceneCameraBusy;
+
+  /// No description provided for @liveSceneCameraNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera is not ready yet.'**
+  String get liveSceneCameraNotReady;
+
   /// No description provided for @liveSceneReanalyze.
   ///
   /// In en, this message translates to:

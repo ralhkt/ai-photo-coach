@@ -20,7 +20,8 @@ import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
-import '../../providers/live_scene_analysis_provider.dart';
+import '../../providers/live_scene_analysis_provider.dart'
+    show LiveSceneAnalysisException, LiveSceneAnalysisFailure, liveSceneAnalysisProvider;
 import 'live_scene_advice_panel.dart';
 import '../burst_review_screen.dart';
 import '../photo_review_screen.dart';
@@ -90,9 +91,20 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
               guidanceHintLabel(l10n, analysis.guidance.framingHintKey),
             );
       },
-      error: (_, __) {
+      error: (error, _) {
+        final message = switch (error) {
+          LiveSceneAnalysisException(
+            reason: LiveSceneAnalysisFailure.cameraBusy,
+          ) =>
+            l10n.liveSceneCameraBusy,
+          LiveSceneAnalysisException(
+            reason: LiveSceneAnalysisFailure.cameraNotReady,
+          ) =>
+            l10n.liveSceneCameraNotReady,
+          _ => l10n.liveSceneAnalyzeFailed,
+        };
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.liveSceneAnalyzeFailed)),
+          SnackBar(content: Text(message)),
         );
       },
     );
@@ -163,7 +175,11 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                   showFrameButton: widget.showFrameButton,
                   showAiAnalyzeButton: _isFreeShootMode,
                   aiAnalyzing: isLiveAnalyzing,
-                  onAiAnalyzeTap: () => _analyzeLiveScene(context),
+                  onAiAnalyzeTap: countdown == null &&
+                          !isBursting &&
+                          !isCapturing
+                      ? () => _analyzeLiveScene(context)
+                      : null,
                   aiAnalyzeTooltip: l10n.liveSceneAnalyze,
                   centerLabel: widget.centerTopLabel,
                 ),

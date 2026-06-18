@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -264,7 +267,13 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     try {
       await controller.setFlashMode(FlashMode.off);
       final file = await controller.takePicture();
-      return await file.readAsBytes();
+      final bytes = await file.readAsBytes();
+      if (!kIsWeb) {
+        try {
+          await File(file.path).delete();
+        } catch (_) {}
+      }
+      return bytes;
     } catch (_) {
       return null;
     } finally {
@@ -361,6 +370,25 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       ref.read(lastCaptureProvider.notifier).state = photos.last;
     }
     return photos;
+  }
+
+  /// Applies zoom/exposure for free-mode live scene advice without seeding guided presets.
+  Future<void> applyLiveSceneAdvice(CameraGuidance guidance) async {
+    await setZoom(guidance.suggestedZoom);
+
+    final controller = state.value;
+    if (controller == null || !controller.value.isInitialized) {
+      return;
+    }
+
+    try {
+      final minEv = await controller.getMinExposureOffset();
+      final maxEv = await controller.getMaxExposureOffset();
+      final ev = guidance.exposureEv.clamp(minEv, maxEv);
+      await controller.setExposureOffset(ev);
+      ref.read(manualExposureOffsetProvider.notifier).state = ev;
+      ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
+    } catch (_) {}
   }
 
   Future<void> applyGuidanceSettings(CameraGuidance guidance) async {

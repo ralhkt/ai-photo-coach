@@ -809,6 +809,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not analyze the current scene. Try again.';
 
   @override
+  String get liveSceneCameraBusy =>
+      'Camera is busy (timer/burst/capture). Try again shortly.';
+
+  @override
+  String get liveSceneCameraNotReady => 'Camera is not ready yet.';
+
+  @override
   String get liveSceneReanalyze => 'Analyze again';
 
   @override

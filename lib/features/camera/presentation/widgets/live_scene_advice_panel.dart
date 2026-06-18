@@ -95,6 +95,11 @@ class LiveSceneAdvicePanel extends ConsumerWidget {
                 icon: Icons.wb_sunny_outlined,
                 text: guidanceHintLabel(l10n, guidance.exposureHintKey),
               ),
+            if (promptFilter.showSecondaryHints)
+              _AdviceLine(
+                icon: Icons.swap_vert_rounded,
+                text: guidanceHintLabel(l10n, guidance.angleHintKey),
+              ),
             _AdviceLine(
               icon: Icons.grid_on_rounded,
               text: l10n.liveSceneOverlayApplied(

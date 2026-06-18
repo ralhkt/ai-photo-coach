@@ -243,6 +243,8 @@
   "liveSceneAnalyzing": "正在分析场景...",
   "liveSceneAdviceTitle": "AI 拍摄建议",
   "liveSceneAnalyzeFailed": "无法分析目前场景，请再试一次。",
+  "liveSceneCameraBusy": "相机忙碌中（倒数／连拍／拍照），请稍后再试。",
+  "liveSceneCameraNotReady": "相机尚未就绪。",
   "liveSceneReanalyze": "重新分析",
   "liveSceneOverlayApplied": "构图叠层：{overlay}",
   "liveSceneMlSummary": "{source} · 美学分 {score}"

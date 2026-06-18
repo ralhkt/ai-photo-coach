@@ -307,6 +307,8 @@
   "liveSceneAnalyzing": "Analyzing scene...",
   "liveSceneAdviceTitle": "AI shooting advice",
   "liveSceneAnalyzeFailed": "Could not analyze the current scene. Try again.",
+  "liveSceneCameraBusy": "Camera is busy (timer/burst/capture). Try again shortly.",
+  "liveSceneCameraNotReady": "Camera is not ready yet.",
   "liveSceneReanalyze": "Analyze again",
   "liveSceneOverlayApplied": "Composition overlay: {overlay}",
   "@liveSceneOverlayApplied": {
