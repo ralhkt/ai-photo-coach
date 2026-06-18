@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/services/voice_guidance_service.dart';
+import '../../../../core/settings/app_settings_provider.dart';
 import '../../../../core/utils/guidance_text.dart';
 import '../../../../models/camera_aspect_ratio.dart';
 import '../../../../models/camera_timer_duration.dart';
@@ -20,9 +21,12 @@ import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
-import '../../providers/live_scene_analysis_provider.dart'
-    show LiveSceneAnalysisException, LiveSceneAnalysisFailure, liveSceneAnalysisProvider;
+import '../../providers/live_scene_analysis_provider.dart';
+import 'angle_guidance_overlay.dart';
 import 'live_scene_advice_panel.dart';
+import 'live_scene_analyzing_overlay.dart';
+import 'live_scene_auto_analyzer.dart';
+import 'live_scene_coach_banner.dart';
 import '../burst_review_screen.dart';
 import '../photo_review_screen.dart';
 import 'ios_aspect_ratio_overlay.dart';
@@ -74,47 +78,155 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
 
   Future<void> _analyzeLiveScene(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
+    final previous = ref.read(liveSceneAnalysisProvider).value;
     await ref.read(liveSceneAnalysisProvider.notifier).analyzeCurrentScene();
 
     if (!context.mounted) {
       return;
     }
 
-    final state = ref.read(liveSceneAnalysisProvider);
-    state.whenOrNull(
-      data: (analysis) {
-        if (analysis == null) {
-          return;
-        }
-        ref.read(voiceGuidanceServiceProvider).speak(
-              context,
-              guidanceHintLabel(l10n, analysis.guidance.framingHintKey),
-            );
-      },
-      error: (error, _) {
-        final message = switch (error) {
-          LiveSceneAnalysisException(
-            reason: LiveSceneAnalysisFailure.cameraBusy,
-          ) =>
-            l10n.liveSceneCameraBusy,
-          LiveSceneAnalysisException(
-            reason: LiveSceneAnalysisFailure.cameraNotReady,
-          ) =>
-            l10n.liveSceneCameraNotReady,
-          _ => l10n.liveSceneAnalyzeFailed,
-        };
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
-      },
+    final analysis = ref.read(liveSceneAnalysisProvider).value;
+    final error = ref.read(liveSceneAnalysisErrorProvider);
+    if (analysis != null && analysis != previous && error == null) {
+      await ref.read(appSettingsProvider.notifier).dismissLiveSceneCoach();
+      if (!context.mounted) {
+        return;
+      }
+      ref.read(voiceGuidanceServiceProvider).speak(
+            context,
+            guidanceHintLabel(l10n, analysis.guidance.framingHintKey),
+          );
+      _showLiveSceneSuccess(context, l10n);
+    }
+  }
+
+  void _showLiveSceneSuccess(BuildContext context, AppLocalizations l10n) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+        content: Row(
+          children: [
+            const Icon(
+              Icons.check_circle_outline_rounded,
+              color: Color(0xFFFFD60A),
+              size: 20,
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: Text(l10n.liveSceneAnalysisReady)),
+          ],
+        ),
+      ),
     );
+  }
+
+  String _liveSceneErrorMessage(
+    AppLocalizations l10n,
+    LiveSceneAnalysisFailure failure,
+  ) {
+    return switch (failure) {
+      LiveSceneAnalysisFailure.cameraBusy => l10n.liveSceneCameraBusy,
+      LiveSceneAnalysisFailure.cameraNotReady => l10n.liveSceneCameraNotReady,
+      LiveSceneAnalysisFailure.captureFailed ||
+      LiveSceneAnalysisFailure.analysisFailed =>
+        l10n.liveSceneAnalyzeFailed,
+    };
+  }
+
+  String _liveSceneErrorHint(
+    AppLocalizations l10n,
+    LiveSceneAnalysisFailure failure,
+  ) {
+    return switch (failure) {
+      LiveSceneAnalysisFailure.cameraBusy => l10n.liveSceneCameraBusyHint,
+      LiveSceneAnalysisFailure.cameraNotReady => l10n.liveSceneAnalyzeFailedHint,
+      LiveSceneAnalysisFailure.captureFailed ||
+      LiveSceneAnalysisFailure.analysisFailed =>
+        l10n.liveSceneAnalyzeFailedHint,
+    };
+  }
+
+  void _showLiveSceneError(
+    BuildContext context,
+    AppLocalizations l10n,
+    LiveSceneAnalysisFailure failure,
+  ) {
+    final canRetry = failure != LiveSceneAnalysisFailure.cameraBusy;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 4),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _liveSceneErrorMessage(l10n, failure),
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _liveSceneErrorHint(l10n, failure),
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
+            ),
+          ],
+        ),
+        action: canRetry
+            ? SnackBarAction(
+                label: l10n.liveSceneRetryAction,
+                onPressed: () => _analyzeLiveScene(context),
+              )
+            : null,
+      ),
+    );
+    ref.read(liveSceneAnalysisErrorProvider.notifier).state = null;
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final liveAnalysis = ref.watch(liveSceneAnalysisProvider);
-    final isLiveAnalyzing = liveAnalysis.isLoading;
+    final isLiveAnalyzing = ref.watch(liveSceneAnalyzingProvider);
+    final isManualRun = ref.watch(liveSceneManualRunProvider);
+    final coachDismissed = ref.watch(liveSceneCoachDismissedProvider);
+    final hasAdvice = liveAnalysis.value != null;
+
+    ref.listen<LiveSceneAnalysisFailure?>(
+      liveSceneAnalysisErrorProvider,
+      (previous, next) {
+        if (next == null || next == previous || !context.mounted) {
+          return;
+        }
+        _showLiveSceneError(context, l10n, next);
+      },
+    );
+
+    ref.listen<bool>(liveSceneAnalyzingProvider, (previous, next) {
+      if (previous != true || next != false || !context.mounted) {
+        return;
+      }
+      final analysis = ref.read(liveSceneAnalysisProvider).value;
+      final error = ref.read(liveSceneAnalysisErrorProvider);
+      final manual = ref.read(liveSceneManualRunProvider);
+      if (analysis == null || error != null) {
+        return;
+      }
+      ref.read(appSettingsProvider.notifier).dismissLiveSceneCoach();
+      if (manual) {
+        return;
+      }
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          content: Text(l10n.liveSceneAnalysisReady),
+        ),
+      );
+    });
+
     final lastCapture = ref.watch(lastCaptureProvider);
     final isCapturing = ref.watch(isCapturingProvider);
     final showFlash = ref.watch(captureFlashProvider);
@@ -136,6 +248,10 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
     final focalPreset = ref.watch(focalPresetProvider);
     final showHistogram = ref.watch(showHistogramProvider);
     final frontMirror = ref.watch(frontMirrorEnabledProvider);
+    final showCoachBanner = _isFreeShootMode &&
+        !coachDismissed &&
+        !hasAdvice &&
+        !isLiveAnalyzing;
 
     return Column(
       children: [
@@ -155,6 +271,11 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                   child: const ColoredBox(color: Colors.white),
                 ),
               if (countdown != null) IosCountdownOverlay(seconds: countdown),
+              if (_isFreeShootMode)
+                LiveSceneAnalyzingOverlay(
+                  visible: isLiveAnalyzing,
+                  autoTriggered: !isManualRun,
+                ),
               Positioned(
                 top: 0,
                 left: 0,
@@ -177,7 +298,8 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                   aiAnalyzing: isLiveAnalyzing,
                   onAiAnalyzeTap: countdown == null &&
                           !isBursting &&
-                          !isCapturing
+                          !isCapturing &&
+                          !isLiveAnalyzing
                       ? () => _analyzeLiveScene(context)
                       : null,
                   aiAnalyzeTooltip: l10n.liveSceneAnalyze,
@@ -195,6 +317,21 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                 ),
               if (showHistogram)
                 IosHistogramOverlay(brightness: 0.45 + manualEv * 0.1),
+              if (_isFreeShootMode)
+                liveAnalysis.maybeWhen(
+                  data: (analysis) {
+                    if (analysis == null) {
+                      return const SizedBox.shrink();
+                    }
+                    return AngleGuidanceOverlay(
+                      angleDegrees: analysis.guidance.angleDegrees,
+                      angleHintKey: analysis.guidance.angleHintKey,
+                      visible: true,
+                    );
+                  },
+                  orElse: () => const SizedBox.shrink(),
+                ),
+              if (_isFreeShootMode) const LiveSceneAutoAnalyzer(),
             ],
           ),
         ),
@@ -203,6 +340,8 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: widget.guidanceChip!,
           ),
+        if (_isFreeShootMode)
+          LiveSceneCoachBanner(visible: showCoachBanner),
         liveAnalysis.maybeWhen(
           data: (analysis) {
             if (analysis == null || !_isFreeShootMode) {
@@ -216,7 +355,9 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                 onDismiss: () {
                   ref.read(liveSceneAnalysisProvider.notifier).clear();
                 },
-                onReanalyze: () => _analyzeLiveScene(context),
+                onReanalyze: isLiveAnalyzing
+                    ? null
+                    : () => _analyzeLiveScene(context),
               ),
             );
           },

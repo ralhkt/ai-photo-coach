@@ -75,6 +75,16 @@ class SettingsScreen extends ConsumerWidget {
                       color: Colors.white54,
                     ),
               ),
+              SwitchListTile(
+                title: Text(l10n.settingsAutoLiveSceneAnalysis),
+                subtitle: Text(l10n.settingsAutoLiveSceneAnalysisSubtitle),
+                value: settings.autoLiveSceneAnalysis,
+                onChanged: (value) {
+                  ref
+                      .read(appSettingsProvider.notifier)
+                      .setAutoLiveSceneAnalysis(value);
+                },
+              ),
               const SizedBox(height: 20),
               _SectionHeader(title: l10n.settingsPerformanceSection),
               SwitchListTile(

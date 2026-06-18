@@ -11,6 +11,8 @@ class AppSettings {
     this.promptStrength = PromptStrength.medium,
     this.localeOption = AppLocaleOption.zhTw,
     this.powerSaveEnabled = false,
+    this.autoLiveSceneAnalysis = false,
+    this.liveSceneCoachDismissed = false,
   });
 
   final bool onboardingCompleted;
@@ -18,6 +20,8 @@ class AppSettings {
   final PromptStrength promptStrength;
   final AppLocaleOption localeOption;
   final bool powerSaveEnabled;
+  final bool autoLiveSceneAnalysis;
+  final bool liveSceneCoachDismissed;
 
   Locale get locale => switch (localeOption) {
         AppLocaleOption.zhTw => const Locale('zh', 'TW'),
@@ -31,6 +35,8 @@ class AppSettings {
     PromptStrength? promptStrength,
     AppLocaleOption? localeOption,
     bool? powerSaveEnabled,
+    bool? autoLiveSceneAnalysis,
+    bool? liveSceneCoachDismissed,
   }) {
     return AppSettings(
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
@@ -38,6 +44,10 @@ class AppSettings {
       promptStrength: promptStrength ?? this.promptStrength,
       localeOption: localeOption ?? this.localeOption,
       powerSaveEnabled: powerSaveEnabled ?? this.powerSaveEnabled,
+      autoLiveSceneAnalysis:
+          autoLiveSceneAnalysis ?? this.autoLiveSceneAnalysis,
+      liveSceneCoachDismissed:
+          liveSceneCoachDismissed ?? this.liveSceneCoachDismissed,
     );
   }
 }

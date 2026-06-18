@@ -67,7 +67,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openCameraSubtitle =>
-      'Free shooting mode with composition overlays.';
+      'Free shoot + ✨ AI scene analysis with live composition tips.';
 
   @override
   String get pickFromGallery => 'Choose from Gallery';
@@ -741,6 +741,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPerformanceSection => 'Performance';
 
   @override
+  String get settingsAutoLiveSceneAnalysis => 'Auto scene analysis';
+
+  @override
+  String get settingsAutoLiveSceneAnalysisSubtitle =>
+      'Analyze the scene automatically when the view stabilizes in free shoot mode';
+
+  @override
   String get settingsPowerSave => 'Power save mode';
 
   @override
@@ -800,6 +807,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get liveSceneAnalyzing => 'Analyzing scene...';
+
+  @override
+  String get liveSceneAnalyzingOverlay =>
+      'Analyzing scene — hold the camera steady';
+
+  @override
+  String get liveSceneAnalyzingHint =>
+      'Usually takes 1–3 seconds. Overlays apply when done.';
+
+  @override
+  String get liveSceneAutoAnalyzing =>
+      'View stabilized — analyzing scene automatically';
+
+  @override
+  String get liveSceneAnalysisReady =>
+      'Shooting advice applied — adjust framing using the tips';
+
+  @override
+  String get liveSceneRetryAction => 'Retry';
+
+  @override
+  String get liveSceneAnalyzeFailedHint =>
+      'Check lighting and aim at your subject, then try again.';
+
+  @override
+  String get liveSceneCameraBusyHint =>
+      'Wait until timer, burst, or capture finishes, then tap ✨.';
+
+  @override
+  String get liveSceneCoachTitle => 'AI scene analysis';
+
+  @override
+  String get liveSceneCoachHint =>
+      'Tap ✨ (top right) to analyze the scene and apply composition tips.';
+
+  @override
+  String get liveSceneCoachDismiss => 'Got it';
 
   @override
   String get liveSceneAdviceTitle => 'AI shooting advice';

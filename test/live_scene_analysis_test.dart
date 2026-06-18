@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:ai_photo_coach/core/l10n/generated/app_localizations.dart';
 import 'package:ai_photo_coach/core/utils/prompt_strength.dart';
+import 'package:ai_photo_coach/features/camera/presentation/widgets/angle_guidance_overlay.dart';
 import 'package:ai_photo_coach/features/camera/presentation/widgets/live_scene_advice_panel.dart';
 import 'package:ai_photo_coach/features/camera/providers/live_scene_analysis_provider.dart';
 import 'package:ai_photo_coach/models/app_settings.dart';
@@ -87,6 +88,52 @@ void main() {
       LiveSceneAnalysisException(LiveSceneAnalysisFailure.captureFailed).reason,
       LiveSceneAnalysisFailure.captureFailed,
     );
+  });
+
+  testWidgets('angle guidance overlay shows tilt arrow when angle is significant',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('zh', 'TW'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: const Scaffold(
+          body: AngleGuidanceOverlay(
+            angleDegrees: 6,
+            angleHintKey: 'hintAngleTiltUp',
+            visible: true,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.arrow_circle_up_rounded), findsOneWidget);
+  });
+
+  testWidgets('angle guidance overlay hides when angle is near level',
+      (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: AngleGuidanceOverlay(
+            angleDegrees: 1,
+            angleHintKey: 'hintAngleLevel',
+            visible: true,
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AngleGuidanceOverlay), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_circle_up_rounded), findsNothing);
+    expect(find.byIcon(Icons.arrow_circle_down_rounded), findsNothing);
   });
 
   test('prompt filter controls live advice detail tiers', () {

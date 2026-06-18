@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
@@ -14,6 +15,8 @@ import 'pose_body_guide_mapper.dart';
 import 'vision_analyzer.dart';
 
 class MlKitVisionAnalyzer implements VisionAnalyzer {
+  static const int _maxMlSide = 1024;
+
   MlKitVisionAnalyzer({
     FaceDetector? faceDetector,
     PoseDetector? poseDetector,
@@ -61,13 +64,23 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
       );
     }
 
-    final input = MlInputImageHelper.fromDecodedImage(decoded);
-    final imageWidth = decoded.width;
-    final imageHeight = decoded.height;
+    final mlImage = _downscaleForMl(decoded);
+    final input = MlInputImageHelper.fromDecodedImage(mlImage);
+    final imageWidth = mlImage.width;
+    final imageHeight = mlImage.height;
 
-    final faces = await _faceDetector.processImage(input);
-    final poses = await _poseDetector.processImage(input);
-    final labels = await _imageLabeler.processImage(input);
+    final faces = await _safeProcessList(
+      () => _faceDetector.processImage(input),
+      label: 'face',
+    );
+    final poses = await _safeProcessList(
+      () => _poseDetector.processImage(input),
+      label: 'pose',
+    );
+    final labels = await _safeProcessList(
+      () => _imageLabeler.processImage(input),
+      label: 'label',
+    );
 
     final faceBounds = faces
         .map(
@@ -117,6 +130,34 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
       faceCount: faces.length,
       hasPose: hasPose,
     );
+  }
+
+  img.Image _downscaleForMl(img.Image image) {
+    final longest = image.width > image.height ? image.width : image.height;
+    if (longest <= _maxMlSide) {
+      return image;
+    }
+
+    final scale = _maxMlSide / longest;
+    return img.copyResize(
+      image,
+      width: (image.width * scale).round(),
+      height: (image.height * scale).round(),
+      interpolation: img.Interpolation.average,
+    );
+  }
+
+  Future<List<T>> _safeProcessList<T>(
+    Future<List<T>> Function() run, {
+    required String label,
+  }) async {
+    try {
+      return await run();
+    } catch (error, stackTrace) {
+      debugPrint('MlKitVisionAnalyzer: $label failed: $error');
+      debugPrint('$stackTrace');
+      return <T>[];
+    }
   }
 
   Rect? _subjectFromFaces(List<Rect> faces) {

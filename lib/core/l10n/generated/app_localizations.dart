@@ -210,7 +210,7 @@ abstract class AppLocalizations {
   /// No description provided for @openCameraSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Free shooting mode with composition overlays.'**
+  /// **'Free shoot + ✨ AI scene analysis with live composition tips.'**
   String get openCameraSubtitle;
 
   /// No description provided for @pickFromGallery.
@@ -1437,6 +1437,18 @@ abstract class AppLocalizations {
   /// **'Performance'**
   String get settingsPerformanceSection;
 
+  /// No description provided for @settingsAutoLiveSceneAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto scene analysis'**
+  String get settingsAutoLiveSceneAnalysis;
+
+  /// No description provided for @settingsAutoLiveSceneAnalysisSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze the scene automatically when the view stabilizes in free shoot mode'**
+  String get settingsAutoLiveSceneAnalysisSubtitle;
+
   /// No description provided for @settingsPowerSave.
   ///
   /// In en, this message translates to:
@@ -1544,6 +1556,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Analyzing scene...'**
   String get liveSceneAnalyzing;
+
+  /// No description provided for @liveSceneAnalyzingOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing scene — hold the camera steady'**
+  String get liveSceneAnalyzingOverlay;
+
+  /// No description provided for @liveSceneAnalyzingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually takes 1–3 seconds. Overlays apply when done.'**
+  String get liveSceneAnalyzingHint;
+
+  /// No description provided for @liveSceneAutoAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'View stabilized — analyzing scene automatically'**
+  String get liveSceneAutoAnalyzing;
+
+  /// No description provided for @liveSceneAnalysisReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Shooting advice applied — adjust framing using the tips'**
+  String get liveSceneAnalysisReady;
+
+  /// No description provided for @liveSceneRetryAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get liveSceneRetryAction;
+
+  /// No description provided for @liveSceneAnalyzeFailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Check lighting and aim at your subject, then try again.'**
+  String get liveSceneAnalyzeFailedHint;
+
+  /// No description provided for @liveSceneCameraBusyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait until timer, burst, or capture finishes, then tap ✨.'**
+  String get liveSceneCameraBusyHint;
+
+  /// No description provided for @liveSceneCoachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI scene analysis'**
+  String get liveSceneCoachTitle;
+
+  /// No description provided for @liveSceneCoachHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap ✨ (top right) to analyze the scene and apply composition tips.'**
+  String get liveSceneCoachHint;
+
+  /// No description provided for @liveSceneCoachDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get liveSceneCoachDismiss;
 
   /// No description provided for @liveSceneAdviceTitle.
   ///

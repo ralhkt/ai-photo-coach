@@ -19,7 +19,7 @@ class LiveSceneAdvicePanel extends ConsumerWidget {
 
   final PhotoAnalysisResult analysis;
   final VoidCallback onDismiss;
-  final VoidCallback onReanalyze;
+  final VoidCallback? onReanalyze;
   final bool isAnalyzing;
 
   @override
@@ -31,17 +31,24 @@ class LiveSceneAdvicePanel extends ConsumerWidget {
     final promptFilter =
         PromptStrengthFilter(ref.watch(promptStrengthProvider));
 
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.72),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0x55FFD60A)),
-        ),
-        child: Column(
+    return AnimatedSlide(
+      offset: Offset.zero,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+      child: AnimatedOpacity(
+        opacity: 1,
+        duration: const Duration(milliseconds: 220),
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.72),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0x55FFD60A)),
+            ),
+            child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -130,9 +137,11 @@ class LiveSceneAdvicePanel extends ConsumerWidget {
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
+    ),
     );
   }
 

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import 'heuristic_vision_analyzer.dart';
-import 'ml_kit_vision_analyzer.dart';
+import 'resilient_vision_analyzer.dart';
 import 'vision_analyzer.dart';
 
 VisionAnalyzer createVisionAnalyzer() {
@@ -12,7 +12,7 @@ VisionAnalyzer createVisionAnalyzer() {
   }
 
   if (Platform.isAndroid || Platform.isIOS) {
-    return MlKitVisionAnalyzer();
+    return ResilientVisionAnalyzer();
   }
 
   return HeuristicVisionAnalyzer();

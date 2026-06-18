@@ -13,6 +13,7 @@ import '../../../models/photo_analysis_result.dart';
 import '../../../models/photo_frame_template.dart';
 import '../../../models/scene_type.dart';
 import '../../../models/subject_shape_kind.dart';
+import '../../../core/utils/image_bytes_normalizer.dart';
 import '../../ml/services/heuristic_vision_analyzer.dart';
 import '../../ml/services/vision_analyzer.dart';
 import 'body_part_guide_service.dart';
@@ -43,7 +44,8 @@ class ImageAnalyzerService {
     Uint8List bytes, {
     SceneType userSceneType = SceneType.auto,
   }) async {
-    final decoded = img.decodeImage(bytes);
+    final normalizedBytes = ImageBytesNormalizer.forAnalysis(bytes);
+    final decoded = img.decodeImage(normalizedBytes);
     if (decoded == null) {
       throw const FormatException('Unable to decode image');
     }
@@ -53,11 +55,20 @@ class ImageAnalyzerService {
     final aspectRatio = width / height;
     final brightness = _averageBrightness(decoded);
 
-    final mlDetection = await _visionAnalyzer.analyze(
-      bytes: bytes,
-      width: width,
-      height: height,
-    );
+    MlDetectionResult mlDetection;
+    try {
+      mlDetection = await _visionAnalyzer.analyze(
+        bytes: normalizedBytes,
+        width: width,
+        height: height,
+      );
+    } catch (_) {
+      mlDetection = await HeuristicVisionAnalyzer().analyze(
+        bytes: normalizedBytes,
+        width: width,
+        height: height,
+      );
+    }
 
     final heuristicSubject = _detectSubjectRegion(decoded, userSceneType);
     final subjectRect = _mergeSubjectRect(
@@ -130,7 +141,7 @@ class ImageAnalyzerService {
       recommendedFrame: recommendedFrame,
       guidance: guidance,
       sceneTypeKey: sceneTypeKey,
-      imageBytes: bytes,
+      imageBytes: normalizedBytes,
       userSceneType: userSceneType,
       deepInsights: deepInsights,
       mlDetection: mlDetection,

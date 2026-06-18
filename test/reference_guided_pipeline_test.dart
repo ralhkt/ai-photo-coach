@@ -38,7 +38,8 @@ void main() {
       expect(result.guidance.subjectTargetRect.height, greaterThan(0.1));
       expect(result.guidance.framingHintKey, isNotEmpty);
       expect(result.guidance.suggestedZoom, greaterThan(0));
-      expect(result.imageBytes, portraitBytes);
+      expect(result.imageBytes, isNotEmpty);
+      expect(img.decodeJpg(result.imageBytes), isNotNull);
     });
 
     test('frame generator maps subject zone inside crop rect', () async {

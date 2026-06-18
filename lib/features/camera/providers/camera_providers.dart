@@ -262,19 +262,37 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       return null;
     }
 
+    if (controller.value.isStreamingImages) {
+      try {
+        await controller.stopImageStream();
+      } catch (_) {}
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+    }
+
     final savedFlash = ref.read(flashModeProvider);
     ref.read(isCapturingProvider.notifier).state = true;
     try {
       await controller.setFlashMode(FlashMode.off);
-      final file = await controller.takePicture();
-      final bytes = await file.readAsBytes();
-      if (!kIsWeb) {
+
+      for (var attempt = 0; attempt < 2; attempt++) {
         try {
-          await File(file.path).delete();
-        } catch (_) {}
+          final file = await controller.takePicture();
+          final bytes = await file.readAsBytes();
+          if (bytes.isNotEmpty) {
+            if (!kIsWeb) {
+              try {
+                await File(file.path).delete();
+              } catch (_) {}
+            }
+            return bytes;
+          }
+        } catch (error) {
+          debugPrint('capturePreviewFrame attempt ${attempt + 1} failed: $error');
+          if (attempt == 0) {
+            await Future<void>.delayed(const Duration(milliseconds: 150));
+          }
+        }
       }
-      return bytes;
-    } catch (_) {
       return null;
     } finally {
       try {
@@ -420,12 +438,16 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       return;
     }
 
-    final maxZoom = await controller.getMaxZoomLevel();
-    final minZoom = await controller.getMinZoomLevel();
-    final clamped = zoom.clamp(minZoom, maxZoom);
-    await controller.setZoomLevel(clamped);
-    ref.read(focalPresetProvider.notifier).state = clamped;
-    ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
+    try {
+      final maxZoom = await controller.getMaxZoomLevel();
+      final minZoom = await controller.getMinZoomLevel();
+      final clamped = zoom.clamp(minZoom, maxZoom);
+      await controller.setZoomLevel(clamped);
+      ref.read(focalPresetProvider.notifier).state = clamped;
+      ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
+    } catch (error) {
+      debugPrint('setZoom failed: $error');
+    }
   }
 
   Future<void> setManualExposure(double ev) async {

@@ -63,7 +63,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get openCameraTitle => '开启相机';
 
   @override
-  String get openCameraSubtitle => '自由拍摄模式，附构图辅助线。';
+  String get openCameraSubtitle => '自由拍摄＋✨ AI 场景分析，即时套用构图与曝光建议。';
 
   @override
   String get pickFromGallery => '从相册选择';
@@ -702,6 +702,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsPerformanceSection => '性能';
 
   @override
+  String get settingsAutoLiveSceneAnalysis => '自动场景分析';
+
+  @override
+  String get settingsAutoLiveSceneAnalysisSubtitle =>
+      '自由拍摄模式下，画面稳定后自动分析场景并套用建议';
+
+  @override
   String get settingsPowerSave => '省电模式';
 
   @override
@@ -758,6 +765,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get liveSceneAnalyzing => '正在分析场景...';
+
+  @override
+  String get liveSceneAnalyzingOverlay => '正在分析场景，请保持镜头稳定';
+
+  @override
+  String get liveSceneAnalyzingHint => '约需 1–3 秒，完成后会自动套用构图叠层';
+
+  @override
+  String get liveSceneAutoAnalyzing => '画面已稳定，正在自动分析场景';
+
+  @override
+  String get liveSceneAnalysisReady => '已套用拍摄建议，可依提示调整构图';
+
+  @override
+  String get liveSceneRetryAction => '重试';
+
+  @override
+  String get liveSceneAnalyzeFailedHint => '请确认光线充足、镜头对准主体后再试';
+
+  @override
+  String get liveSceneCameraBusyHint => '等倒数、连拍或拍照完成后，再点右上角 ✨';
+
+  @override
+  String get liveSceneCoachTitle => 'AI 场景分析';
+
+  @override
+  String get liveSceneCoachHint => '点右上角 ✨，即可分析目前场景并套用构图、曝光建议。';
+
+  @override
+  String get liveSceneCoachDismiss => '知道了';
 
   @override
   String get liveSceneAdviceTitle => 'AI 拍摄建议';
@@ -844,7 +881,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get openCameraTitle => '開啟相機';
 
   @override
-  String get openCameraSubtitle => '自由拍攝模式，附構圖輔助線。';
+  String get openCameraSubtitle => '自由拍攝＋✨ AI 場景分析，即時套用構圖與曝光建議。';
 
   @override
   String get pickFromGallery => '從相簿選擇';
@@ -1483,6 +1520,13 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get settingsPerformanceSection => '效能';
 
   @override
+  String get settingsAutoLiveSceneAnalysis => '自動場景分析';
+
+  @override
+  String get settingsAutoLiveSceneAnalysisSubtitle =>
+      '自由拍攝模式下，畫面穩定後自動分析場景並套用建議';
+
+  @override
   String get settingsPowerSave => '省電模式';
 
   @override
@@ -1539,6 +1583,36 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get liveSceneAnalyzing => '正在分析場景...';
+
+  @override
+  String get liveSceneAnalyzingOverlay => '正在分析場景，請保持鏡頭穩定';
+
+  @override
+  String get liveSceneAnalyzingHint => '約需 1–3 秒，完成後會自動套用構圖疊層';
+
+  @override
+  String get liveSceneAutoAnalyzing => '畫面已穩定，正在自動分析場景';
+
+  @override
+  String get liveSceneAnalysisReady => '已套用拍攝建議，可依提示調整構圖';
+
+  @override
+  String get liveSceneRetryAction => '重試';
+
+  @override
+  String get liveSceneAnalyzeFailedHint => '請確認光線充足、鏡頭對準主體後再試';
+
+  @override
+  String get liveSceneCameraBusyHint => '等倒數、連拍或拍照完成後，再點右上角 ✨';
+
+  @override
+  String get liveSceneCoachTitle => 'AI 場景分析';
+
+  @override
+  String get liveSceneCoachHint => '點右上角 ✨，即可分析目前場景並套用構圖、曝光建議。';
+
+  @override
+  String get liveSceneCoachDismiss => '知道了';
 
   @override
   String get liveSceneAdviceTitle => 'AI 拍攝建議';

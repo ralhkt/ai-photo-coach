@@ -43,7 +43,24 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final current = state.requireValue;
     await saveSettings(current.copyWith(powerSaveEnabled: enabled));
   }
+
+  Future<void> setAutoLiveSceneAnalysis(bool enabled) async {
+    final current = state.requireValue;
+    await saveSettings(current.copyWith(autoLiveSceneAnalysis: enabled));
+  }
+
+  Future<void> dismissLiveSceneCoach() async {
+    final current = state.requireValue;
+    await saveSettings(current.copyWith(liveSceneCoachDismissed: true));
+  }
 }
+
+final liveSceneCoachDismissedProvider = Provider<bool>((ref) {
+  return ref.watch(appSettingsProvider).maybeWhen(
+        data: (settings) => settings.liveSceneCoachDismissed,
+        orElse: () => false,
+      );
+});
 
 final powerSaveEnabledProvider = Provider<bool>((ref) {
   return ref.watch(appSettingsProvider).maybeWhen(

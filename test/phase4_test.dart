@@ -53,6 +53,18 @@ void main() {
       expect(loaded.localeOption, AppLocaleOption.en);
       expect(loaded.locale, const Locale('en'));
     });
+
+    test('persists auto live scene analysis toggle', () async {
+      SharedPreferences.setMockInitialValues({});
+      final repository = SettingsRepository();
+
+      await repository.save(
+        const AppSettings(autoLiveSceneAnalysis: true),
+      );
+
+      final loaded = await repository.load();
+      expect(loaded.autoLiveSceneAnalysis, isTrue);
+    });
   });
 
   group('ShootSessionNotifier', () {
