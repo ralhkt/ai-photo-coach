@@ -43,6 +43,7 @@ class ImageAnalyzerService {
   Future<PhotoAnalysisResult> analyze(
     Uint8List bytes, {
     SceneType userSceneType = SceneType.auto,
+    bool forLiveCoaching = false,
   }) async {
     final normalizedBytes = ImageBytesNormalizer.forAnalysis(bytes);
     final decoded = img.decodeImage(normalizedBytes);
@@ -91,6 +92,7 @@ class ImageAnalyzerService {
       subjectRect: subjectRect,
       aspectRatio: aspectRatio,
       mlDetection: mlDetection,
+      forLiveCoaching: forLiveCoaching,
     );
 
     List<Offset>? silhouettePoints;
@@ -459,6 +461,7 @@ class ImageAnalyzerService {
     required Rect subjectRect,
     required double aspectRatio,
     required MlDetectionResult mlDetection,
+    bool forLiveCoaching = false,
   }) {
     if (userSceneType.prefersHumanSilhouette) {
       return true;
@@ -470,17 +473,26 @@ class ImageAnalyzerService {
       return true;
     }
 
-    final tallSubject = subjectRect.height > subjectRect.width * 1.08;
-    final centeredSubject = subjectRect.center.dx > 0.22 &&
-        subjectRect.center.dx < 0.78;
-    final portraitImage = aspectRatio < 1.05;
+    final tallSubject = subjectRect.height > subjectRect.width * 1.02;
+    final centeredSubject = subjectRect.center.dx > 0.18 &&
+        subjectRect.center.dx < 0.82;
+    final portraitImage = aspectRatio < 1.15;
     final subjectFill = subjectRect.width * subjectRect.height;
+
+    if (forLiveCoaching && sceneTypeKey != 'sceneLandscape') {
+      if (tallSubject || mlDetection.faceCount > 0) {
+        return true;
+      }
+      if (portraitImage && subjectFill > 0.04 && subjectFill < 0.82) {
+        return true;
+      }
+    }
 
     return tallSubject &&
         centeredSubject &&
         portraitImage &&
-        subjectFill > 0.06 &&
-        subjectFill < 0.72;
+        subjectFill > 0.05 &&
+        subjectFill < 0.78;
   }
 
   String _sceneTypeKey(Rect subjectRect, double aspectRatio) {

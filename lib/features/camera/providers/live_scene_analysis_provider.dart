@@ -137,8 +137,10 @@ class LiveSceneAnalysisNotifier
         bytes,
         maxSide: 960,
       );
-      final result =
-          await ref.read(imageAnalyzerProvider).analyze(normalizedBytes);
+      final result = await ref.read(imageAnalyzerProvider).analyze(
+            normalizedBytes,
+            forLiveCoaching: true,
+          );
       final guidance = result.guidance;
 
       ref.read(performanceTrackerProvider).record(

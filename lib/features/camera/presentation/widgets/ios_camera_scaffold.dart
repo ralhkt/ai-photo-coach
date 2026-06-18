@@ -82,12 +82,11 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   bool get _isFreeShootMode =>
       widget.shootSessionMode == ShootSessionMode.free;
 
-  bool _usesGuidanceFrameLetterbox(bool hasLiveAdvice) =>
-      widget.shootSessionMode == ShootSessionMode.guided ||
-      (_isFreeShootMode && hasLiveAdvice);
+  bool get _isGuidedShootMode =>
+      widget.shootSessionMode == ShootSessionMode.guided;
 
-  double? _resolveCropAspectRatio(WidgetRef ref, bool hasLiveAdvice) {
-    if (widget.shootSessionMode == ShootSessionMode.guided) {
+  double? _resolveCropAspectRatio(WidgetRef ref, Size viewport) {
+    if (_isGuidedShootMode) {
       return ref
           .watch(referenceAnalysisProvider)
           .value
@@ -95,15 +94,16 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
           .frameTemplate
           .aspectRatio;
     }
-    if (_isFreeShootMode && hasLiveAdvice) {
-      return ref
-          .watch(liveSceneAnalysisProvider)
-          .value
-          ?.guidance
-          .frameTemplate
-          .aspectRatio;
-    }
-    return ref.watch(cameraAspectRatioProvider).targetRatio;
+    return ref.watch(cameraAspectRatioProvider).displayCropRatio(viewport);
+  }
+
+  String _aspectRatioLabel(AppLocalizations l10n, CameraAspectRatio ratio) {
+    return switch (ratio) {
+      CameraAspectRatio.ratio4x3 => l10n.aspectRatio4x3,
+      CameraAspectRatio.ratio16x9 => l10n.aspectRatio16x9,
+      CameraAspectRatio.ratio1x1 => l10n.aspectRatio1x1,
+      CameraAspectRatio.full => l10n.aspectRatioFull,
+    };
   }
 
   Future<void> _analyzeLiveScene(BuildContext context) async {
@@ -282,29 +282,36 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
         !coachDismissed &&
         !hasAdvice &&
         !isLiveAnalyzing;
-    final cropAspectRatio = _resolveCropAspectRatio(ref, hasAdvice);
-
     return Column(
       children: [
         Expanded(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              LetterboxedCameraViewport(
-                cropAspectRatio: cropAspectRatio,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    IosCameraPreview(controller: widget.controller),
-                    if (!_usesGuidanceFrameLetterbox(hasAdvice))
-                      IosAspectRatioOverlay(aspectRatio: aspectRatio),
-                    if (widget.croppedOverlay != null) widget.croppedOverlay!,
-                    if (_isFreeShootMode && hasAdvice)
-                      const LiveSceneGuidanceFrameOverlay(),
-                  ],
-                ),
-              ),
-              widget.overlay,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final viewport = Size(
+                constraints.maxWidth,
+                constraints.maxHeight,
+              );
+              final cropAspectRatio = _resolveCropAspectRatio(ref, viewport);
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  LetterboxedCameraViewport(
+                    cropAspectRatio: cropAspectRatio,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        IosCameraPreview(controller: widget.controller),
+                        if (!_isGuidedShootMode)
+                          IosAspectRatioOverlay(aspectRatio: aspectRatio),
+                        if (widget.croppedOverlay != null)
+                          widget.croppedOverlay!,
+                        if (_isFreeShootMode && hasAdvice)
+                          const LiveSceneGuidanceFrameOverlay(),
+                      ],
+                    ),
+                  ),
+                  widget.overlay,
               if (widget.enablePhase2)
                 ArHorizonOverlay(visible: arOverlayVisible),
               if (showFlash)
@@ -347,6 +354,12 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                       : null,
                   aiAnalyzeTooltip: l10n.liveSceneAnalyze,
                   centerLabel: widget.centerTopLabel,
+                  showAspectRatioButton: !_isGuidedShootMode,
+                  aspectRatioLabel: _aspectRatioLabel(l10n, aspectRatio),
+                  onAspectRatioTap: () {
+                    ref.read(cameraAspectRatioProvider.notifier).state =
+                        aspectRatio.next;
+                  },
                 ),
               ),
               if (widget.enablePhase2)
@@ -375,7 +388,9 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                   orElse: () => const SizedBox.shrink(),
                 ),
               if (_isFreeShootMode) const LiveSceneAutoAnalyzer(),
-            ],
+                ],
+              );
+            },
           ),
         ),
         if (widget.guidanceChip != null)

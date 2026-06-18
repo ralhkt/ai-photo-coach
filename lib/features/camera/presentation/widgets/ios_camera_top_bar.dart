@@ -21,6 +21,9 @@ class IosCameraTopBar extends StatelessWidget {
     this.aiAnalyzing = false,
     this.onAiAnalyzeTap,
     this.aiAnalyzeTooltip,
+    this.showAspectRatioButton = false,
+    this.aspectRatioLabel,
+    this.onAspectRatioTap,
   });
 
   final FlashMode flashMode;
@@ -40,6 +43,9 @@ class IosCameraTopBar extends StatelessWidget {
   final bool aiAnalyzing;
   final VoidCallback? onAiAnalyzeTap;
   final String? aiAnalyzeTooltip;
+  final bool showAspectRatioButton;
+  final String? aspectRatioLabel;
+  final VoidCallback? onAspectRatioTap;
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +90,14 @@ class IosCameraTopBar extends StatelessWidget {
                                 letterSpacing: 0.4,
                               ),
                             )
-                          : const SizedBox.shrink(),
+                          : showAspectRatioButton &&
+                                  aspectRatioLabel != null &&
+                                  onAspectRatioTap != null
+                              ? _AspectRatioChip(
+                                  label: aspectRatioLabel!,
+                                  onTap: onAspectRatioTap!,
+                                )
+                              : const SizedBox.shrink(),
                     ),
                   ),
                   if (showFrameButton)
@@ -247,6 +260,51 @@ class _AiAnalyzeButton extends StatelessWidget {
                 color: Color(0xFFFFD60A),
                 size: 22,
               ),
+      ),
+    );
+  }
+}
+
+class _AspectRatioChip extends StatelessWidget {
+  const _AspectRatioChip({
+    required this.label,
+    required this.onTap,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.35),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white38),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.aspect_ratio_rounded,
+              color: Colors.white,
+              size: 14,
+            ),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

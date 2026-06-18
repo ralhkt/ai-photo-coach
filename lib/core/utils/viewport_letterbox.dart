@@ -25,4 +25,10 @@ class ViewportLetterbox {
     final crop = cropRectForRatio(targetRatio, viewport);
     return Size(crop.width, crop.height);
   }
+
+  /// Orients a photo ratio (4:3, 16:9…) for [viewport] width÷height.
+  static double orientPhotoRatio(double photoWidthOverHeight, Size viewport) {
+    final portrait = viewport.height >= viewport.width;
+    return portrait ? 1 / photoWidthOverHeight : photoWidthOverHeight;
+  }
 }

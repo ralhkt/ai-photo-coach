@@ -13,15 +13,14 @@ class IosAspectRatioOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ratio = aspectRatio.targetRatio;
-    if (ratio == null) {
-      return const SizedBox.shrink();
-    }
-
     return IgnorePointer(
       child: LayoutBuilder(
         builder: (context, constraints) {
           final viewport = Size(constraints.maxWidth, constraints.maxHeight);
+          final ratio = aspectRatio.displayCropRatio(viewport);
+          if (ratio == null) {
+            return const SizedBox.shrink();
+          }
           final crop = ViewportLetterbox.cropRectForRatio(ratio, viewport);
 
           return CustomPaint(
