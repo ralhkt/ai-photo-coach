@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/settings/app_settings_provider.dart';
 import '../../../core/utils/guidance_text.dart';
-import '../../../core/utils/viewport_letterbox.dart';
+import '../../../core/utils/coaching_guidance_helper.dart';
 import '../../../core/utils/prompt_strength.dart';
 import '../../../models/shoot_session.dart';
 import '../../../models/photo_frame_template.dart';
@@ -90,23 +90,10 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
             return Center(child: Text(l10n.noCameraFound));
           }
 
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final viewport = Size(
-                constraints.maxWidth,
-                constraints.maxHeight,
-              );
-              final cropViewport = ViewportLetterbox.cropViewportSize(
-                guidance.frameTemplate.aspectRatio,
-                viewport,
-              );
-              final frameSpec = ref.read(frameGeneratorProvider).generate(
-                    template: guidance.frameTemplate,
-                    guidance: guidance,
-                    viewportSize: cropViewport,
-                  );
+          final coachingGuidance =
+              CoachingGuidanceHelper().ensureHumanSilhouette(guidance);
 
-              return CameraModeScope(
+          return CameraModeScope(
                 mode: CameraUiMode.guided,
                 onActivated: _applyAnalysisGuidance,
                 child: CameraSessionLifecycle(
@@ -149,27 +136,44 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                       ),
                     ],
                   ),
-                  croppedOverlay: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CompositionOverlay(
-                        type: overlayType,
-                        visible: _compositionVisible,
-                      ),
-                      ReferenceGhostOverlay(
-                        imageBytes: analysis.imageBytes,
-                        frameSpec: frameSpec,
-                        visible: ghostVisible && _frameVisible,
-                      ),
-                      PhotoFrameOverlay(
-                        frameSpec: frameSpec,
-                        templateLabel:
-                            frameTemplateLabel(l10n, guidance.frameTemplate),
-                        visible: _frameVisible,
-                        bodyPartLabels: partLabels,
-                        showBodyParts: bodyPartsVisible,
-                      ),
-                    ],
+                  croppedOverlay: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final viewport = Size(
+                        constraints.maxWidth,
+                        constraints.maxHeight,
+                      );
+                      final frameSpec =
+                          ref.read(frameGeneratorProvider).generate(
+                                template: coachingGuidance.frameTemplate,
+                                guidance: coachingGuidance,
+                                viewportSize: viewport,
+                              );
+
+                      return Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CompositionOverlay(
+                            type: overlayType,
+                            visible: _compositionVisible,
+                          ),
+                          ReferenceGhostOverlay(
+                            imageBytes: analysis.imageBytes,
+                            frameSpec: frameSpec,
+                            visible: ghostVisible && _frameVisible,
+                          ),
+                          PhotoFrameOverlay(
+                            frameSpec: frameSpec,
+                            templateLabel: frameTemplateLabel(
+                              l10n,
+                              coachingGuidance.frameTemplate,
+                            ),
+                            visible: _frameVisible,
+                            bodyPartLabels: partLabels,
+                            showBodyParts: bodyPartsVisible,
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   overlay: Stack(
                     fit: StackFit.expand,
@@ -190,7 +194,7 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                               },
                             ),
                             const SizedBox(height: 8),
-                            if (guidance.subjectShape ==
+                            if (coachingGuidance.subjectShape ==
                                 SubjectShapeKind.humanSilhouette)
                               _OverlayToggleButton(
                                 icon: Icons.accessibility_new_rounded,
@@ -219,8 +223,6 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                   ),
                 ),
               ),
-              );
-            },
           );
         },
       ),

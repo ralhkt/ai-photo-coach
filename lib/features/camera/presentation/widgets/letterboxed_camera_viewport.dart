@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/utils/viewport_letterbox.dart';
-
-/// Clips [child] to a centered crop matching [cropAspectRatio].
+/// Clips [child] to a centered crop matching [cropAspectRatio] (iPhone-style).
 ///
 /// When [cropAspectRatio] is null the child fills the viewport (no letterbox).
-/// Areas outside the crop show solid black — the preview is not drawn there.
 class LetterboxedCameraViewport extends StatelessWidget {
   const LetterboxedCameraViewport({
     super.key,
@@ -13,6 +10,7 @@ class LetterboxedCameraViewport extends StatelessWidget {
     required this.child,
   });
 
+  /// Visible region width÷height.
   final double? cropAspectRatio;
   final Widget child;
 
@@ -22,27 +20,17 @@ class LetterboxedCameraViewport extends StatelessWidget {
       return child;
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final viewport = Size(constraints.maxWidth, constraints.maxHeight);
-        final crop = ViewportLetterbox.cropRectForRatio(
-          cropAspectRatio!,
-          viewport,
-        );
-
-        return ColoredBox(
-          color: Colors.black,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned.fromRect(
-                rect: crop,
-                child: ClipRect(child: child),
-              ),
-            ],
+    return ColoredBox(
+      color: Colors.black,
+      child: Center(
+        child: AspectRatio(
+          aspectRatio: cropAspectRatio!,
+          child: ClipRect(
+            clipBehavior: Clip.hardEdge,
+            child: child,
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

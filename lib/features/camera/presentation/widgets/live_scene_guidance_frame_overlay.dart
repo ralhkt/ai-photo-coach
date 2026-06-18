@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/generated/app_localizations.dart';
+import '../../../../core/utils/coaching_guidance_helper.dart';
 import '../../../../core/utils/guidance_text.dart';
 import '../../../frames/presentation/photo_frame_overlay.dart';
 import '../../../reference/providers/reference_providers.dart';
@@ -19,7 +20,8 @@ class LiveSceneGuidanceFrameOverlay extends ConsumerWidget {
     }
 
     final l10n = AppLocalizations.of(context)!;
-    final guidance = analysis.guidance;
+    final guidance =
+        CoachingGuidanceHelper().ensureHumanSilhouette(analysis.guidance);
 
     return LayoutBuilder(
       builder: (context, constraints) {

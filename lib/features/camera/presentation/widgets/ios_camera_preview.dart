@@ -74,19 +74,17 @@ class _IosCameraPreviewState extends ConsumerState<IosCameraPreview> {
               fit: StackFit.expand,
               children: [
                 ClipRect(
-                  child: OverflowBox(
-                    alignment: Alignment.center,
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: SizedBox(
-                        width: previewSize.height,
-                        height: previewSize.width,
-                        child: Transform(
-                          alignment: Alignment.center,
-                          transform: Matrix4.identity()
-                            ..scale(isFront && mirrorFront ? -1.0 : 1.0, 1.0),
-                          child: CameraPreview(widget.controller),
-                        ),
+                  clipBehavior: Clip.hardEdge,
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: previewSize.height,
+                      height: previewSize.width,
+                      child: Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.identity()
+                          ..scale(isFront && mirrorFront ? -1.0 : 1.0, 1.0),
+                        child: CameraPreview(widget.controller),
                       ),
                     ),
                   ),

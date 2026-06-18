@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../models/body_part_labels.dart';
 import '../../../models/subject_shape_kind.dart';
 import '../../reference/services/frame_generator_service.dart';
+import '../../reference/services/human_frame_shape_builder.dart';
 
 class PhotoFramePainter extends CustomPainter {
   PhotoFramePainter({
@@ -25,8 +26,8 @@ class PhotoFramePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final crop = frameSpec.cropRect;
     final subject = frameSpec.subjectZone;
-    final isHumanFrame = frameSpec.subjectShape == SubjectShapeKind.humanSilhouette &&
-        frameSpec.subjectSilhouettePath != null;
+    final isHumanFrame =
+        frameSpec.subjectShape == SubjectShapeKind.humanSilhouette;
 
     final borderPaint = Paint()
       ..color = isHumanFrame
@@ -41,7 +42,7 @@ class PhotoFramePainter extends CustomPainter {
     }
 
     if (isHumanFrame) {
-      _drawHumanSubjectFrame(canvas, frameSpec);
+      _drawHumanSubjectFrame(canvas, frameSpec, subject);
     } else if (showBodyParts && frameSpec.bodyPartGuides != null) {
       _drawBodyPartGuides(canvas, frameSpec.bodyPartGuides!);
     } else {
@@ -88,8 +89,20 @@ class PhotoFramePainter extends CustomPainter {
     labelPainter.paint(canvas, Offset(crop.left + 20, crop.top + 17));
   }
 
-  void _drawHumanSubjectFrame(Canvas canvas, GeneratedFrameSpec spec) {
-    final silhouette = spec.subjectSilhouettePath!;
+  void _drawHumanSubjectFrame(
+    Canvas canvas,
+    GeneratedFrameSpec spec,
+    Rect subject,
+  ) {
+    final silhouette = spec.subjectSilhouettePath ??
+        HumanFrameShapeBuilder().pointsToSmoothPath(
+          HumanFrameShapeBuilder().templatePoints().map(
+            (point) => Offset(
+              subject.left + point.dx * subject.width,
+              subject.top + point.dy * subject.height,
+            ),
+          ).toList(),
+        );
     final guides = spec.bodyPartGuides;
 
     canvas.drawPath(

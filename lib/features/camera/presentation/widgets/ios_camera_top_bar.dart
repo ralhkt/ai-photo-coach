@@ -80,24 +80,12 @@ class IosCameraTopBar extends StatelessWidget {
                   ),
                   Expanded(
                     child: Center(
-                      child: centerLabel != null
-                          ? Text(
-                              centerLabel!,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.4,
-                              ),
-                            )
-                          : showAspectRatioButton &&
-                                  aspectRatioLabel != null &&
-                                  onAspectRatioTap != null
-                              ? _AspectRatioChip(
-                                  label: aspectRatioLabel!,
-                                  onTap: onAspectRatioTap!,
-                                )
-                              : const SizedBox.shrink(),
+                      child: _TopBarCenterControls(
+                        centerLabel: centerLabel,
+                        showAspectRatioButton: showAspectRatioButton,
+                        aspectRatioLabel: aspectRatioLabel,
+                        onAspectRatioTap: onAspectRatioTap,
+                      ),
                     ),
                   ),
                   if (showFrameButton)
@@ -261,6 +249,69 @@ class _AiAnalyzeButton extends StatelessWidget {
                 size: 22,
               ),
       ),
+    );
+  }
+}
+
+class _TopBarCenterControls extends StatelessWidget {
+  const _TopBarCenterControls({
+    required this.centerLabel,
+    required this.showAspectRatioButton,
+    required this.aspectRatioLabel,
+    required this.onAspectRatioTap,
+  });
+
+  final String? centerLabel;
+  final bool showAspectRatioButton;
+  final String? aspectRatioLabel;
+  final VoidCallback? onAspectRatioTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final aspectChip = showAspectRatioButton &&
+            aspectRatioLabel != null &&
+            onAspectRatioTap != null
+        ? _AspectRatioChip(
+            label: aspectRatioLabel!,
+            onTap: onAspectRatioTap!,
+          )
+        : null;
+
+    if (centerLabel == null && aspectChip == null) {
+      return const SizedBox.shrink();
+    }
+
+    if (centerLabel == null) {
+      return aspectChip!;
+    }
+
+    if (aspectChip == null) {
+      return Text(
+        centerLabel!,
+        style: TextStyle(
+          color: Colors.white.withOpacity(0.9),
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.4,
+        ),
+      );
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          centerLabel!,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.9),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.4,
+          ),
+        ),
+        const SizedBox(width: 10),
+        aspectChip,
+      ],
     );
   }
 }

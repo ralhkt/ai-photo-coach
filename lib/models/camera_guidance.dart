@@ -35,4 +35,37 @@ class CameraGuidance {
   final SubjectShapeKind subjectShape;
   final List<Offset>? subjectSilhouettePoints;
   final BodyPartGuides? bodyPartGuides;
+
+  CameraGuidance copyWith({
+    PhotoFrameTemplate? frameTemplate,
+    CompositionOverlayType? overlayType,
+    Rect? subjectTargetRect,
+    double? suggestedZoom,
+    double? angleDegrees,
+    double? exposureEv,
+    String? framingHintKey,
+    String? exposureHintKey,
+    String? distanceHintKey,
+    String? angleHintKey,
+    SubjectShapeKind? subjectShape,
+    List<Offset>? subjectSilhouettePoints,
+    BodyPartGuides? bodyPartGuides,
+  }) {
+    return CameraGuidance(
+      frameTemplate: frameTemplate ?? this.frameTemplate,
+      overlayType: overlayType ?? this.overlayType,
+      subjectTargetRect: subjectTargetRect ?? this.subjectTargetRect,
+      suggestedZoom: suggestedZoom ?? this.suggestedZoom,
+      angleDegrees: angleDegrees ?? this.angleDegrees,
+      exposureEv: exposureEv ?? this.exposureEv,
+      framingHintKey: framingHintKey ?? this.framingHintKey,
+      exposureHintKey: exposureHintKey ?? this.exposureHintKey,
+      distanceHintKey: distanceHintKey ?? this.distanceHintKey,
+      angleHintKey: angleHintKey ?? this.angleHintKey,
+      subjectShape: subjectShape ?? this.subjectShape,
+      subjectSilhouettePoints:
+          subjectSilhouettePoints ?? this.subjectSilhouettePoints,
+      bodyPartGuides: bodyPartGuides ?? this.bodyPartGuides,
+    );
+  }
 }

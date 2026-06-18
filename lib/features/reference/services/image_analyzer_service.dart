@@ -86,7 +86,7 @@ class ImageAnalyzerService {
     );
     sceneTypeKey = _preferMlSceneKey(sceneTypeKey, mlDetection, userSceneType);
 
-    final prefersHuman = _shouldUseHumanSilhouette(
+    var prefersHuman = _shouldUseHumanSilhouette(
       userSceneType: userSceneType,
       sceneTypeKey: sceneTypeKey,
       subjectRect: subjectRect,
@@ -94,6 +94,9 @@ class ImageAnalyzerService {
       mlDetection: mlDetection,
       forLiveCoaching: forLiveCoaching,
     );
+    if (forLiveCoaching && sceneTypeKey != 'sceneLandscape') {
+      prefersHuman = true;
+    }
 
     List<Offset>? silhouettePoints;
     var subjectShape = SubjectShapeKind.rectangle;

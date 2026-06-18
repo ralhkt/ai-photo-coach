@@ -18,7 +18,6 @@ import '../../../ar/presentation/ar_horizon_overlay.dart';
 import '../../../ar/presentation/ar_status_chip.dart';
 import '../../../ar/providers/ar_providers.dart';
 import '../../../ar/services/ar_platform_service.dart';
-import '../../../reference/providers/reference_providers.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
@@ -82,18 +81,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   bool get _isFreeShootMode =>
       widget.shootSessionMode == ShootSessionMode.free;
 
-  bool get _isGuidedShootMode =>
-      widget.shootSessionMode == ShootSessionMode.guided;
-
   double? _resolveCropAspectRatio(WidgetRef ref, Size viewport) {
-    if (_isGuidedShootMode) {
-      return ref
-          .watch(referenceAnalysisProvider)
-          .value
-          ?.guidance
-          .frameTemplate
-          .aspectRatio;
-    }
     return ref.watch(cameraAspectRatioProvider).displayCropRatio(viewport);
   }
 
@@ -302,8 +290,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                       fit: StackFit.expand,
                       children: [
                         IosCameraPreview(controller: widget.controller),
-                        if (!_isGuidedShootMode)
-                          IosAspectRatioOverlay(aspectRatio: aspectRatio),
+                        IosAspectRatioOverlay(aspectRatio: aspectRatio),
                         if (widget.croppedOverlay != null)
                           widget.croppedOverlay!,
                         if (_isFreeShootMode && hasAdvice)
@@ -354,7 +341,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                       : null,
                   aiAnalyzeTooltip: l10n.liveSceneAnalyze,
                   centerLabel: widget.centerTopLabel,
-                  showAspectRatioButton: !_isGuidedShootMode,
+                  showAspectRatioButton: true,
                   aspectRatioLabel: _aspectRatioLabel(l10n, aspectRatio),
                   onAspectRatioTap: () {
                     ref.read(cameraAspectRatioProvider.notifier).state =
