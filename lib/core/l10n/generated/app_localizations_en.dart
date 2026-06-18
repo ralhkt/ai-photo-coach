@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'AI Photo Coach';
+  String get appTitle => 'Photographer';
 
   @override
   String get cameraPermissionRequired =>

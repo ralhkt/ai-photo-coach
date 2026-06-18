@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "AI Photo Coach",
+  "appTitle": "Photographer",
   "cameraPermissionRequired": "Camera permission is required to use this app.",
   "grantPermission": "Grant Permission",
   "noCameraFound": "No camera found on this device.",

@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'AI 攝影教練';
+  String get appTitle => '攝影師';
 
   @override
   String get cameraPermissionRequired => '需要相機權限才能使用此 App。';
@@ -536,7 +536,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   AppLocalizationsZhTw() : super('zh_TW');
 
   @override
-  String get appTitle => 'AI 攝影教練';
+  String get appTitle => '攝影師';
 
   @override
   String get cameraPermissionRequired => '需要相機權限才能使用此 App。';

@@ -9,7 +9,7 @@
     <meta-data android:name="com.google.ar.core" android:value="optional" />
 
     <application
-        android:label="AI Photo Coach"
+        android:label="攝影師"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

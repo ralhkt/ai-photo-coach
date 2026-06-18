@@ -10,7 +10,7 @@ void main() {
       ),
     );
 
-    expect(find.text('AI 攝影教練'), findsOneWidget);
+    expect(find.text('攝影師'), findsOneWidget);
     expect(find.text('分析參考相片'), findsOneWidget);
     expect(find.text('開啟相機'), findsOneWidget);
   });

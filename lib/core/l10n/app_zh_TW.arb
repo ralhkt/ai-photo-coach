@@ -1,6 +1,6 @@
 {
   "@@locale": "zh_TW",
-  "appTitle": "AI 攝影教練",
+  "appTitle": "攝影師",
   "cameraPermissionRequired": "需要相機權限才能使用此 App。",
   "grantPermission": "授予權限",
   "noCameraFound": "此裝置找不到相機。",
