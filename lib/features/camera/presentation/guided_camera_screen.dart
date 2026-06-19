@@ -21,6 +21,7 @@ import '../../pose/platform/pose_silhouette_auto_capture_listener.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/guided_frame_providers.dart';
 import '../../reference/providers/reference_providers.dart';
+import '../providers/camera_interaction_provider.dart';
 import '../providers/camera_mode_settings_provider.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_settings_provider.dart';
@@ -113,8 +114,6 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                   enablePhase2: false,
                   shootSessionMode: ShootSessionMode.guided,
                   modeLabel: l10n.cameraModeGuided,
-                  centerTopLabel:
-                      frameTemplateLabel(l10n, guidance.frameTemplate),
                   useGuidedGridProvider: true,
                   guidanceChip: const _PoseCoachingChip(),
                   croppedOverlay: _GuidedOverlayHost(
@@ -123,12 +122,11 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                     sourceAspectRatio: analysis.sourceAspectRatio,
                   ),
                   overlay: _GuidedToolbar(
-                    onChooseFrameTemplate: () {
-                      ref
-                          .read(referenceAnalysisProvider.notifier)
-                          .setFrameTemplate(guidance.frameTemplate.next);
+                    initialTemplate: guidance.frameTemplate,
+                    onOpenTools: () {
+                      markGuidedUserActivity(ref);
+                      showGuidedOverlayToolsSheet(context);
                     },
-                    onOpenTools: () => showGuidedOverlayToolsSheet(context),
                   ),
                 ),
               ),
@@ -163,23 +161,32 @@ class _GuidedOverlayHost extends ConsumerWidget {
   }
 }
 
-class _GuidedToolbar extends StatelessWidget {
+class _GuidedToolbar extends ConsumerWidget {
   const _GuidedToolbar({
-    required this.onChooseFrameTemplate,
+    required this.initialTemplate,
     required this.onOpenTools,
   });
 
-  final VoidCallback onChooseFrameTemplate;
+  final PhotoFrameTemplate initialTemplate;
   final VoidCallback onOpenTools;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final top = MediaQuery.paddingOf(context).top + 56;
+    final template = ref.watch(guidedFrameTemplateProvider) ?? initialTemplate;
 
     return Stack(
       fit: StackFit.expand,
       children: [
+        Positioned(
+          top: MediaQuery.paddingOf(context).top + 8,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: _GuidedTemplateChip(label: frameTemplateLabel(l10n, template)),
+          ),
+        ),
         Positioned(
           right: 12,
           top: top,
@@ -198,12 +205,42 @@ class _GuidedToolbar extends StatelessWidget {
               AppCameraToolButton(
                 icon: Icons.aspect_ratio_rounded,
                 tooltip: l10n.chooseFrameTemplate,
-                onTap: onChooseFrameTemplate,
+                onTap: () => cycleGuidedFrameTemplate(
+                  ref,
+                  current: template,
+                ),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _GuidedTemplateChip extends StatelessWidget {
+  const _GuidedTemplateChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
     );
   }
 }

@@ -44,7 +44,8 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   bool get _useIosNativeSampler =>
       !kIsWeb && Platform.isIOS && NativePreviewFrameService.instance.isSupported;
 
-  static const _iosNativeMinInterval = Duration(milliseconds: 2500);
+  static const _iosNativeMinInterval = Duration(milliseconds: 4000);
+  static const _guidedIdleBeforeMl = guidedMlIdleAfterInteraction;
 
   Duration get _fallbackInterval {
     if (_useIosNativeSampler) {
@@ -122,6 +123,13 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     });
   }
 
+  bool _isGuidedUserInteracting() {
+    if (!ref.read(poseCoachingShouldRunProvider)) {
+      return false;
+    }
+    return isGuidedUserRecentlyActive(ref.read(guidedUserActivityProvider));
+  }
+
   bool _isCameraBusy() {
     return ref.read(isCapturingProvider) ||
         ref.read(isBurstingProvider) ||
@@ -129,10 +137,14 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         ref.read(liveSceneAnalyzingProvider) ||
         ref.read(cameraSwitchingProvider) ||
         ref.read(isPreviewSamplingProvider) ||
-        ref.read(isCameraUiInteractionPausedProvider);
+        ref.read(isCameraUiInteractionPausedProvider) ||
+        _isGuidedUserInteracting();
   }
 
   Duration _busyRetryDelay() {
+    if (_isGuidedUserInteracting()) {
+      return _guidedIdleBeforeMl;
+    }
     if (ref.read(isCameraUiInteractionPausedProvider) ||
         ref.read(isCapturingProvider) ||
         ref.read(cameraSwitchingProvider)) {

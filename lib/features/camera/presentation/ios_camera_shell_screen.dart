@@ -60,9 +60,15 @@ class _IosCameraShellScreenState extends ConsumerState<IosCameraShellScreen> {
     final l10n = AppLocalizations.of(context)!;
     final shellMode = ref.watch(cameraShellModeProvider);
     final isGuided = shellMode == CameraShellMode.guided;
-    final analysis = isGuided
-        ? ref.watch(referenceAnalysisProvider).value
-        : ref.read(referenceAnalysisProvider).value;
+    // Rebuild guided host only when reference photo changes — not on template toggle.
+    if (isGuided) {
+      ref.watch(
+        referenceAnalysisProvider.select(
+          (async) => async.value?.imageBytes.length,
+        ),
+      );
+    }
+    final analysis = ref.read(referenceAnalysisProvider).value;
     final cameraState = ref.watch(cameraControllerProvider);
 
     if (isGuided && analysis == null) {

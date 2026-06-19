@@ -25,7 +25,7 @@ class PoseCoachingService {
             PoseDetector(
               options: PoseDetectorOptions(
                 model: PoseDetectionModel.base,
-                mode: PoseDetectionMode.stream,
+                mode: PoseDetectionMode.single,
               ),
             ),
         _coordinator = coordinator ?? PoseCoachingCoordinator(),

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models/camera_aspect_ratio.dart';
 import '../../../models/camera_guidance.dart';
+import '../../../models/photo_frame_template.dart';
 import '../../../models/composition_overlay_type.dart';
 import '../../camera/presentation/widgets/ios_camera_grid_overlay.dart';
 import '../../overlays/presentation/composition_overlay.dart';
@@ -40,18 +41,23 @@ class _GuidedCameraOverlayStackState
   GeneratedFrameSpec? _cachedSpec;
   Size? _cachedViewport;
   CameraAspectRatio? _cachedAspectRatio;
+  PhotoFrameTemplate? _cachedTemplate;
 
-  GeneratedFrameSpec _frameSpecFor(Size viewport) {
+  GeneratedFrameSpec _frameSpecFor(
+    Size viewport,
+    PhotoFrameTemplate template,
+  ) {
     if (_cachedSpec != null &&
         _cachedViewport == viewport &&
-        _cachedAspectRatio == widget.cameraAspectRatio) {
+        _cachedAspectRatio == widget.cameraAspectRatio &&
+        _cachedTemplate == template) {
       return _cachedSpec!;
     }
 
     final cropAspectRatio =
         widget.cameraAspectRatio.displayCropRatio(viewport);
     final spec = ref.read(frameGeneratorProvider).generate(
-          template: widget.guidance.frameTemplate,
+          template: template,
           guidance: widget.guidance,
           viewportSize: viewport,
           viewportIsCropArea: true,
@@ -61,15 +67,22 @@ class _GuidedCameraOverlayStackState
     _cachedSpec = spec;
     _cachedViewport = viewport;
     _cachedAspectRatio = widget.cameraAspectRatio;
+    _cachedTemplate = template;
     return spec;
   }
 
   @override
   Widget build(BuildContext context) {
+    final templateOverride = ref.watch(guidedFrameTemplateProvider);
+    final template = resolveGuidedFrameTemplate(
+      analysisTemplate: widget.guidance.frameTemplate,
+      override: templateOverride,
+    );
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewport = Size(constraints.maxWidth, constraints.maxHeight);
-        final frameSpec = _frameSpecFor(viewport);
+        final frameSpec = _frameSpecFor(viewport, template);
         final contour =
             widget.guidance.subjectSilhouettePoints ?? const <Offset>[];
 

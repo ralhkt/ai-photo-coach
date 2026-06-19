@@ -131,8 +131,8 @@ class AppSheetPanel extends StatelessWidget {
   }
 }
 
-/// Circular camera tool button — tertiary fill, no border.
-class AppCameraToolButton extends StatelessWidget {
+/// Circular camera tool button — instant press scale, no backdrop blur.
+class AppCameraToolButton extends StatefulWidget {
   const AppCameraToolButton({
     super.key,
     required this.icon,
@@ -147,29 +147,46 @@ class AppCameraToolButton extends StatelessWidget {
   final bool active;
 
   @override
+  State<AppCameraToolButton> createState() => _AppCameraToolButtonState();
+}
+
+class _AppCameraToolButtonState extends State<AppCameraToolButton> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final button = GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: AppDesignTokens.minTapTarget,
-        height: AppDesignTokens.minTapTarget,
-        decoration: BoxDecoration(
-          color: active
-              ? AppTheme.accent.withValues(alpha: 0.22)
-              : AppDesignTokens.fillPrimary,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          color: active ? AppTheme.accent : AppDesignTokens.textPrimary,
-          size: 20,
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _pressed ? 0.9 : 1,
+        duration: const Duration(milliseconds: 60),
+        curve: Curves.easeOut,
+        child: Container(
+          width: AppDesignTokens.minTapTarget,
+          height: AppDesignTokens.minTapTarget,
+          decoration: BoxDecoration(
+            color: widget.active
+                ? AppTheme.accent.withValues(alpha: 0.22)
+                : AppDesignTokens.fillPrimary,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            widget.icon,
+            color:
+                widget.active ? AppTheme.accent : AppDesignTokens.textPrimary,
+            size: 20,
+          ),
         ),
       ),
     );
 
-    if (tooltip == null) {
+    if (widget.tooltip == null) {
       return button;
     }
-    return Tooltip(message: tooltip!, child: button);
+    return Tooltip(message: widget.tooltip!, child: button);
   }
 }

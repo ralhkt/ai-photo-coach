@@ -73,7 +73,7 @@ class _GuidedBottomBar extends ConsumerWidget {
 
     return IosCameraBottomBar(
       compactMode: true,
-      showZoomPresets: true,
+      showZoomPresets: false,
       modeLabel: l10n.cameraModeGuided,
       modeLabels: modeLabels,
       selectedModeIndex: CameraShellMode.guided.carouselIndex,
@@ -110,10 +110,14 @@ class _GuidedBottomBar extends ConsumerWidget {
       onTimerTap: () {},
       onExposureLockTap: () {},
       onToggleOptions: () {},
-      onGalleryTap: () => onGalleryTap(
-        ref.read(lastCaptureThumbnailProvider) != null,
-      ),
-      onGalleryLongPress: () => onGalleryTap(false),
+      onGalleryTap: () {
+        markGuidedUserActivity(ref);
+        onGalleryTap(ref.read(lastCaptureThumbnailProvider) != null);
+      },
+      onGalleryLongPress: () {
+        markGuidedUserActivity(ref);
+        onGalleryTap(false);
+      },
       onShutterTap: onShutterTap,
       onBurstStart: () {
         markHeavyCameraInteraction(ref);
@@ -129,10 +133,6 @@ class _GuidedBottomBar extends ConsumerWidget {
       showHistogram: false,
       frontMirrorEnabled: true,
       focalPreset: 1.0,
-      onFocalPresetTap: (preset) {
-        markCameraChromeTap(ref);
-        unawaited(ref.read(cameraControllerProvider.notifier).setZoom(preset));
-      },
     );
   }
 }

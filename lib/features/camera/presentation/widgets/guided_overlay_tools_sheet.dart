@@ -7,6 +7,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/guidance_text.dart';
 import '../../../reference/providers/guided_frame_providers.dart';
 import '../../../reference/providers/reference_providers.dart';
+import '../../providers/camera_interaction_provider.dart';
 
 
 Future<void> showGuidedOverlayToolsSheet(BuildContext context) {
@@ -53,6 +54,7 @@ class _GuidedOverlayToolsSheet extends ConsumerWidget {
               title: l10n.toggleGhostOverlay,
               value: ghostVisible,
               onChanged: (value) {
+                markGuidedUserActivity(ref);
                 ref.read(referenceGhostVisibleProvider.notifier).state = value;
               },
             ),
