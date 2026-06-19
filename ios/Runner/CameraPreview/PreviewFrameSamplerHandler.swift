@@ -89,10 +89,6 @@ final class PreviewFrameSamplerHandler: NSObject, AVCaptureVideoDataOutputSample
     }
 
     session.addOutput(output)
-    if let connection = output.connection(with: .video) {
-      connection.videoMinFrameDuration = CMTime(value: 1, timescale: 1)
-      connection.videoMaxFrameDuration = CMTime(value: 1, timescale: 1)
-    }
     videoOutput = output
     attachedSession = session
   }
