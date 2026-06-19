@@ -157,6 +157,7 @@
   "mlAnalysisSourceGemini": "Gemini Vision",
   "mlAnalysisSourceOpenRouter": "OpenRouter（Gemini）",
   "mlAnalysisSourceFallback": "启发式回退",
+  "referenceMatchTip": "已比对相近的参考风格，可依叠层调整姿势与构图。",
   "mlTipFaceDetected": "ML 检测到人脸，框架已对齐脸部范围",
   "mlTipPoseDetected": "ML 检测到人体姿态，头/肩/身引导已优化",
   "mlTipHighAesthetic": "ML 标签显示此参考图具有较高视觉吸引力",

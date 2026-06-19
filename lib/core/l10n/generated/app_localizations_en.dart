@@ -507,6 +507,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mlAnalysisSourceFallback => 'Heuristic fallback';
 
   @override
+  String get referenceMatchTip =>
+      'Matched a similar reference style — adjust pose and framing using the overlay.';
+
+  @override
   String get mlTipFaceDetected =>
       'ML detected a face — framing aligned to facial bounds';
 

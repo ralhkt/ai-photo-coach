@@ -65,7 +65,7 @@ abstract final class VisionApiConfig {
 
   static const String openRouterModel = String.fromEnvironment(
     'OPENROUTER_MODEL',
-    defaultValue: 'google/gemini-2.0-flash',
+    defaultValue: 'google/gemini-2.5-flash',
   );
 
   static VisionProvider get provider {

@@ -282,9 +282,21 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       try {
         await controller.setFlashMode(FlashMode.off);
 
-        for (var attempt = 0; attempt < 2; attempt++) {
+        if (!kIsWeb && Platform.isIOS) {
+          await Future<void>.delayed(const Duration(milliseconds: 180));
+        }
+
+        try {
+          await controller.setFocusMode(FocusMode.auto);
+          await controller.setExposureMode(ExposureMode.auto);
+        } catch (_) {}
+
+        const maxAttempts = 4;
+        for (var attempt = 0; attempt < maxAttempts; attempt++) {
           try {
-            final file = await controller.takePicture();
+            final file = await controller
+                .takePicture()
+                .timeout(const Duration(seconds: 6));
             final bytes = await file.readAsBytes();
             if (bytes.isNotEmpty) {
               if (!kIsWeb) {
@@ -298,8 +310,10 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
             debugPrint(
               'capturePreviewFrame attempt ${attempt + 1} failed: $error',
             );
-            if (attempt == 0) {
-              await Future<void>.delayed(const Duration(milliseconds: 150));
+            if (attempt < maxAttempts - 1) {
+              await Future<void>.delayed(
+                Duration(milliseconds: 180 + attempt * 120),
+              );
             }
           }
         }

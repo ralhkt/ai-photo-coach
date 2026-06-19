@@ -31,11 +31,11 @@ class ReferenceMatchedPhotoAnalysisAgent implements PhotoAnalysisAgent {
     final enrichedInsights = insights == null
         ? DeepPhotoInsights(
             contrastScore: 0.5,
-            colorTemperatureKey: 'neutral',
-            lightingDirectionKey: 'ambient',
-            compositionBalanceKey: 'balanced',
-            moodKey: 'casual',
-            depthHintKey: 'moderate',
+            colorTemperatureKey: 'insightColorNeutral',
+            lightingDirectionKey: 'insightLightingEven',
+            compositionBalanceKey: 'insightBalanceCentered',
+            moodKey: 'insightMoodNatural',
+            depthHintKey: 'insightDepthModerate',
             confidence: 0.62,
             detailedTips: const ['referenceMatchTip'],
             analysisSource: 'reference_matched_local',

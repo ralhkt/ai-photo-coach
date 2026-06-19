@@ -8,6 +8,7 @@ import '../../../models/photo_analysis_result.dart';
 import 'gemini_vision_response.dart';
 import 'photo_analysis_agent.dart';
 import 'vision_coaching_prompt.dart';
+import 'vision_request_image.dart';
 
 /// Calls Google Gemini vision (or a regional proxy) to enrich photo analysis.
 class GeminiVisionAnalysisAgent implements PhotoAnalysisAgent {
@@ -66,6 +67,7 @@ class GeminiVisionAnalysisAgent implements PhotoAnalysisAgent {
   @override
   Future<PhotoAnalysisResult> enrich(PhotoAnalysisResult base) async {
     final uri = buildRequestUri();
+    final visionBytes = bytesForVisionRequest(base.imageBytes);
 
     final body = jsonEncode({
       'contents': [
@@ -75,7 +77,7 @@ class GeminiVisionAnalysisAgent implements PhotoAnalysisAgent {
             {
               'inline_data': {
                 'mime_type': 'image/jpeg',
-                'data': base64Encode(base.imageBytes),
+                'data': base64Encode(visionBytes),
               },
             },
           ],
@@ -94,7 +96,7 @@ class GeminiVisionAnalysisAgent implements PhotoAnalysisAgent {
 
     final response = await _client
         .post(uri, headers: headers, body: body)
-        .timeout(const Duration(seconds: 25));
+        .timeout(const Duration(seconds: 12));
 
     if (response.statusCode != 200) {
       debugPrint(

@@ -8,6 +8,7 @@ import '../../../models/photo_analysis_result.dart';
 import 'gemini_vision_response.dart';
 import 'photo_analysis_agent.dart';
 import 'vision_coaching_prompt.dart';
+import 'vision_request_image.dart';
 
 /// Routes vision coaching through OpenRouter (works when direct Gemini is geo-blocked).
 class OpenRouterVisionAnalysisAgent implements PhotoAnalysisAgent {
@@ -25,8 +26,9 @@ class OpenRouterVisionAnalysisAgent implements PhotoAnalysisAgent {
 
   @override
   Future<PhotoAnalysisResult> enrich(PhotoAnalysisResult base) async {
+    final visionBytes = bytesForVisionRequest(base.imageBytes);
     final imageDataUrl =
-        'data:image/jpeg;base64,${base64Encode(base.imageBytes)}';
+        'data:image/jpeg;base64,${base64Encode(visionBytes)}';
 
     final body = jsonEncode({
       'model': model,
@@ -52,10 +54,12 @@ class OpenRouterVisionAnalysisAgent implements PhotoAnalysisAgent {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer $apiKey',
+            'HTTP-Referer': 'https://github.com/ralhkt/ai-photo-coach',
+            'X-Title': 'AI Photo Coach',
           },
           body: body,
         )
-        .timeout(const Duration(seconds: 30));
+        .timeout(const Duration(seconds: 12));
 
     if (response.statusCode != 200) {
       debugPrint(

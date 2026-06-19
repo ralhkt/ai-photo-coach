@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
 import '../../../models/body_part_guides.dart';
@@ -144,13 +145,37 @@ class ImageAnalyzerService {
       mlDetection: mlDetection,
     );
 
-    result = await _agent.enrich(result);
+    if (!forLiveCoaching) {
+      result = await _safeAgentEnrich(result);
+    }
 
     if (forLiveCoaching) {
-      result = await ReferenceMatchedPhotoAnalysisAgent().enrich(result);
+      result = await _safeReferenceMatch(result);
     }
 
     return result;
+  }
+
+  Future<PhotoAnalysisResult> _safeAgentEnrich(PhotoAnalysisResult result) async {
+    try {
+      return await _agent.enrich(result);
+    } catch (error, stackTrace) {
+      debugPrint('ImageAnalyzerService: cloud enrich skipped: $error');
+      debugPrint('$stackTrace');
+      return result;
+    }
+  }
+
+  Future<PhotoAnalysisResult> _safeReferenceMatch(
+    PhotoAnalysisResult result,
+  ) async {
+    try {
+      return await ReferenceMatchedPhotoAnalysisAgent().enrich(result);
+    } catch (error, stackTrace) {
+      debugPrint('ImageAnalyzerService: reference match skipped: $error');
+      debugPrint('$stackTrace');
+      return result;
+    }
   }
 
   Rect _mergeSubjectRect({required Rect heuristic, Rect? ml}) {

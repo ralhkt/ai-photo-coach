@@ -496,6 +496,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mlAnalysisSourceFallback => '启发式回退';
 
   @override
+  String get referenceMatchTip => '已比对相近的参考风格，可依叠层调整姿势与构图。';
+
+  @override
   String get mlTipFaceDetected => 'ML 检测到人脸，框架已对齐脸部范围';
 
   @override
@@ -1437,6 +1440,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get mlAnalysisSourceFallback => '啟發式回退';
+
+  @override
+  String get referenceMatchTip => '已比對相近的參考風格，可依疊層調整姿勢與構圖。';
 
   @override
   String get mlTipFaceDetected => 'ML 偵測到人臉，框架已對齊臉部範圍';

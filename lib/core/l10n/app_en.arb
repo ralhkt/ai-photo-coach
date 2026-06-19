@@ -192,6 +192,7 @@
   "mlAnalysisSourceGemini": "Gemini Vision",
   "mlAnalysisSourceOpenRouter": "OpenRouter (Gemini)",
   "mlAnalysisSourceFallback": "Heuristic fallback",
+  "referenceMatchTip": "Matched a similar reference style — adjust pose and framing using the overlay.",
   "mlTipFaceDetected": "ML detected a face — framing aligned to facial bounds",
   "mlTipPoseDetected": "ML detected body pose — head/shoulder/torso guides refined",
   "mlTipHighAesthetic": "ML labels suggest strong visual appeal in this reference",

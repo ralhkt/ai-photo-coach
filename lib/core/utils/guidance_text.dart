@@ -125,6 +125,7 @@ String insightLabel(AppLocalizations l10n, String key) {
     'mlTipFaceDetected' => l10n.mlTipFaceDetected,
     'mlTipPoseDetected' => l10n.mlTipPoseDetected,
     'mlTipHighAesthetic' => l10n.mlTipHighAesthetic,
+    'referenceMatchTip' => l10n.referenceMatchTip,
     _ => key,
   };
 }

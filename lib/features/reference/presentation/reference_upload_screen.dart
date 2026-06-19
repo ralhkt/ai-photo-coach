@@ -97,7 +97,8 @@ class _ReferenceUploadScreenState extends ConsumerState<ReferenceUploadScreen> {
       final file = await _picker.pickImage(
         source: ImageSource.gallery,
         maxWidth: 2048,
-        imageQuality: 92,
+        imageQuality: 90,
+        requestFullMetadata: false,
       );
       if (!mounted || file == null) {
         return;

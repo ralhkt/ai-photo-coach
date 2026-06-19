@@ -1041,6 +1041,12 @@ abstract class AppLocalizations {
   /// **'Heuristic fallback'**
   String get mlAnalysisSourceFallback;
 
+  /// No description provided for @referenceMatchTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Matched a similar reference style — adjust pose and framing using the overlay.'**
+  String get referenceMatchTip;
+
   /// No description provided for @mlTipFaceDetected.
   ///
   /// In en, this message translates to:
