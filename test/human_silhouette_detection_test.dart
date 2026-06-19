@@ -8,8 +8,10 @@ import 'package:ai_photo_coach/models/subject_shape_kind.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 
+import 'support/fake_ml_vision_analyzer.dart';
+
 void main() {
-  test('auto portrait-like image uses human silhouette without ML Kit', () async {
+  test('upload without ML Kit uses rectangle placeholder, not silhouette', () async {
     final image = img.Image(width: 900, height: 1200);
     for (var y = 0; y < image.height; y++) {
       for (var x = 0; x < image.width; x++) {
@@ -25,6 +27,33 @@ void main() {
     }
 
     final analysis = await ImageAnalyzerService().analyze(
+      Uint8List.fromList(img.encodeJpg(image)),
+      userSceneType: SceneType.auto,
+    );
+
+    expect(analysis.subjectDetectionReliable, isFalse);
+    expect(analysis.guidance.subjectShape, SubjectShapeKind.rectangle);
+    expect(analysis.guidance.subjectSilhouettePoints, isNull);
+  });
+
+  test('auto portrait-like image uses human silhouette when ML Kit finds person', () async {
+    final image = img.Image(width: 900, height: 1200);
+    for (var y = 0; y < image.height; y++) {
+      for (var x = 0; x < image.width; x++) {
+        final inSubject = x > 320 && x < 580 && y > 180 && y < 1020;
+        image.setPixel(
+          x,
+          y,
+          inSubject
+              ? img.ColorRgb8(215, 175, 155)
+              : img.ColorRgb8(28, 32, 42),
+        );
+      }
+    }
+
+    final analysis = await ImageAnalyzerService(
+      visionAnalyzer: const FakeMlVisionAnalyzer(),
+    ).analyze(
       Uint8List.fromList(img.encodeJpg(image)),
       userSceneType: SceneType.auto,
     );

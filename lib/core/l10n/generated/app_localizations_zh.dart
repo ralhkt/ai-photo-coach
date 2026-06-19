@@ -948,6 +948,41 @@ class AppLocalizationsZh extends AppLocalizations {
   String liveSceneMlSummary(String source, String score) {
     return '$source · 美学分 $score';
   }
+
+  @override
+  String get exifSectionTitle => '相机 EXIF 参数';
+
+  @override
+  String exifIso(int value) {
+    return 'ISO $value';
+  }
+
+  @override
+  String exifShutter(String value) {
+    return '快门 $value';
+  }
+
+  @override
+  String exifAperture(String value) {
+    return '光圈 f/$value';
+  }
+
+  @override
+  String exifFocalLength(String value) {
+    return '焦距 $value mm';
+  }
+
+  @override
+  String get exifCameraModel => '相机';
+
+  @override
+  String get exifNotAvailable => '无 EXIF 数据（截图或转存图片常见）';
+
+  @override
+  String get subjectDetectionFailedTitle => '未检测到人物';
+
+  @override
+  String get subjectDetectionFailedBody => '找不到脸部或身体骨架。请改用更清晰、人物置中的打卡照后再试。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1894,4 +1929,39 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String liveSceneMlSummary(String source, String score) {
     return '$source · 美學分 $score';
   }
+
+  @override
+  String get exifSectionTitle => '相機 EXIF 參數';
+
+  @override
+  String exifIso(int value) {
+    return 'ISO $value';
+  }
+
+  @override
+  String exifShutter(String value) {
+    return '快門 $value';
+  }
+
+  @override
+  String exifAperture(String value) {
+    return '光圈 f/$value';
+  }
+
+  @override
+  String exifFocalLength(String value) {
+    return '焦距 $value mm';
+  }
+
+  @override
+  String get exifCameraModel => '相機';
+
+  @override
+  String get exifNotAvailable => '無 EXIF 資料（截圖或轉存圖片常見）';
+
+  @override
+  String get subjectDetectionFailedTitle => '未偵測到人物';
+
+  @override
+  String get subjectDetectionFailedBody => '找不到臉部或身體骨架。請改用更清晰、人物置中的打卡照後再試。';
 }

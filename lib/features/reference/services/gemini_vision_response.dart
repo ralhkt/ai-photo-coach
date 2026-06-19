@@ -158,5 +158,7 @@ PhotoAnalysisResult applyGeminiVisionPayload(
     matchedReferenceSampleId: base.matchedReferenceSampleId,
     matchedReferenceTitleKey: base.matchedReferenceTitleKey,
     matchedReferenceImageBytes: base.matchedReferenceImageBytes,
+    exif: base.exif,
+    subjectDetectionReliable: base.subjectDetectionReliable,
   );
 }

@@ -69,6 +69,8 @@ class ReferenceMatchedPhotoAnalysisAgent implements PhotoAnalysisAgent {
       matchedReferenceSampleId: sample.id,
       matchedReferenceTitleKey: sample.titleKey,
       matchedReferenceImageBytes: reference.imageBytes,
+      exif: base.exif,
+      subjectDetectionReliable: base.subjectDetectionReliable,
     );
   }
 

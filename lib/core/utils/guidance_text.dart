@@ -1,5 +1,6 @@
 import '../l10n/generated/app_localizations.dart';
 import '../../models/body_part_labels.dart';
+import '../../models/photo_exif_metadata.dart';
 import '../../models/photo_frame_template.dart';
 import '../../models/scene_type.dart';
 
@@ -137,4 +138,33 @@ String mlAnalysisSourceLabel(AppLocalizations l10n, String source) {
     'openrouter_vision' => l10n.mlAnalysisSourceOpenRouter,
     _ => l10n.mlAnalysisSourceFallback,
   };
+}
+
+String formatShutterSpeed(double seconds) {
+  if (seconds >= 1) {
+    return '${seconds.toStringAsFixed(1)}s';
+  }
+  final denominator = (1 / seconds).round();
+  return '1/$denominator s';
+}
+
+List<String> exifSummaryLines(AppLocalizations l10n, PhotoExifMetadata exif) {
+  final lines = <String>[];
+  if (exif.iso != null) {
+    lines.add(l10n.exifIso(exif.iso!));
+  }
+  if (exif.shutterSpeedSeconds != null) {
+    lines.add(l10n.exifShutter(formatShutterSpeed(exif.shutterSpeedSeconds!)));
+  }
+  if (exif.aperture != null) {
+    lines.add(l10n.exifAperture(exif.aperture!.toStringAsFixed(1)));
+  }
+  if (exif.focalLengthMm != null) {
+    lines.add(l10n.exifFocalLength(exif.focalLengthMm!.toStringAsFixed(0)));
+  }
+  final camera = exif.cameraLabel;
+  if (camera != null) {
+    lines.add('${l10n.exifCameraModel}: $camera');
+  }
+  return lines;
 }

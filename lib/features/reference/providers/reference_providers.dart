@@ -90,6 +90,8 @@ class ReferenceAnalysisNotifier extends AsyncNotifier<PhotoAnalysisResult?> {
         userSceneType: current.userSceneType,
         deepInsights: current.deepInsights,
         mlDetection: current.mlDetection,
+        exif: current.exif,
+        subjectDetectionReliable: current.subjectDetectionReliable,
       ),
     );
   }

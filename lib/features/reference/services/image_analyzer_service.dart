@@ -19,6 +19,7 @@ import '../../ml/services/heuristic_vision_analyzer.dart';
 import '../../ml/services/vision_analyzer.dart';
 import 'body_part_guide_service.dart';
 import 'deep_analysis_service.dart';
+import 'exif_reader_service.dart';
 import 'photo_analysis_agent.dart';
 import 'reference_matched_analysis_agent.dart';
 import 'human_frame_shape_builder.dart';
@@ -29,17 +30,20 @@ class ImageAnalyzerService {
     SubjectSilhouetteService? silhouetteService,
     BodyPartGuideService? bodyPartGuideService,
     DeepAnalysisService? deepAnalysisService,
+    ExifReaderService? exifReader,
     PhotoAnalysisAgent? agent,
     VisionAnalyzer? visionAnalyzer,
   })  : _silhouetteService = silhouetteService ?? SubjectSilhouetteService(),
         _bodyPartGuideService = bodyPartGuideService ?? BodyPartGuideService(),
         _deepAnalysisService = deepAnalysisService ?? DeepAnalysisService(),
+        _exifReader = exifReader ?? const ExifReaderService(),
         _agent = agent ?? HeuristicPhotoAnalysisAgent(),
         _visionAnalyzer = visionAnalyzer ?? HeuristicVisionAnalyzer();
 
   final SubjectSilhouetteService _silhouetteService;
   final BodyPartGuideService _bodyPartGuideService;
   final DeepAnalysisService _deepAnalysisService;
+  final ExifReaderService _exifReader;
   final PhotoAnalysisAgent _agent;
   final VisionAnalyzer _visionAnalyzer;
 
@@ -48,6 +52,7 @@ class ImageAnalyzerService {
     SceneType userSceneType = SceneType.auto,
     bool forLiveCoaching = false,
   }) async {
+    final exif = await _exifReader.read(bytes);
     final normalizedBytes = ImageBytesNormalizer.forAnalysis(bytes);
     final decoded = img.decodeImage(normalizedBytes);
     if (decoded == null) {
@@ -65,11 +70,21 @@ class ImageAnalyzerService {
       height,
     );
 
-    final heuristicSubject = _detectSubjectRegion(decoded, userSceneType);
-    final subjectRect = _mergeSubjectRect(
-      heuristic: heuristicSubject,
-      ml: mlDetection.primarySubjectRect,
-    );
+    final mlFoundPerson = mlDetection.hasFaces || mlDetection.hasPose;
+    final subjectDetectionReliable = mlFoundPerson || forLiveCoaching;
+
+    final Rect subjectRect;
+    if (mlFoundPerson) {
+      final heuristicSubject = _detectSubjectRegion(decoded, userSceneType);
+      subjectRect = _mergeSubjectRect(
+        heuristic: heuristicSubject,
+        ml: mlDetection.primarySubjectRect,
+      );
+    } else if (forLiveCoaching) {
+      subjectRect = _detectSubjectRegion(decoded, userSceneType);
+    } else {
+      subjectRect = _centerPortraitPlaceholder(userSceneType);
+    }
     final subjectFillRatio = subjectRect.width * subjectRect.height;
     final recommendedFrame = _matchFrameTemplate(aspectRatio, subjectRect, userSceneType);
     final overlayType = _pickOverlayType(subjectRect, userSceneType);
@@ -80,14 +95,15 @@ class ImageAnalyzerService {
     );
     sceneTypeKey = _preferMlSceneKey(sceneTypeKey, mlDetection, userSceneType);
 
-    var prefersHuman = _shouldUseHumanSilhouette(
-      userSceneType: userSceneType,
-      sceneTypeKey: sceneTypeKey,
-      subjectRect: subjectRect,
-      aspectRatio: aspectRatio,
-      mlDetection: mlDetection,
-      forLiveCoaching: forLiveCoaching,
-    );
+    var prefersHuman = subjectDetectionReliable &&
+        _shouldUseHumanSilhouette(
+          userSceneType: userSceneType,
+          sceneTypeKey: sceneTypeKey,
+          subjectRect: subjectRect,
+          aspectRatio: aspectRatio,
+          mlDetection: mlDetection,
+          forLiveCoaching: forLiveCoaching,
+        );
     if (forLiveCoaching && sceneTypeKey != 'sceneLandscape') {
       prefersHuman = true;
     }
@@ -143,6 +159,8 @@ class ImageAnalyzerService {
       userSceneType: userSceneType,
       deepInsights: deepInsights,
       mlDetection: mlDetection,
+      exif: exif.hasAny ? exif : null,
+      subjectDetectionReliable: subjectDetectionReliable,
     );
 
     if (!forLiveCoaching) {
@@ -283,6 +301,18 @@ class ImageAnalyzerService {
     }
 
     return total / pixelCount;
+  }
+
+  /// Safe centered placeholder when ML Kit cannot find a person (upload flow).
+  Rect _centerPortraitPlaceholder(SceneType sceneType) {
+    if (sceneType == SceneType.landscape) {
+      return const Rect.fromLTWH(0.22, 0.28, 0.56, 0.44);
+    }
+    return Rect.fromCenter(
+      center: const Offset(0.5, 0.44),
+      width: 0.52,
+      height: 0.72,
+    );
   }
 
   Rect _detectSubjectRegion(img.Image image, SceneType sceneType) {

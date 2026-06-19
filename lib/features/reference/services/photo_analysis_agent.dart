@@ -64,6 +64,8 @@ extension DeepInsightsCopy on PhotoAnalysisResult {
       matchedReferenceSampleId: matchedReferenceSampleId,
       matchedReferenceTitleKey: matchedReferenceTitleKey,
       matchedReferenceImageBytes: matchedReferenceImageBytes,
+      exif: exif,
+      subjectDetectionReliable: subjectDetectionReliable,
     );
   }
 }

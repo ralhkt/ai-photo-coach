@@ -24,6 +24,7 @@ dependencies:
   shared_preferences: ^2.5.3
   battery_plus: ^6.2.1
   http: ^1.2.2
+  exif: ^3.3.0
 
 dev_dependencies:
   flutter_test:

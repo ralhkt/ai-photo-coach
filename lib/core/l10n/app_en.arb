@@ -377,5 +377,26 @@
       "source": { "type": "String" },
       "score": { "type": "String" }
     }
-  }
+  },
+  "exifSectionTitle": "Camera EXIF",
+  "exifIso": "ISO {value}",
+  "@exifIso": {
+    "placeholders": { "value": { "type": "int" } }
+  },
+  "exifShutter": "Shutter {value}",
+  "@exifShutter": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "exifAperture": "Aperture f/{value}",
+  "@exifAperture": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "exifFocalLength": "Focal length {value} mm",
+  "@exifFocalLength": {
+    "placeholders": { "value": { "type": "String" } }
+  },
+  "exifCameraModel": "Camera",
+  "exifNotAvailable": "No EXIF data (common for screenshots or re-saved images)",
+  "subjectDetectionFailedTitle": "Person not detected",
+  "subjectDetectionFailedBody": "No face or body pose found. Use a clearer portrait with the subject centered, then try again."
 }

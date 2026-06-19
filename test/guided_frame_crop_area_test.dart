@@ -7,6 +7,8 @@ import 'package:ai_photo_coach/models/scene_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 
+import 'support/fake_ml_vision_analyzer.dart';
+
 void main() {
   test('crop-area viewport places skeleton inside full visible region', () async {
     final image = img.Image(width: 900, height: 1200);
@@ -23,7 +25,9 @@ void main() {
       }
     }
 
-    final analysis = await ImageAnalyzerService().analyze(
+    final analysis = await ImageAnalyzerService(
+      visionAnalyzer: const FakeMlVisionAnalyzer(),
+    ).analyze(
       Uint8List.fromList(img.encodeJpg(image)),
     );
     const cropViewport = Size(390, 520);
@@ -67,7 +71,9 @@ void main() {
       }
     }
 
-    final analysis = await ImageAnalyzerService().analyze(
+    final analysis = await ImageAnalyzerService(
+      visionAnalyzer: const FakeMlVisionAnalyzer(),
+    ).analyze(
       Uint8List.fromList(img.encodeJpg(image)),
       userSceneType: SceneType.portrait,
     );

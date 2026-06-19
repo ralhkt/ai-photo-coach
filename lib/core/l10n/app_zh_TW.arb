@@ -304,5 +304,14 @@
   "liveSceneCameraNotReady": "相機尚未就緒。",
   "liveSceneReanalyze": "重新分析",
   "liveSceneOverlayApplied": "構圖疊層：{overlay}",
-  "liveSceneMlSummary": "{source} · 美學分 {score}"
+  "liveSceneMlSummary": "{source} · 美學分 {score}",
+  "exifSectionTitle": "相機 EXIF 參數",
+  "exifIso": "ISO {value}",
+  "exifShutter": "快門 {value}",
+  "exifAperture": "光圈 f/{value}",
+  "exifFocalLength": "焦距 {value} mm",
+  "exifCameraModel": "相機",
+  "exifNotAvailable": "無 EXIF 資料（截圖或轉存圖片常見）",
+  "subjectDetectionFailedTitle": "未偵測到人物",
+  "subjectDetectionFailedBody": "找不到臉部或身體骨架。請改用更清晰、人物置中的打卡照後再試。"
 }

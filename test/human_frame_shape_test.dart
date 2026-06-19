@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 
+import 'support/fake_ml_vision_analyzer.dart';
+
 void main() {
   test('human template produces elliptical head with enough contour points', () {
     const subject = Rect.fromLTWH(0.3, 0.1, 0.4, 0.75);
@@ -49,7 +51,9 @@ void main() {
       }
     }
 
-    final analysis = await ImageAnalyzerService().analyze(
+    final analysis = await ImageAnalyzerService(
+      visionAnalyzer: const FakeMlVisionAnalyzer(),
+    ).analyze(
       Uint8List.fromList(img.encodeJpg(image)),
       userSceneType: SceneType.portrait,
     );

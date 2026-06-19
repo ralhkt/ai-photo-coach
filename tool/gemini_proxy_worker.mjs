@@ -43,12 +43,14 @@ export default {
       }
     }
 
-    const apiKey = env.GEMINI_API_KEY;
+    // Prefer server secret; allow app header for dev/MVP when secret not set.
+    const apiKey =
+      env.GEMINI_API_KEY || request.headers.get('X-Gemini-Api-Key');
     if (!apiKey) {
-      return new Response('GEMINI_API_KEY not configured', {
-        status: 500,
-        headers: corsHeaders,
-      });
+      return new Response(
+        'GEMINI_API_KEY not configured (set wrangler secret or X-Gemini-Api-Key header)',
+        { status: 500, headers: corsHeaders },
+      );
     }
 
     const model = url.searchParams.get('model') ?? 'gemini-2.0-flash';

@@ -65,6 +65,20 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
                     l10n.homeFlowStepShoot,
                   ],
                 ),
+                if (!analysis.subjectDetectionReliable) ...[
+                  const SizedBox(height: AppDesignTokens.spaceMd),
+                  AppGroupedSection(
+                    header: l10n.subjectDetectionFailedTitle,
+                    children: [
+                      AppGroupedRow(
+                        icon: Icons.warning_amber_rounded,
+                        title: l10n.subjectDetectionFailedTitle,
+                        subtitle: l10n.subjectDetectionFailedBody,
+                        showChevron: false,
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: AppDesignTokens.spaceXl),
                 AppSummaryCard(
                   leading: Icon(
@@ -142,6 +156,24 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
                             guidanceHintLabel(l10n, guidance.angleHintKey),
                         showChevron: false,
                       ),
+                      if (analysis.exif != null) ...[
+                        if (analysis.exif!.hasAny)
+                          ...exifSummaryLines(l10n, analysis.exif!).map(
+                            (line) => AppGroupedRow(
+                              icon: Icons.camera_outlined,
+                              title: l10n.exifSectionTitle,
+                              subtitle: line,
+                              showChevron: false,
+                            ),
+                          )
+                        else
+                          AppGroupedRow(
+                            icon: Icons.info_outline_rounded,
+                            title: l10n.exifSectionTitle,
+                            subtitle: l10n.exifNotAvailable,
+                            showChevron: false,
+                          ),
+                      ],
                       if (ml != null && ml.isMlPowered) ...[
                         AppGroupedRow(
                           icon: Icons.psychology_outlined,
@@ -222,13 +254,15 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
           AppStickyCtaBar(
             label: l10n.startGuidedShoot,
             icon: Icons.camera_alt_outlined,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const GuidedCameraScreen(),
-                ),
-              );
-            },
+            onPressed: analysis.subjectDetectionReliable
+                ? () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const GuidedCameraScreen(),
+                      ),
+                    );
+                  }
+                : null,
           ),
         ],
       ),

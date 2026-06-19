@@ -1001,4 +1001,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String liveSceneMlSummary(String source, String score) {
     return '$source · aesthetic $score';
   }
+
+  @override
+  String get exifSectionTitle => 'Camera EXIF';
+
+  @override
+  String exifIso(int value) {
+    return 'ISO $value';
+  }
+
+  @override
+  String exifShutter(String value) {
+    return 'Shutter $value';
+  }
+
+  @override
+  String exifAperture(String value) {
+    return 'Aperture f/$value';
+  }
+
+  @override
+  String exifFocalLength(String value) {
+    return 'Focal length $value mm';
+  }
+
+  @override
+  String get exifCameraModel => 'Camera';
+
+  @override
+  String get exifNotAvailable =>
+      'No EXIF data (common for screenshots or re-saved images)';
+
+  @override
+  String get subjectDetectionFailedTitle => 'Person not detected';
+
+  @override
+  String get subjectDetectionFailedBody =>
+      'No face or body pose found. Use a clearer portrait with the subject centered, then try again.';
 }

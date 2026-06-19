@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 
+import 'support/fake_ml_vision_analyzer.dart';
+
 /// Verifies analysis results are actually consumable by the guided camera overlay.
 void main() {
   late Uint8List portraitBytes;
@@ -32,7 +34,9 @@ void main() {
   });
 
   test('portrait analysis flows into guided frame with body-part zones', () async {
-    final analysis = await ImageAnalyzerService().analyze(
+    final analysis = await ImageAnalyzerService(
+      visionAnalyzer: const FakeMlVisionAnalyzer(),
+    ).analyze(
       portraitBytes,
       userSceneType: SceneType.portrait,
     );
@@ -77,7 +81,9 @@ void main() {
   });
 
   test('photo frame painter renders body-part guides without error', () async {
-    final analysis = await ImageAnalyzerService().analyze(
+    final analysis = await ImageAnalyzerService(
+      visionAnalyzer: const FakeMlVisionAnalyzer(),
+    ).analyze(
       portraitBytes,
       userSceneType: SceneType.portrait,
     );
@@ -99,7 +105,9 @@ void main() {
   });
 
   test('camera guidance params are ready for applyGuidanceSettings', () async {
-    final analysis = await ImageAnalyzerService().analyze(
+    final analysis = await ImageAnalyzerService(
+      visionAnalyzer: const FakeMlVisionAnalyzer(),
+    ).analyze(
       portraitBytes,
       userSceneType: SceneType.portrait,
     );

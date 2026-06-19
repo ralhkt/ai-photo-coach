@@ -12,6 +12,8 @@ import 'package:ai_photo_coach/models/subject_shape_kind.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 
+import 'support/fake_ml_vision_analyzer.dart';
+
 void main() {
   test('portrait scene produces human silhouette guidance', () async {
     final image = img.Image(width: 800, height: 1000);
@@ -26,7 +28,9 @@ void main() {
     }
 
     final bytes = Uint8List.fromList(img.encodeJpg(image));
-    final result = await ImageAnalyzerService().analyze(
+    final result = await ImageAnalyzerService(
+      visionAnalyzer: const FakeMlVisionAnalyzer(),
+    ).analyze(
       bytes,
       userSceneType: SceneType.portrait,
     );

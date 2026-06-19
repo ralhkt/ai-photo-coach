@@ -1910,6 +1910,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{source} · aesthetic {score}'**
   String liveSceneMlSummary(String source, String score);
+
+  /// No description provided for @exifSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera EXIF'**
+  String get exifSectionTitle;
+
+  /// No description provided for @exifIso.
+  ///
+  /// In en, this message translates to:
+  /// **'ISO {value}'**
+  String exifIso(int value);
+
+  /// No description provided for @exifShutter.
+  ///
+  /// In en, this message translates to:
+  /// **'Shutter {value}'**
+  String exifShutter(String value);
+
+  /// No description provided for @exifAperture.
+  ///
+  /// In en, this message translates to:
+  /// **'Aperture f/{value}'**
+  String exifAperture(String value);
+
+  /// No description provided for @exifFocalLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Focal length {value} mm'**
+  String exifFocalLength(String value);
+
+  /// No description provided for @exifCameraModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get exifCameraModel;
+
+  /// No description provided for @exifNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No EXIF data (common for screenshots or re-saved images)'**
+  String get exifNotAvailable;
+
+  /// No description provided for @subjectDetectionFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Person not detected'**
+  String get subjectDetectionFailedTitle;
+
+  /// No description provided for @subjectDetectionFailedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No face or body pose found. Use a clearer portrait with the subject centered, then try again.'**
+  String get subjectDetectionFailedBody;
 }
 
 class _AppLocalizationsDelegate

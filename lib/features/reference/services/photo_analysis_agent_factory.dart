@@ -4,6 +4,16 @@ import 'openrouter_vision_analysis_agent.dart';
 import 'photo_analysis_agent.dart';
 
 PhotoAnalysisAgent createPhotoAnalysisAgent() {
+  // Prefer regional proxy when URL is configured (Hong Kong safe path).
+  if (VisionApiConfig.isProxyConfigured &&
+      VisionApiConfig.provider != VisionProvider.openrouter) {
+    return ResilientPhotoAnalysisAgent(
+      primary: GeminiVisionAnalysisAgent(
+        apiKey: VisionApiConfig.geminiApiKey,
+      ),
+    );
+  }
+
   switch (VisionApiConfig.provider) {
     case VisionProvider.openrouter:
       final key = VisionApiConfig.openRouterApiKey;

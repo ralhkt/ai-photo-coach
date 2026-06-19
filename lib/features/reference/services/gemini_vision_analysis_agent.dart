@@ -20,7 +20,10 @@ class GeminiVisionAnalysisAgent implements PhotoAnalysisAgent {
     String? proxyAuthToken,
     http.Client? client,
   })  : baseUrl = baseUrl ?? VisionApiConfig.geminiBaseUrl,
-        endpointUrl = endpointUrl ?? VisionApiConfig.geminiProxyUrl,
+        endpointUrl = endpointUrl ??
+            (VisionApiConfig.provider == VisionProvider.proxy
+                ? VisionApiConfig.geminiProxyUrl
+                : ''),
         proxyAuthToken = proxyAuthToken ?? VisionApiConfig.proxyAuthToken,
         _client = client ?? http.Client();
 
@@ -92,6 +95,11 @@ class GeminiVisionAnalysisAgent implements PhotoAnalysisAgent {
     final headers = <String, String>{'Content-Type': 'application/json'};
     if (proxyAuthToken != null && proxyAuthToken!.isNotEmpty) {
       headers['Authorization'] = 'Bearer $proxyAuthToken';
+    }
+    if (endpointUrl.isNotEmpty &&
+        apiKey != null &&
+        apiKey!.isNotEmpty) {
+      headers['X-Gemini-Api-Key'] = apiKey!;
     }
 
     final response = await _client

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'camera_guidance.dart';
 import 'deep_photo_insights.dart';
 import 'ml_detection_result.dart';
+import 'photo_exif_metadata.dart';
 import 'photo_frame_template.dart';
 import 'scene_type.dart';
 
@@ -21,6 +22,8 @@ class PhotoAnalysisResult {
     this.matchedReferenceSampleId,
     this.matchedReferenceTitleKey,
     this.matchedReferenceImageBytes,
+    this.exif,
+    this.subjectDetectionReliable = true,
   });
 
   final double sourceAspectRatio;
@@ -36,4 +39,8 @@ class PhotoAnalysisResult {
   final String? matchedReferenceSampleId;
   final String? matchedReferenceTitleKey;
   final Uint8List? matchedReferenceImageBytes;
+  final PhotoExifMetadata? exif;
+
+  /// False when ML Kit found no face/pose — frame uses safe center placeholder.
+  final bool subjectDetectionReliable;
 }
