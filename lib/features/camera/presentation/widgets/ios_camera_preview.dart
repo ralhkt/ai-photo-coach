@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
+import 'camera_zoom_gesture_state.dart';
 import 'ios_focus_indicator.dart';
 
 class IosCameraPreview extends ConsumerStatefulWidget {
@@ -16,12 +17,38 @@ class IosCameraPreview extends ConsumerStatefulWidget {
 }
 
 class _IosCameraPreviewState extends ConsumerState<IosCameraPreview> {
-  double _currentZoom = 1.0;
-  double _baseZoom = 1.0;
+  final _zoomGesture = CameraZoomGestureState();
   int _pointerCount = 0;
 
   @override
+  void initState() {
+    super.initState();
+    _syncZoomFromProvider();
+  }
+
+  @override
+  void didUpdateWidget(covariant IosCameraPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      _syncZoomFromProvider();
+    }
+  }
+
+  void _syncZoomFromProvider() {
+    _zoomGesture.syncFromProvider(ref.read(focalPresetProvider));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    ref.listen<double>(focalPresetProvider, (previous, next) {
+      if (previous == next) {
+        return;
+      }
+      if ((_zoomGesture.currentZoom - next).abs() > 0.01) {
+        setState(() => _zoomGesture.syncFromProvider(next));
+      }
+    });
+
     final previewSize = widget.controller.value.previewSize;
     final focusState = ref.watch(focusIndicatorProvider);
     final mirrorFront = ref.watch(frontMirrorEnabledProvider);
@@ -60,14 +87,15 @@ class _IosCameraPreviewState extends ConsumerState<IosCameraPreview> {
             },
             onScaleStart: (_) {
               if (_pointerCount >= 2) {
-                _baseZoom = _currentZoom;
+                setState(() => _zoomGesture.beginPinch());
               }
             },
             onScaleUpdate: (details) {
               if (_pointerCount >= 2) {
-                final zoom = _baseZoom * details.scale;
-                _currentZoom = zoom;
-                ref.read(cameraControllerProvider.notifier).setZoom(zoom);
+                setState(() => _zoomGesture.applyPinchScale(details.scale));
+                ref
+                    .read(cameraControllerProvider.notifier)
+                    .setZoom(_zoomGesture.currentZoom);
               }
             },
             child: Stack(
@@ -83,7 +111,12 @@ class _IosCameraPreviewState extends ConsumerState<IosCameraPreview> {
                       child: Transform(
                         alignment: Alignment.center,
                         transform: Matrix4.identity()
-                          ..scale(isFront && mirrorFront ? -1.0 : 1.0, 1.0),
+                          ..scaleByDouble(
+                            isFront && mirrorFront ? -1.0 : 1.0,
+                            1.0,
+                            1.0,
+                            1.0,
+                          ),
                         child: CameraPreview(widget.controller),
                       ),
                     ),

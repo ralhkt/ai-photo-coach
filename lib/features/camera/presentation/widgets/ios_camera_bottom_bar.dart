@@ -22,6 +22,8 @@ class IosCameraBottomBar extends StatelessWidget {
     required this.onBurstEnd,
     required this.onFlipCamera,
     required this.hdrEnabled,
+    required this.hdrSupported,
+    required this.hdrLabel,
     required this.timerDuration,
     required this.aeAfLocked,
     required this.isBursting,
@@ -57,6 +59,8 @@ class IosCameraBottomBar extends StatelessWidget {
   final VoidCallback? onBurstEnd;
   final VoidCallback? onFlipCamera;
   final bool hdrEnabled;
+  final bool hdrSupported;
+  final String hdrLabel;
   final CameraTimerDuration timerDuration;
   final bool aeAfLocked;
   final bool isBursting;
@@ -108,6 +112,8 @@ class IosCameraBottomBar extends StatelessWidget {
             ],
             IosCameraOptionsStrip(
               hdrEnabled: hdrEnabled,
+              hdrSupported: hdrSupported,
+              hdrLabel: hdrLabel,
               timerDuration: timerDuration,
               aeAfLocked: aeAfLocked,
               isBursting: isBursting,

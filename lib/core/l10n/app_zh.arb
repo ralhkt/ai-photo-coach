@@ -78,6 +78,8 @@
   "galleryPreview": "相册",
   "keepShooting": "继续拍摄",
   "openGallery": "开启相册",
+  "hdrLabel": "HDR",
+  "hdrComingSoon": "此设备尚不支持 HDR 拍摄，功能即将推出。",
   "exposureLock": "曝光锁定",
   "timerOff": "定时器",
   "timer3s": "3 秒",

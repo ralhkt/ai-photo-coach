@@ -4,8 +4,13 @@ import '../../../models/camera_aspect_ratio.dart';
 import '../../../models/camera_timer_duration.dart';
 import '../../../models/captured_photo.dart';
 import '../../../models/focus_indicator_state.dart';
+import '../services/camera_hdr_capability.dart';
 
-final hdrEnabledProvider = StateProvider<bool>((ref) => true);
+/// HDR fusion is not exposed by the camera plugin today.
+final hdrSupportedProvider = Provider<bool>((ref) => CameraHdrCapability.isSupported);
+
+/// Off by default until [hdrSupportedProvider] is true.
+final hdrEnabledProvider = StateProvider<bool>((ref) => false);
 
 final timerDurationProvider = StateProvider<CameraTimerDuration>(
   (ref) => CameraTimerDuration.off,

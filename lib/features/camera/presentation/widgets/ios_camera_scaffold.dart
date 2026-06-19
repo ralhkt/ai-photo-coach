@@ -20,6 +20,7 @@ import '../../../ar/providers/ar_providers.dart';
 import '../../../ar/services/ar_platform_service.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
+import '../../providers/camera_mode_settings_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
@@ -250,7 +251,9 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
     final showFlash = ref.watch(captureFlashProvider);
     final flashMode = ref.watch(flashModeProvider);
     final cameras = ref.watch(camerasProvider).value ?? [];
+    final hdrSupported = ref.watch(hdrSupportedProvider);
     final hdrEnabled = ref.watch(hdrEnabledProvider);
+    final hdrActive = hdrSupported && hdrEnabled;
     final timerDuration = ref.watch(timerDurationProvider);
     final countdown = ref.watch(timerCountdownProvider);
     final isBursting = ref.watch(isBurstingProvider);
@@ -319,7 +322,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
                 right: 0,
                 child: IosCameraTopBar(
                   flashMode: flashMode,
-                  hdrEnabled: hdrEnabled,
+                  hdrEnabled: hdrActive,
                   aeAfLocked: aeAfLocked,
                   aeAfLockLabel: l10n.aeAfLocked,
                   onClose: () => _handleClose(context),
@@ -415,14 +418,14 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
           isBursting: isBursting,
           burstCount: burstPhotos.length,
           hdrEnabled: hdrEnabled,
+          hdrSupported: hdrSupported,
+          hdrLabel: l10n.hdrLabel,
           timerDuration: timerDuration,
           aeAfLocked: aeAfLocked,
           optionsExpanded: optionsExpanded,
           canFlip: cameras.length > 1,
           shutterEnabled: countdown == null,
-          onHdrTap: () {
-            ref.read(hdrEnabledProvider.notifier).state = !hdrEnabled;
-          },
+          onHdrTap: () => _handleHdrTap(context, l10n, hdrSupported, hdrEnabled),
           onTimerTap: () {
             ref.read(timerDurationProvider.notifier).state = timerDuration.next;
           },
@@ -470,6 +473,28 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
         ),
       ],
     );
+  }
+
+  void _handleHdrTap(
+    BuildContext context,
+    AppLocalizations l10n,
+    bool hdrSupported,
+    bool hdrEnabled,
+  ) {
+    if (!hdrSupported) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+          content: Text(l10n.hdrComingSoon),
+        ),
+      );
+      return;
+    }
+
+    ref.read(hdrEnabledProvider.notifier).state = !hdrEnabled;
+    ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
   }
 
   Future<void> _handleClose(BuildContext context) async {

@@ -8,6 +8,8 @@ class IosCameraOptionsStrip extends StatelessWidget {
   const IosCameraOptionsStrip({
     super.key,
     required this.hdrEnabled,
+    required this.hdrSupported,
+    required this.hdrLabel,
     required this.timerDuration,
     required this.aeAfLocked,
     required this.isBursting,
@@ -28,6 +30,8 @@ class IosCameraOptionsStrip extends StatelessWidget {
   });
 
   final bool hdrEnabled;
+  final bool hdrSupported;
+  final String hdrLabel;
   final CameraTimerDuration timerDuration;
   final bool aeAfLocked;
   final bool isBursting;
@@ -75,8 +79,9 @@ class IosCameraOptionsStrip extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _OptionChip(
-                  label: 'HDR',
-                  active: hdrEnabled,
+                  label: hdrLabel,
+                  active: hdrSupported && hdrEnabled,
+                  enabled: hdrSupported,
                   onTap: onHdrTap,
                 ),
                 _OptionChip(
@@ -162,46 +167,58 @@ class _OptionChip extends StatelessWidget {
     required this.active,
     required this.onTap,
     this.icon,
+    this.enabled = true,
   });
 
   final String label;
   final bool active;
   final VoidCallback onTap;
   final IconData? icon;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
+    final accent = enabled ? const Color(0xFFFFD60A) : Colors.white38;
+    final textColor = enabled
+        ? (active ? const Color(0xFFFFD60A) : Colors.white)
+        : Colors.white38;
+
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: active ? const Color(0x33FFD60A) : const Color(0x33282828),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: active ? const Color(0xFFFFD60A) : Colors.white24,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[
-              Icon(
-                icon,
-                size: 14,
-                color: active ? const Color(0xFFFFD60A) : Colors.white70,
-              ),
-              const SizedBox(width: 4),
-            ],
-            Text(
-              label,
-              style: TextStyle(
-                color: active ? const Color(0xFFFFD60A) : Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
+      child: Opacity(
+        opacity: enabled ? 1 : 0.55,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: active && enabled
+                ? const Color(0x33FFD60A)
+                : const Color(0x33282828),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: active && enabled ? accent : Colors.white24,
             ),
-          ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 14,
+                  color: active && enabled ? accent : Colors.white70,
+                ),
+                const SizedBox(width: 4),
+              ],
+              Text(
+                label,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -9,7 +9,7 @@ enum CameraUiMode { free, guided }
 
 class CameraModeSettings {
   const CameraModeSettings({
-    this.hdrEnabled = true,
+    this.hdrEnabled = false,
     this.timerDuration = CameraTimerDuration.off,
     this.proModeEnabled = false,
     this.aspectRatio = CameraAspectRatio.ratio4x3,

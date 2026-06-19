@@ -245,6 +245,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get openGallery => '开启相册';
 
   @override
+  String get hdrLabel => 'HDR';
+
+  @override
+  String get hdrComingSoon => '此设备尚不支持 HDR 拍摄，功能即将推出。';
+
+  @override
   String get exposureLock => '曝光锁定';
 
   @override
@@ -1100,6 +1106,12 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get openGallery => '開啟相簿';
+
+  @override
+  String get hdrLabel => 'HDR';
+
+  @override
+  String get hdrComingSoon => '此裝置尚不支援 HDR 拍攝，功能即將推出。';
 
   @override
   String get exposureLock => '曝光鎖定';

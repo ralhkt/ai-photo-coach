@@ -253,6 +253,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openGallery => 'Open Gallery';
 
   @override
+  String get hdrLabel => 'HDR';
+
+  @override
+  String get hdrComingSoon =>
+      'HDR capture is not available yet on this device.';
+
+  @override
   String get exposureLock => 'AE/AF Lock';
 
   @override

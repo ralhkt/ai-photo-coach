@@ -567,6 +567,18 @@ abstract class AppLocalizations {
   /// **'Open Gallery'**
   String get openGallery;
 
+  /// No description provided for @hdrLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'HDR'**
+  String get hdrLabel;
+
+  /// No description provided for @hdrComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'HDR capture is not available yet on this device.'**
+  String get hdrComingSoon;
+
   /// No description provided for @exposureLock.
   ///
   /// In en, this message translates to:
