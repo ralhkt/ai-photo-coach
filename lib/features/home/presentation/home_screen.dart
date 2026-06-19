@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/theme/app_design_tokens.dart';
+import '../../../core/widgets/app_surface_widgets.dart';
 import '../../camera/presentation/camera_screen.dart';
+import '../../camera/presentation/guided_camera_screen.dart';
 import '../../reference/presentation/reference_upload_screen.dart';
+import '../../reference/providers/reference_providers.dart';
 import '../../settings/presentation/settings_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -13,9 +17,11 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final hasAnalysis = ref.watch(referenceAnalysisProvider).value != null;
 
     return Scaffold(
       appBar: AppBar(
+        title: Text(l10n.appTitle),
         actions: [
           IconButton(
             tooltip: l10n.settingsTitle,
@@ -30,122 +36,96 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 24),
-              Text(
-                l10n.appTitle,
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppDesignTokens.screenPadding,
+                AppDesignTokens.spaceSm,
+                AppDesignTokens.screenPadding,
+                AppDesignTokens.space2xl,
+              ),
+              children: [
+                Text(
+                  l10n.appTitle,
+                  style: theme.textTheme.headlineLarge,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.homeSubtitle,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: Colors.white70,
+                const SizedBox(height: AppDesignTokens.spaceSm),
+                Text(
+                  l10n.homeSubtitle,
+                  style: theme.textTheme.bodyLarge,
                 ),
-              ),
-              const Spacer(),
-              _ActionCard(
-                icon: Icons.photo_library_outlined,
-                title: l10n.uploadReferenceTitle,
-                subtitle: l10n.uploadReferenceSubtitle,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const ReferenceUploadScreen(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              _ActionCard(
-                icon: Icons.photo_camera_outlined,
-                title: l10n.openCameraTitle,
-                subtitle: l10n.openCameraSubtitle,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const CameraScreen(),
-                    ),
-                  );
-                },
-              ),
-              const Spacer(flex: 2),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionCard extends StatelessWidget {
-  const _ActionCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Material(
-      color: theme.colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(14),
+                const SizedBox(height: AppDesignTokens.space3xl),
+                AppFlowStrip(
+                  activeIndex: hasAnalysis ? 2 : 0,
+                  steps: [
+                    l10n.homeFlowStepReference,
+                    l10n.homeFlowStepAnalyze,
+                    l10n.homeFlowStepShoot,
+                  ],
                 ),
-                child: Icon(icon, color: theme.colorScheme.primary),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: AppDesignTokens.space3xl),
+                if (hasAnalysis)
+                  AppHeroCard(
+                    badge: l10n.homeFlowStepShoot,
+                    title: l10n.homeContinueGuided,
+                    subtitle: l10n.homeContinueGuidedSubtitle,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const GuidedCameraScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                if (hasAnalysis)
+                  const SizedBox(height: AppDesignTokens.spaceLg),
+                AppGroupedSection(
+                  header: l10n.homeSubtitle,
                   children: [
-                    Text(
-                      title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                    AppGroupedRow(
+                      icon: Icons.photo_library_outlined,
+                      title: l10n.uploadReferenceTitle,
+                      subtitle: l10n.uploadReferenceSubtitle,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const ReferenceUploadScreen(),
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.white70,
-                      ),
+                    AppGroupedRow(
+                      icon: Icons.photo_camera_outlined,
+                      title: l10n.openCameraTitle,
+                      subtitle: l10n.openCameraSubtitle,
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const CameraScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
-              ),
-              const Icon(Icons.chevron_right_rounded, color: Colors.white54),
-            ],
+              ],
+            ),
           ),
-        ),
+          if (!hasAnalysis)
+            AppStickyCtaBar(
+              label: l10n.uploadReferenceTitle,
+              icon: Icons.photo_library_outlined,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const ReferenceUploadScreen(),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
     );
   }

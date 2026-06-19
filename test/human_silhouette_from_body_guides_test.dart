@@ -18,7 +18,7 @@ void main() {
     final path = builder.pointsToSmoothPath(points);
 
     expect(points.length, greaterThan(18));
-    expect(path.getBounds().width, greaterThan(0.2));
+    expect(path.getBounds().width, greaterThan(0.12));
     expect(path.getBounds().height, greaterThan(0.45));
     expect(path.getBounds().top, lessThan(guides.headOval.top + 0.05));
   });

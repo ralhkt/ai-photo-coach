@@ -19,6 +19,7 @@ import '../../ml/services/vision_analyzer.dart';
 import 'body_part_guide_service.dart';
 import 'deep_analysis_service.dart';
 import 'photo_analysis_agent.dart';
+import 'reference_matched_analysis_agent.dart';
 import 'human_frame_shape_builder.dart';
 import 'subject_silhouette_service.dart';
 
@@ -57,20 +58,13 @@ class ImageAnalyzerService {
     final aspectRatio = width / height;
     final brightness = _averageBrightness(decoded);
 
-    MlDetectionResult mlDetection;
-    try {
-      mlDetection = await _visionAnalyzer.analyze(
-        bytes: normalizedBytes,
-        width: width,
-        height: height,
-      );
-    } catch (_) {
-      mlDetection = await HeuristicVisionAnalyzer().analyze(
-        bytes: normalizedBytes,
-        width: width,
-        height: height,
-      );
-    }
+    final MlDetectionResult mlDetection = forLiveCoaching
+        ? await HeuristicVisionAnalyzer().analyze(
+            bytes: normalizedBytes,
+            width: width,
+            height: height,
+          )
+        : await _analyzeWithMlFallback(normalizedBytes, width, height);
 
     final heuristicSubject = _detectSubjectRegion(decoded, userSceneType);
     final subjectRect = _mergeSubjectRect(
@@ -153,6 +147,11 @@ class ImageAnalyzerService {
     );
 
     result = await _agent.enrich(result);
+
+    if (forLiveCoaching) {
+      result = await ReferenceMatchedPhotoAnalysisAgent().enrich(result);
+    }
+
     return result;
   }
 
@@ -567,6 +566,26 @@ class ImageAnalyzerService {
       return 'hintAngleHigher';
     }
     return 'hintAngleLevel';
+  }
+
+  Future<MlDetectionResult> _analyzeWithMlFallback(
+    Uint8List bytes,
+    int width,
+    int height,
+  ) async {
+    try {
+      return await _visionAnalyzer.analyze(
+        bytes: bytes,
+        width: width,
+        height: height,
+      );
+    } catch (_) {
+      return HeuristicVisionAnalyzer().analyze(
+        bytes: bytes,
+        width: width,
+        height: height,
+      );
+    }
   }
 }
 

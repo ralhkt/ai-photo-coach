@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_design_tokens.dart';
 import '../../../models/body_part_labels.dart';
 import '../../reference/services/frame_generator_service.dart' show GeneratedFrameSpec;
 import 'photo_frame_painter.dart';
 
-class PhotoFrameOverlay extends StatelessWidget {
+class PhotoFrameOverlay extends StatefulWidget {
   const PhotoFrameOverlay({
     super.key,
     required this.frameSpec,
@@ -12,6 +13,8 @@ class PhotoFrameOverlay extends StatelessWidget {
     required this.visible,
     this.bodyPartLabels,
     this.showBodyParts = true,
+    this.minimalPozeStyle = true,
+    this.animateEntry = true,
   });
 
   final GeneratedFrameSpec frameSpec;
@@ -19,22 +22,82 @@ class PhotoFrameOverlay extends StatelessWidget {
   final bool visible;
   final BodyPartLabels? bodyPartLabels;
   final bool showBodyParts;
+  final bool minimalPozeStyle;
+  final bool animateEntry;
+
+  @override
+  State<PhotoFrameOverlay> createState() => _PhotoFrameOverlayState();
+}
+
+class _PhotoFrameOverlayState extends State<PhotoFrameOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: AppDesignTokens.motionMedium,
+    );
+    _opacity = CurvedAnimation(
+      parent: _controller,
+      curve: AppDesignTokens.motionEaseOut,
+    );
+    _scale = Tween<double>(begin: 0.96, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: AppDesignTokens.motionSpring),
+    );
+    if (widget.visible && widget.animateEntry) {
+      _controller.forward();
+    } else if (widget.visible) {
+      _controller.value = 1;
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant PhotoFrameOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.visible && !oldWidget.visible) {
+      if (widget.animateEntry) {
+        _controller.forward(from: 0);
+      } else {
+        _controller.value = 1;
+      }
+    } else if (!widget.visible) {
+      _controller.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!visible) {
+    if (!widget.visible && _controller.isDismissed) {
       return const SizedBox.shrink();
     }
 
     return IgnorePointer(
-      child: CustomPaint(
-        painter: PhotoFramePainter(
-          frameSpec: frameSpec,
-          templateLabel: templateLabel,
-          bodyPartLabels: bodyPartLabels,
-          showBodyParts: showBodyParts,
+      child: FadeTransition(
+        opacity: _opacity,
+        child: ScaleTransition(
+          scale: _scale,
+          child: CustomPaint(
+            painter: PhotoFramePainter(
+              frameSpec: widget.frameSpec,
+              templateLabel: widget.templateLabel,
+              bodyPartLabels: widget.bodyPartLabels,
+              showBodyParts: widget.showBodyParts,
+              minimalPozeStyle: widget.minimalPozeStyle,
+            ),
+            child: const SizedBox.expand(),
+          ),
         ),
-        child: const SizedBox.expand(),
       ),
     );
   }

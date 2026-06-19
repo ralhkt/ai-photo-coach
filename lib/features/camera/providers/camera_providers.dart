@@ -12,6 +12,7 @@ import '../../../models/camera_guidance.dart';
 import '../../../models/camera_timer_duration.dart';
 import '../../../models/captured_photo.dart';
 import '../../../models/focus_indicator_state.dart';
+import '../../scene_stabilization/services/camera_frame_monitor.dart';
 import '../services/camera_service.dart';
 import 'camera_capture_provider.dart';
 import 'camera_mode_settings_provider.dart';
@@ -77,19 +78,32 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
 
   Future<void> switchCamera() async {
     final cameras = await ref.read(camerasProvider.future);
-    if (cameras.length < 2) {
+    if (cameras.length < 2 || ref.read(cameraSwitchingProvider)) {
       return;
     }
 
+    ref.read(cameraSwitchingProvider.notifier).state = true;
     await _unlockAeAf();
+    await ref.read(cameraFrameMonitorProvider).stop();
+    ref.read(focusIndicatorProvider.notifier).state = null;
+
     _cameraIndex = (_cameraIndex + 1) % cameras.length;
-    state = const AsyncLoading();
-    state = await AsyncValue.guard(() async {
-      return ref.read(cameraServiceProvider).initialize(
+    try {
+      final controller = await ref.read(cameraServiceProvider).switchTo(
             cameras[_cameraIndex],
             flashMode: ref.read(flashModeProvider),
           );
-    });
+      state = AsyncData(controller);
+      ref.read(focalPresetProvider.notifier).state = 1.0;
+      try {
+        await controller.setZoomLevel(1.0);
+      } catch (_) {}
+      await ref.read(cameraFrameMonitorProvider).start(controller);
+    } catch (error, stackTrace) {
+      state = AsyncError(error, stackTrace);
+    } finally {
+      ref.read(cameraSwitchingProvider.notifier).state = false;
+    }
   }
 
   Future<void> cycleFlashMode() async {
@@ -262,44 +276,41 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       return null;
     }
 
-    if (controller.value.isStreamingImages) {
+    return ref.read(cameraFrameMonitorProvider).runExclusive(() async {
+      final savedFlash = ref.read(flashModeProvider);
+      ref.read(isCapturingProvider.notifier).state = true;
       try {
-        await controller.stopImageStream();
-      } catch (_) {}
-      await Future<void>.delayed(const Duration(milliseconds: 120));
-    }
+        await controller.setFlashMode(FlashMode.off);
 
-    final savedFlash = ref.read(flashModeProvider);
-    ref.read(isCapturingProvider.notifier).state = true;
-    try {
-      await controller.setFlashMode(FlashMode.off);
-
-      for (var attempt = 0; attempt < 2; attempt++) {
-        try {
-          final file = await controller.takePicture();
-          final bytes = await file.readAsBytes();
-          if (bytes.isNotEmpty) {
-            if (!kIsWeb) {
-              try {
-                await File(file.path).delete();
-              } catch (_) {}
+        for (var attempt = 0; attempt < 2; attempt++) {
+          try {
+            final file = await controller.takePicture();
+            final bytes = await file.readAsBytes();
+            if (bytes.isNotEmpty) {
+              if (!kIsWeb) {
+                try {
+                  await File(file.path).delete();
+                } catch (_) {}
+              }
+              return bytes;
             }
-            return bytes;
-          }
-        } catch (error) {
-          debugPrint('capturePreviewFrame attempt ${attempt + 1} failed: $error');
-          if (attempt == 0) {
-            await Future<void>.delayed(const Duration(milliseconds: 150));
+          } catch (error) {
+            debugPrint(
+              'capturePreviewFrame attempt ${attempt + 1} failed: $error',
+            );
+            if (attempt == 0) {
+              await Future<void>.delayed(const Duration(milliseconds: 150));
+            }
           }
         }
+        return null;
+      } finally {
+        try {
+          await controller.setFlashMode(savedFlash);
+        } catch (_) {}
+        ref.read(isCapturingProvider.notifier).state = false;
       }
-      return null;
-    } finally {
-      try {
-        await controller.setFlashMode(savedFlash);
-      } catch (_) {}
-      ref.read(isCapturingProvider.notifier).state = false;
-    }
+    });
   }
 
   Future<CapturedPhoto?> capturePhoto({bool silent = false}) async {
@@ -310,28 +321,31 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       return null;
     }
 
-    ref.read(isCapturingProvider.notifier).state = true;
-    try {
-      final flashMode = ref.read(flashModeProvider);
-      await controller.setFlashMode(flashMode);
-      final file = await controller.takePicture();
-      final bytes = await file.readAsBytes();
-      final capture = CapturedPhoto(
-        path: file.path,
-        bytes: bytes,
-        capturedAt: DateTime.now(),
-      );
-      ref.read(lastCaptureProvider.notifier).state = capture;
-      if (!silent) {
-        ref.read(captureFlashProvider.notifier).state = true;
-        Future<void>.delayed(const Duration(milliseconds: 120), () {
-          ref.read(captureFlashProvider.notifier).state = false;
-        });
+    final resumeStream = !ref.read(isBurstingProvider);
+    return ref.read(cameraFrameMonitorProvider).runExclusive(() async {
+      ref.read(isCapturingProvider.notifier).state = true;
+      try {
+        final flashMode = ref.read(flashModeProvider);
+        await controller.setFlashMode(flashMode);
+        final file = await controller.takePicture();
+        final bytes = await file.readAsBytes();
+        final capture = CapturedPhoto(
+          path: file.path,
+          bytes: bytes,
+          capturedAt: DateTime.now(),
+        );
+        ref.read(lastCaptureProvider.notifier).state = capture;
+        if (!silent) {
+          ref.read(captureFlashProvider.notifier).state = true;
+          Future<void>.delayed(const Duration(milliseconds: 120), () {
+            ref.read(captureFlashProvider.notifier).state = false;
+          });
+        }
+        return capture;
+      } finally {
+        ref.read(isCapturingProvider.notifier).state = false;
       }
-      return capture;
-    } finally {
-      ref.read(isCapturingProvider.notifier).state = false;
-    }
+    }, resumeStream: resumeStream);
   }
 
   Future<CapturedPhoto?> captureWithTimer() async {
@@ -361,17 +375,17 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     return completer.future;
   }
 
-  void startBurst() {
+  Future<void> startBurst() async {
     if (ref.read(isBurstingProvider)) {
       return;
     }
 
+    await ref.read(cameraFrameMonitorProvider).stop();
     ref.read(isBurstingProvider.notifier).state = true;
     ref.read(burstPhotosProvider.notifier).state = const [];
 
     _burstTimer?.cancel();
-    _burstTimer = Timer.periodic(const Duration(milliseconds: 220), (_) async {
-      // 【修復】上一張尚未完成時跳過 tick，避免 takePicture 重疊崩潰
+    _burstTimer = Timer.periodic(const Duration(milliseconds: 350), (_) async {
       if (ref.read(isCapturingProvider)) {
         return;
       }
@@ -390,6 +404,11 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     final photos = ref.read(burstPhotosProvider);
     if (photos.isNotEmpty) {
       ref.read(lastCaptureProvider.notifier).state = photos.last;
+    }
+
+    final controller = state.value;
+    if (controller != null && controller.value.isInitialized) {
+      await ref.read(cameraFrameMonitorProvider).start(controller);
     }
     return photos;
   }

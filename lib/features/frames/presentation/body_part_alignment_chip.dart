@@ -25,9 +25,8 @@ class BodyPartAlignmentChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.55),
+        color: const Color(0xFF2C2C2E),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0x44FFD60A)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,7 +36,7 @@ class BodyPartAlignmentChip extends StatelessWidget {
             children: [
               const Icon(
                 Icons.accessibility_new_rounded,
-                color: Color(0xFFFFD60A),
+                color: Color(0xFF64D2FF),
                 size: 16,
               ),
               const SizedBox(width: 6),

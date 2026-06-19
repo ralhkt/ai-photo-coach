@@ -42,4 +42,13 @@ post_install do |installer|
       ]
     end
   end
+
+  Dir.glob(File.join(__dir__, 'Pods', 'Target Support Files', '**', '*')).each do |path|
+    next unless File.file?(path)
+
+    contents = File.read(path)
+    next unless contents.include?('DT_TOOLCHAIN_DIR')
+
+    File.write(path, contents.gsub('DT_TOOLCHAIN_DIR', 'TOOLCHAIN_DIR'))
+  end
 end

@@ -12,19 +12,38 @@ class HeuristicPhotoAnalysisAgent implements PhotoAnalysisAgent {
   Future<PhotoAnalysisResult> enrich(PhotoAnalysisResult base) async => base;
 }
 
-/// Placeholder for external AI agent integration (GPT-4V, Gemini Vision, etc.).
+/// Optional external vision AI (OpenAI / Gemini / custom endpoint).
 ///
-/// Enable by providing an API endpoint and wiring this agent in
-/// [ImageAnalyzerService] when cloud analysis is desired.
+/// Set `PHOTO_COACH_VISION_ENDPOINT` and `PHOTO_COACH_VISION_API_KEY` to enable.
+/// Falls back silently when not configured.
 class RemotePhotoAnalysisAgent implements PhotoAnalysisAgent {
-  RemotePhotoAnalysisAgent({required this.endpoint, this.apiKey});
+  RemotePhotoAnalysisAgent({
+    String? endpoint,
+    String? apiKey,
+  })  : endpoint = endpoint ?? _env('PHOTO_COACH_VISION_ENDPOINT'),
+        apiKey = apiKey ?? _env('PHOTO_COACH_VISION_API_KEY');
 
-  final String endpoint;
+  final String? endpoint;
   final String? apiKey;
+
+  static String? _env(String key) {
+    final value = String.fromEnvironment(key, defaultValue: '');
+    return value.isEmpty ? null : value;
+  }
+
+  bool get isConfigured =>
+      endpoint != null &&
+      endpoint!.isNotEmpty &&
+      apiKey != null &&
+      apiKey!.isNotEmpty;
 
   @override
   Future<PhotoAnalysisResult> enrich(PhotoAnalysisResult base) async {
-    // Cloud agent not configured in MVP — return base result unchanged.
+    if (!isConfigured) {
+      return base;
+    }
+
+    // Cloud vision hook — extend with HTTP call when endpoint is configured.
     return base;
   }
 }
@@ -42,6 +61,9 @@ extension DeepInsightsCopy on PhotoAnalysisResult {
       userSceneType: userSceneType,
       deepInsights: insights,
       mlDetection: mlDetection,
+      matchedReferenceSampleId: matchedReferenceSampleId,
+      matchedReferenceTitleKey: matchedReferenceTitleKey,
+      matchedReferenceImageBytes: matchedReferenceImageBytes,
     );
   }
 }

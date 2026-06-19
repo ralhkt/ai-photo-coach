@@ -29,7 +29,7 @@ class LiveSceneAnalyzingOverlay extends StatelessWidget {
         opacity: visible ? 1 : 0,
         duration: const Duration(milliseconds: 180),
         child: ColoredBox(
-          color: Colors.black.withValues(alpha: 0.42),
+          color: Colors.black.withValues(alpha: 0.22),
           child: Center(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 28),

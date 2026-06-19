@@ -8,6 +8,7 @@ import '../../../models/body_part_labels.dart';
 import '../../../models/subject_shape_kind.dart';
 import '../../reference/services/frame_generator_service.dart';
 import '../../reference/services/human_frame_shape_builder.dart';
+import 'poze_wireframe_style.dart';
 
 class PhotoFramePainter extends CustomPainter {
   PhotoFramePainter({
@@ -15,12 +16,14 @@ class PhotoFramePainter extends CustomPainter {
     required this.templateLabel,
     this.bodyPartLabels,
     this.showBodyParts = true,
+    this.minimalPozeStyle = true,
   });
 
   final GeneratedFrameSpec frameSpec;
   final String templateLabel;
   final BodyPartLabels? bodyPartLabels;
   final bool showBodyParts;
+  final bool minimalPozeStyle;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -29,15 +32,11 @@ class PhotoFramePainter extends CustomPainter {
     final isHumanFrame =
         frameSpec.subjectShape == SubjectShapeKind.humanSilhouette;
 
-    final borderPaint = Paint()
-      ..color = isHumanFrame
-          ? AppTheme.overlayAccent.withOpacity(0.55)
-          : AppTheme.overlayAccent
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = isHumanFrame ? 1.5 : 2;
-
-    canvas.drawRect(crop, borderPaint);
     if (!isHumanFrame) {
+      final borderPaint = Paint()
+        ..color = AppTheme.overlayAccent.withValues(alpha: 0.55)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2;
       _drawCornerBrackets(canvas, crop, borderPaint);
     }
 
@@ -60,6 +59,12 @@ class PhotoFramePainter extends CustomPainter {
       _drawHeadCrosshair(canvas, frameSpec.headCenter!);
     }
 
+    if (!isHumanFrame && templateLabel.isNotEmpty) {
+      _drawTemplateLabel(canvas, crop);
+    }
+  }
+
+  void _drawTemplateLabel(Canvas canvas, Rect crop) {
     final labelPainter = TextPainter(
       text: TextSpan(
         text: templateLabel,
@@ -103,43 +108,106 @@ class PhotoFramePainter extends CustomPainter {
             ),
           ).toList(),
         );
+
+    if (minimalPozeStyle) {
+      canvas.drawPath(
+        silhouette,
+        Paint()
+          ..color = PozeWireframeStyle.lineColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = PozeWireframeStyle.minimalBodyStrokeWidth
+          ..strokeJoin = StrokeJoin.round
+          ..strokeCap = StrokeCap.round,
+      );
+      return;
+    }
+
     final guides = spec.bodyPartGuides;
 
     canvas.drawPath(
       silhouette,
       Paint()
-        ..color = const Color(0x28FFD60A)
-        ..style = PaintingStyle.fill,
+        ..color = PozeWireframeStyle.glowColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = PozeWireframeStyle.glowStrokeWidth
+        ..strokeJoin = StrokeJoin.round,
     );
 
     canvas.drawPath(
       silhouette,
       Paint()
-        ..color = const Color(0xEEFFD60A)
+        ..color = PozeWireframeStyle.lineColor
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.6
-        ..strokeJoin = StrokeJoin.round,
+        ..strokeWidth = PozeWireframeStyle.bodyStrokeWidth
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round,
     );
 
-    _drawDashedPath(
-      canvas,
-      silhouette,
+    _drawPozeLimbs(canvas, subject, PozeWireframeLimbs.standing);
+
+    if (guides != null && showBodyParts) {
+      _drawPozeHeadGuide(canvas, guides.headOval);
+      _drawAnatomicalGuides(canvas, guides, silhouette);
+    }
+  }
+
+  void _drawPozeLimbs(
+    Canvas canvas,
+    Rect subject,
+    PozeWireframeLimbs limbs,
+  ) {
+    final limbPaint = Paint()
+      ..color = PozeWireframeStyle.lineColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = PozeWireframeStyle.limbStrokeWidth
+      ..strokeJoin = StrokeJoin.round
+      ..strokeCap = StrokeCap.round;
+
+    for (final guide in [
+      limbs.leftArm,
+      limbs.rightArm,
+      limbs.leftLeg,
+      limbs.rightLeg,
+      limbs.spine,
+    ]) {
+      _drawLimbPolyline(canvas, subject, guide.points, limbPaint);
+    }
+  }
+
+  void _drawLimbPolyline(
+    Canvas canvas,
+    Rect subject,
+    List<Offset> normalizedPoints,
+    Paint paint,
+  ) {
+    if (normalizedPoints.length < 2) {
+      return;
+    }
+
+    final path = Path();
+    final first = Offset(
+      subject.left + normalizedPoints.first.dx * subject.width,
+      subject.top + normalizedPoints.first.dy * subject.height,
+    );
+    path.moveTo(first.dx, first.dy);
+    for (var i = 1; i < normalizedPoints.length; i++) {
+      final point = Offset(
+        subject.left + normalizedPoints[i].dx * subject.width,
+        subject.top + normalizedPoints[i].dy * subject.height,
+      );
+      path.lineTo(point.dx, point.dy);
+    }
+    canvas.drawPath(path, paint);
+  }
+
+  void _drawPozeHeadGuide(Canvas canvas, Rect headOval) {
+    canvas.drawPath(
+      Path()..addOval(headOval),
       Paint()
-        ..color = Colors.white.withOpacity(0.82)
+        ..color = PozeWireframeStyle.lineColor.withValues(alpha: 0.72)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2,
+        ..strokeWidth = PozeWireframeStyle.limbStrokeWidth,
     );
-
-    if (guides != null) {
-      _drawHeadOvalGuide(canvas, guides.headOval);
-      if (showBodyParts) {
-        _drawAnatomicalGuides(canvas, guides, silhouette);
-      }
-    }
-
-    if (spec.headCenter != null) {
-      _drawHeadCrosshair(canvas, spec.headCenter!);
-    }
   }
 
   void _drawHeadOvalGuide(Canvas canvas, Rect headOval) {
@@ -482,6 +550,7 @@ class PhotoFramePainter extends CustomPainter {
   bool shouldRepaint(covariant PhotoFramePainter oldDelegate) {
     return oldDelegate.frameSpec != frameSpec ||
         oldDelegate.templateLabel != templateLabel ||
-        oldDelegate.showBodyParts != showBodyParts;
+        oldDelegate.showBodyParts != showBodyParts ||
+        oldDelegate.minimalPozeStyle != minimalPozeStyle;
   }
 }

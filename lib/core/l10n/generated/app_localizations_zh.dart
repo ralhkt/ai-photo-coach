@@ -51,7 +51,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cycleOverlay => '切換構圖模式';
 
   @override
-  String get homeSubtitle => '选择内置范例相片，或开启相机进行引导拍摄。';
+  String get homeSubtitle => '小红书风格打卡引导 — 选参考、看建议、跟着拍。';
+
+  @override
+  String get homeWorkflowLabel => '参考 → 分析 → 引导拍摄';
+
+  @override
+  String get homeFlowStepReference => '参考';
+
+  @override
+  String get homeFlowStepAnalyze => '分析';
+
+  @override
+  String get homeFlowStepShoot => '拍摄';
+
+  @override
+  String get homeContinueGuided => '继续引导拍摄';
+
+  @override
+  String get homeContinueGuidedSubtitle => '已分析参考图，可直接进入相机跟拍。';
+
+  @override
+  String get analysisExpandDetails => '显示完整分析';
+
+  @override
+  String get analysisCollapseDetails => '收起详情';
+
+  @override
+  String get guidedOverlayTools => '叠加图层';
 
   @override
   String get uploadReferenceTitle => '选择范例相片';
@@ -75,34 +102,46 @@ class AppLocalizationsZh extends AppLocalizations {
   String get uploadPrompt => '先选范例快速练习，也可在下方上传自己的相片。';
 
   @override
-  String get referenceSamplesSection => '内置范例';
+  String get referenceSamplesSection => '打卡范例图片';
 
   @override
   String get uploadOwnPhotoSection => '或上传自己的相片';
 
   @override
-  String get referenceSamplePortraitClassic => '经典人像';
+  String get referenceSampleCheckinCafe => '咖啡厅自拍打卡';
 
   @override
-  String get referenceSamplePortraitClassicHint => '4:5 人像 post，主体居中';
+  String get referenceSampleCheckinCafeHint => '亚洲女生在咖啡厅自拍，小红书热门构图';
 
   @override
-  String get referenceSamplePortraitStory => 'Story 人像';
+  String get referenceSampleCheckinNeon => '霓虹夜景人像';
 
   @override
-  String get referenceSamplePortraitStoryHint => '9:16 直式 story 构图';
+  String get referenceSampleCheckinNeonHint => '霓虹灯下氛围感夜景打卡';
 
   @override
-  String get referenceSamplePortraitSquare => '方形人像';
+  String get referenceSampleCheckinPortrait => '街拍 OOTD';
 
   @override
-  String get referenceSamplePortraitSquareHint => '1:1 社交媒体构图';
+  String get referenceSampleCheckinPortraitHint => '镜子前 OOTD 全身穿搭自拍';
 
   @override
-  String get referenceSampleLifestyleCafe => '咖啡厅生活照';
+  String get referenceSampleCheckinBrunch => '窗边下午茶';
 
   @override
-  String get referenceSampleLifestyleCafeHint => '环境人像，主体偏侧';
+  String get referenceSampleCheckinBrunchHint => '咖啡厅窗边座位人像打卡';
+
+  @override
+  String get referenceSampleCheckinTravel => '山顶旅游打卡';
+
+  @override
+  String get referenceSampleCheckinTravelHint => '女生站在山顶俯瞰风景';
+
+  @override
+  String get referenceSampleCheckinBeach => '海边日落打卡';
+
+  @override
+  String get referenceSampleCheckinBeachHint => '亚洲女生海边日落剪影';
 
   @override
   String get analyzingImage => '正在分析图片...';
@@ -845,6 +884,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get liveSceneAdviceTitle => 'AI 拍摄建议';
 
   @override
+  String liveSceneMatchedReference(String title) {
+    return '参考网红风格：$title';
+  }
+
+  @override
   String get liveSceneAnalyzeFailed => '无法分析目前场景，请再试一次。';
 
   @override
@@ -914,7 +958,34 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get cycleOverlay => '切換構圖模式';
 
   @override
-  String get homeSubtitle => '選擇內建範例相片，或開啟相機進行引導拍攝。';
+  String get homeSubtitle => '小紅書風格打卡引導 — 選參考、看建議、跟著拍。';
+
+  @override
+  String get homeWorkflowLabel => '參考 → 分析 → 引導拍攝';
+
+  @override
+  String get homeFlowStepReference => '參考';
+
+  @override
+  String get homeFlowStepAnalyze => '分析';
+
+  @override
+  String get homeFlowStepShoot => '拍攝';
+
+  @override
+  String get homeContinueGuided => '繼續引導拍攝';
+
+  @override
+  String get homeContinueGuidedSubtitle => '已分析參考圖，可直接進入相機跟拍。';
+
+  @override
+  String get analysisExpandDetails => '顯示完整分析';
+
+  @override
+  String get analysisCollapseDetails => '收起詳情';
+
+  @override
+  String get guidedOverlayTools => '疊加圖層';
 
   @override
   String get uploadReferenceTitle => '選擇範例相片';
@@ -938,34 +1009,46 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get uploadPrompt => '先選範例快速練習，也可在下方上傳自己的相片。';
 
   @override
-  String get referenceSamplesSection => '內建範例';
+  String get referenceSamplesSection => '打卡範例圖片';
 
   @override
   String get uploadOwnPhotoSection => '或上傳自己的相片';
 
   @override
-  String get referenceSamplePortraitClassic => '經典人像';
+  String get referenceSampleCheckinCafe => '咖啡廳自拍打卡';
 
   @override
-  String get referenceSamplePortraitClassicHint => '4:5 人像 post，主體置中';
+  String get referenceSampleCheckinCafeHint => '亞洲女生在咖啡廳自拍，小紅書熱門構圖';
 
   @override
-  String get referenceSamplePortraitStory => 'Story 人像';
+  String get referenceSampleCheckinNeon => '霓虹夜景人像';
 
   @override
-  String get referenceSamplePortraitStoryHint => '9:16 直式 story 構圖';
+  String get referenceSampleCheckinNeonHint => '霓虹燈下氛圍感夜景打卡';
 
   @override
-  String get referenceSamplePortraitSquare => '方形人像';
+  String get referenceSampleCheckinPortrait => '街拍 OOTD';
 
   @override
-  String get referenceSamplePortraitSquareHint => '1:1 社群媒體構圖';
+  String get referenceSampleCheckinPortraitHint => '鏡子前 OOTD 全身穿搭自拍';
 
   @override
-  String get referenceSampleLifestyleCafe => '咖啡廳生活照';
+  String get referenceSampleCheckinBrunch => '窗邊下午茶';
 
   @override
-  String get referenceSampleLifestyleCafeHint => '環境人像，主體偏側';
+  String get referenceSampleCheckinBrunchHint => '咖啡廳窗邊座位人像打卡';
+
+  @override
+  String get referenceSampleCheckinTravel => '山頂旅遊打卡';
+
+  @override
+  String get referenceSampleCheckinTravelHint => '女生站在山頂俯瞰風景';
+
+  @override
+  String get referenceSampleCheckinBeach => '海邊日落打卡';
+
+  @override
+  String get referenceSampleCheckinBeachHint => '亞洲女生海邊日落剪影';
 
   @override
   String get analyzingImage => '正在分析圖片...';
@@ -1706,6 +1789,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get liveSceneAdviceTitle => 'AI 拍攝建議';
+
+  @override
+  String liveSceneMatchedReference(String title) {
+    return '參考網紅風格：$title';
+  }
 
   @override
   String get liveSceneAnalyzeFailed => '無法分析目前場景，請再試一次。';

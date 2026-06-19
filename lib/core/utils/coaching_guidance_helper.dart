@@ -1,3 +1,4 @@
+import '../../features/frames/services/poze_frame_layout.dart';
 import '../../features/reference/services/body_part_guide_service.dart';
 import '../../features/reference/services/human_frame_shape_builder.dart';
 import '../../models/camera_guidance.dart';
@@ -32,6 +33,26 @@ class CoachingGuidanceHelper {
 
     return guidance.copyWith(
       subjectShape: SubjectShapeKind.humanSilhouette,
+      subjectSilhouettePoints: templatePoints,
+      bodyPartGuides: bodyParts,
+    );
+  }
+
+  /// Poze overlay: single centered wireframe aligned with the viewfinder.
+  CameraGuidance forPozeOverlay(CameraGuidance guidance) {
+    final stabilized = PozeFrameLayout.stabilizeForOverlay(
+      guidance.subjectTargetRect,
+    );
+    final templatePoints =
+        _shapeBuilder.mapTemplateToSubject(stabilized);
+    final bodyParts = _bodyPartGuideService.derive(
+      subjectRect: stabilized,
+      silhouettePoints: templatePoints,
+    );
+
+    return guidance.copyWith(
+      subjectShape: SubjectShapeKind.humanSilhouette,
+      subjectTargetRect: stabilized,
       subjectSilhouettePoints: templatePoints,
       bodyPartGuides: bodyParts,
     );

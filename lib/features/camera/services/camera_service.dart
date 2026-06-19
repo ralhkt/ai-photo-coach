@@ -1,4 +1,7 @@
+import 'dart:io' show Platform;
+
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CameraService {
@@ -23,8 +26,6 @@ class CameraService {
     CameraDescription camera, {
     FlashMode flashMode = FlashMode.auto,
   }) async {
-    await dispose();
-
     final hasAccess = await hasPermission() || await requestPermission();
     if (!hasAccess) {
       throw CameraException(
@@ -33,9 +34,54 @@ class CameraService {
       );
     }
 
+    await _releasePreviousController();
+    return _createController(camera, flashMode: flashMode);
+  }
+
+  /// Switches lenses — must release the previous iOS capture session first.
+  Future<CameraController> switchTo(
+    CameraDescription camera, {
+    FlashMode flashMode = FlashMode.auto,
+  }) async {
+    await _releasePreviousController();
+    return _createController(camera, flashMode: flashMode);
+  }
+
+  Future<void> _releasePreviousController() async {
+    final previous = _controller;
+    _controller = null;
+    if (previous == null) {
+      return;
+    }
+
+    try {
+      if (previous.value.isStreamingImages) {
+        await previous.stopImageStream();
+      }
+    } catch (_) {}
+
+    try {
+      await previous.dispose();
+    } catch (error) {
+      debugPrint('CameraService: dispose failed: $error');
+    }
+
+    if (!kIsWeb && Platform.isIOS) {
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+  }
+
+  Future<CameraController> _createController(
+    CameraDescription camera, {
+    required FlashMode flashMode,
+  }) async {
+    final preset = !kIsWeb && Platform.isIOS
+        ? ResolutionPreset.low
+        : ResolutionPreset.high;
+
     final controller = CameraController(
       camera,
-      ResolutionPreset.high,
+      preset,
       enableAudio: false,
       imageFormatGroup: ImageFormatGroup.jpeg,
     );

@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('live coaching analysis prefers human silhouette on portrait scene', () async {
     final image = img.Image(width: 900, height: 1200);
     for (var y = 0; y < image.height; y++) {
@@ -32,5 +34,7 @@ void main() {
     expect(analysis.guidance.subjectShape, SubjectShapeKind.humanSilhouette);
     expect(analysis.guidance.subjectSilhouettePoints, isNotNull);
     expect(analysis.guidance.bodyPartGuides, isNotNull);
+    expect(analysis.matchedReferenceSampleId, isNotNull);
+    expect(analysis.matchedReferenceImageBytes, isNotNull);
   });
 }

@@ -7,38 +7,20 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/services/voice_guidance_service.dart';
 import '../../../../core/settings/app_settings_provider.dart';
 import '../../../../core/utils/guidance_text.dart';
-import '../../../../models/camera_aspect_ratio.dart';
 import '../../../../models/camera_timer_duration.dart';
-import '../../../../models/photo_frame_template.dart';
 import '../../../../models/captured_photo.dart';
 import '../../../../models/shoot_session.dart';
 import '../../../session/presentation/session_flow.dart';
 import '../../../session/providers/shoot_session_provider.dart';
-import '../../../ar/presentation/ar_horizon_overlay.dart';
-import '../../../ar/presentation/ar_status_chip.dart';
-import '../../../ar/providers/ar_providers.dart';
-import '../../../ar/services/ar_platform_service.dart';
-import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_mode_settings_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
-import 'angle_guidance_overlay.dart';
-import 'live_scene_advice_panel.dart';
-import 'live_scene_analyzing_overlay.dart';
-import 'live_scene_auto_analyzer.dart';
-import 'live_scene_coach_banner.dart';
-import 'live_scene_guidance_frame_overlay.dart';
 import '../burst_review_screen.dart';
 import '../photo_review_screen.dart';
-import 'ios_aspect_ratio_overlay.dart';
 import 'ios_camera_bottom_bar.dart';
-import 'ios_camera_preview.dart';
-import 'letterboxed_camera_viewport.dart';
-import 'ios_camera_top_bar.dart';
-import 'ios_countdown_overlay.dart';
-import 'ios_histogram_overlay.dart';
+import 'ios_camera_layers.dart';
 
 class IosCameraScaffold extends ConsumerStatefulWidget {
   const IosCameraScaffold({
@@ -81,19 +63,6 @@ class IosCameraScaffold extends ConsumerStatefulWidget {
 class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   bool get _isFreeShootMode =>
       widget.shootSessionMode == ShootSessionMode.free;
-
-  double? _resolveCropAspectRatio(WidgetRef ref, Size viewport) {
-    return ref.watch(cameraAspectRatioProvider).displayCropRatio(viewport);
-  }
-
-  String _aspectRatioLabel(AppLocalizations l10n, CameraAspectRatio ratio) {
-    return switch (ratio) {
-      CameraAspectRatio.ratio4x3 => l10n.aspectRatio4x3,
-      CameraAspectRatio.ratio16x9 => l10n.aspectRatio16x9,
-      CameraAspectRatio.ratio1x1 => l10n.aspectRatio1x1,
-      CameraAspectRatio.full => l10n.aspectRatioFull,
-    };
-  }
 
   Future<void> _analyzeLiveScene(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
@@ -206,11 +175,6 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final liveAnalysis = ref.watch(liveSceneAnalysisProvider);
-    final isLiveAnalyzing = ref.watch(liveSceneAnalyzingProvider);
-    final isManualRun = ref.watch(liveSceneManualRunProvider);
-    final coachDismissed = ref.watch(liveSceneCoachDismissedProvider);
-    final hasAdvice = liveAnalysis.value != null;
 
     ref.listen<LiveSceneAnalysisFailure?>(
       liveSceneAnalysisErrorProvider,
@@ -246,230 +210,78 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
       );
     });
 
-    final lastCapture = ref.watch(lastCaptureProvider);
-    final isCapturing = ref.watch(isCapturingProvider);
-    final showFlash = ref.watch(captureFlashProvider);
-    final flashMode = ref.watch(flashModeProvider);
-    final cameras = ref.watch(camerasProvider).value ?? [];
-    final hdrSupported = ref.watch(hdrSupportedProvider);
-    final hdrEnabled = ref.watch(hdrEnabledProvider);
-    final hdrActive = hdrSupported && hdrEnabled;
-    final timerDuration = ref.watch(timerDurationProvider);
-    final countdown = ref.watch(timerCountdownProvider);
-    final isBursting = ref.watch(isBurstingProvider);
-    final burstPhotos = ref.watch(burstPhotosProvider);
-    final aeAfLocked = ref.watch(aeAfLockProvider);
-    final optionsExpanded = ref.watch(showCameraOptionsProvider);
-    final arStatus = ref.watch(arSessionProvider).value ?? ArPlatformStatus.initial;
-    final sceneStatus = ref.watch(sceneStabilityProvider);
-    final arOverlayVisible = ref.watch(arOverlayVisibleProvider);
-    final proMode = ref.watch(proModeEnabledProvider);
-    final aspectRatio = ref.watch(cameraAspectRatioProvider);
-    final manualEv = ref.watch(manualExposureOffsetProvider);
-    final focalPreset = ref.watch(focalPresetProvider);
-    final showHistogram = ref.watch(showHistogramProvider);
-    final frontMirror = ref.watch(frontMirrorEnabledProvider);
-    final showCoachBanner = _isFreeShootMode &&
-        !coachDismissed &&
-        !hasAdvice &&
-        !isLiveAnalyzing;
-    return Column(
-      children: [
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final viewport = Size(
-                constraints.maxWidth,
-                constraints.maxHeight,
-              );
-              final cropAspectRatio = _resolveCropAspectRatio(ref, viewport);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final isGuidedMode = widget.shootSessionMode == ShootSessionMode.guided;
+    const bottomChromeHeight = 132.0;
+    const guidedHintHeight = 44.0;
 
-              return Stack(
-                fit: StackFit.expand,
-                children: [
-                  LetterboxedCameraViewport(
-                    cropAspectRatio: cropAspectRatio,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        IosCameraPreview(controller: widget.controller),
-                        IosAspectRatioOverlay(aspectRatio: aspectRatio),
-                        if (widget.croppedOverlay != null)
-                          widget.croppedOverlay!,
-                        if (_isFreeShootMode && hasAdvice)
-                          const LiveSceneGuidanceFrameOverlay(),
-                      ],
-                    ),
-                  ),
-                  widget.overlay,
-              if (widget.enablePhase2)
-                ArHorizonOverlay(visible: arOverlayVisible),
-              if (showFlash)
-                AnimatedOpacity(
-                  opacity: showFlash ? 1 : 0,
-                  duration: const Duration(milliseconds: 80),
-                  child: const ColoredBox(color: Colors.white),
-                ),
-              if (countdown != null) IosCountdownOverlay(seconds: countdown),
-              if (_isFreeShootMode)
-                LiveSceneAnalyzingOverlay(
-                  visible: isLiveAnalyzing,
-                  autoTriggered: !isManualRun,
-                ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: IosCameraTopBar(
-                  flashMode: flashMode,
-                  hdrEnabled: hdrActive,
-                  aeAfLocked: aeAfLocked,
-                  aeAfLockLabel: l10n.aeAfLocked,
-                  onClose: () => _handleClose(context),
-                  onFlashTap: () =>
-                      ref.read(cameraControllerProvider.notifier).cycleFlashMode(),
-                  onGridTap: widget.onGridTap,
-                  onFrameTap: widget.onFrameTap,
-                  gridEnabled: widget.gridEnabled,
-                  frameEnabled: widget.frameEnabled,
-                  showGridButton: widget.showGridButton,
-                  showFrameButton: widget.showFrameButton,
-                  showAiAnalyzeButton: _isFreeShootMode,
-                  aiAnalyzing: isLiveAnalyzing,
-                  onAiAnalyzeTap: countdown == null &&
-                          !isBursting &&
-                          !isCapturing &&
-                          !isLiveAnalyzing
-                      ? () => _analyzeLiveScene(context)
-                      : null,
-                  aiAnalyzeTooltip: l10n.liveSceneAnalyze,
-                  centerLabel: widget.centerTopLabel,
-                  showAspectRatioButton: true,
-                  aspectRatioLabel: _aspectRatioLabel(l10n, aspectRatio),
-                  onAspectRatioTap: () {
-                    ref.read(cameraAspectRatioProvider.notifier).state =
-                        aspectRatio.next;
-                  },
-                ),
-              ),
-              if (widget.enablePhase2)
-                Positioned(
-                  top: 96,
-                  left: 16,
-                  child: ArStatusChip(
-                    arStatus: arStatus,
-                    sceneStatus: sceneStatus,
-                  ),
-                ),
-              if (showHistogram)
-                IosHistogramOverlay(brightness: 0.45 + manualEv * 0.1),
-              if (_isFreeShootMode)
-                liveAnalysis.maybeWhen(
-                  data: (analysis) {
-                    if (analysis == null) {
-                      return const SizedBox.shrink();
-                    }
-                    return AngleGuidanceOverlay(
-                      angleDegrees: analysis.guidance.angleDegrees,
-                      angleHintKey: analysis.guidance.angleHintKey,
-                      visible: true,
-                    );
-                  },
-                  orElse: () => const SizedBox.shrink(),
-                ),
-              if (_isFreeShootMode) const LiveSceneAutoAnalyzer(),
-                ],
-              );
-            },
-          ),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Stack(
+          fit: StackFit.expand,
+          children: [
+            IosCameraPreviewLayer(
+              controller: widget.controller,
+              croppedOverlay: widget.croppedOverlay,
+              showLiveGuidanceFrame: _isFreeShootMode,
+            ),
+            widget.overlay,
+            IosCameraPhase2Layer(enabled: widget.enablePhase2),
+            const IosCameraFlashLayer(),
+            const IosCameraCountdownLayer(),
+            IosCameraAnalyzingLayer(enabled: _isFreeShootMode),
+            IosCameraTopBarLayer(
+              onClose: () => _handleClose(context),
+              onGridTap: widget.onGridTap,
+              onFrameTap: widget.onFrameTap,
+              gridEnabled: widget.gridEnabled,
+              frameEnabled: widget.frameEnabled,
+              showGridButton: widget.showGridButton,
+              showFrameButton: widget.showFrameButton,
+              showAiAnalyzeButton: _isFreeShootMode,
+              onAiAnalyzeTap: () => _analyzeLiveScene(context),
+              centerLabel: widget.centerTopLabel,
+            ),
+            const IosCameraHistogramLayer(),
+            IosCameraAngleGuidanceLayer(enabled: _isFreeShootMode),
+          ],
+        ),
+        IosCameraCoachBannerLayer(
+          enabled: _isFreeShootMode,
+          bottomOffset: bottomChromeHeight + bottomInset + 8,
+        ),
+        IosCameraAdvicePanelLayer(
+          enabled: _isFreeShootMode,
+          bottomOffset: bottomChromeHeight + bottomInset,
+          onDismiss: () {
+            ref.read(liveSceneAnalysisProvider.notifier).clear();
+          },
+          onReanalyze: () => _analyzeLiveScene(context),
         ),
         if (widget.guidanceChip != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: widget.guidanceChip!,
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: bottomChromeHeight + bottomInset + 8,
+            child: SizedBox(
+              height: guidedHintHeight,
+              child: widget.guidanceChip!,
+            ),
           ),
-        if (_isFreeShootMode)
-          LiveSceneCoachBanner(visible: showCoachBanner),
-        liveAnalysis.maybeWhen(
-          data: (analysis) {
-            if (analysis == null || !_isFreeShootMode) {
-              return const SizedBox.shrink();
-            }
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-              child: LiveSceneAdvicePanel(
-                analysis: analysis,
-                isAnalyzing: isLiveAnalyzing,
-                onDismiss: () {
-                  ref.read(liveSceneAnalysisProvider.notifier).clear();
-                },
-                onReanalyze: isLiveAnalyzing
-                    ? null
-                    : () => _analyzeLiveScene(context),
-              ),
-            );
-          },
-          orElse: () => const SizedBox.shrink(),
-        ),
-        IosCameraBottomBar(
-          modeLabel: widget.modeLabel ?? l10n.cameraModePhoto,
-          thumbnailBytes: lastCapture?.bytes,
-          isCapturing: isCapturing,
-          isBursting: isBursting,
-          burstCount: burstPhotos.length,
-          hdrEnabled: hdrEnabled,
-          hdrSupported: hdrSupported,
-          hdrLabel: l10n.hdrLabel,
-          timerDuration: timerDuration,
-          aeAfLocked: aeAfLocked,
-          optionsExpanded: optionsExpanded,
-          canFlip: cameras.length > 1,
-          shutterEnabled: countdown == null,
-          onHdrTap: () => _handleHdrTap(context, l10n, hdrSupported, hdrEnabled),
-          onTimerTap: () {
-            ref.read(timerDurationProvider.notifier).state = timerDuration.next;
-          },
-          onExposureLockTap: () {
-            ref.read(cameraControllerProvider.notifier).toggleAeAfLock();
-          },
-          onToggleOptions: () {
-            ref.read(showCameraOptionsProvider.notifier).state =
-                !optionsExpanded;
-          },
-          onGalleryTap: () => _openGallery(context, lastCapture != null),
-          onGalleryLongPress: () => _openGallery(context, false),
-          onShutterTap: () => _capture(context),
-          onBurstStart: () {
-            ref.read(cameraControllerProvider.notifier).startBurst();
-          },
-          onBurstEnd: () => _finishBurst(context),
-          onFlipCamera: () =>
-              ref.read(cameraControllerProvider.notifier).switchCamera(),
-          proModeEnabled: proMode,
-          onProModeTap: () {
-            ref.read(proModeEnabledProvider.notifier).state = !proMode;
-          },
-          aspectRatio: aspectRatio,
-          onAspectRatioTap: () {
-            ref.read(cameraAspectRatioProvider.notifier).state =
-                aspectRatio.next;
-          },
-          showHistogram: showHistogram,
-          onHistogramTap: () {
-            ref.read(showHistogramProvider.notifier).state = !showHistogram;
-          },
-          frontMirrorEnabled: frontMirror,
-          onMirrorTap: () {
-            ref.read(frontMirrorEnabledProvider.notifier).state = !frontMirror;
-          },
-          manualExposure: manualEv,
-          onManualExposureChanged: (value) {
-            ref.read(cameraControllerProvider.notifier).setManualExposure(value);
-          },
-          focalPreset: focalPreset,
-          onFocalPresetTap: (preset) {
-            ref.read(cameraControllerProvider.notifier).setZoom(preset);
-          },
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: _IosCameraBottomBarLayer(
+            compactMode: isGuidedMode,
+            modeLabel: widget.modeLabel ?? l10n.cameraModePhoto,
+            onHdrTap: (supported, enabled) =>
+                _handleHdrTap(context, l10n, supported, enabled),
+            onGalleryTap: (hasLast) => _openGallery(context, hasLast),
+            onShutterTap: () => _capture(context),
+            onBurstEnd: () => _finishBurst(context),
+          ),
         ),
       ],
     );
@@ -611,6 +423,101 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
           isFromGallery: true,
         ),
       ),
+    );
+  }
+}
+
+class _IosCameraBottomBarLayer extends ConsumerWidget {
+  const _IosCameraBottomBarLayer({
+    required this.modeLabel,
+    required this.onHdrTap,
+    required this.onGalleryTap,
+    required this.onShutterTap,
+    required this.onBurstEnd,
+    this.compactMode = false,
+  });
+
+  final String modeLabel;
+  final bool compactMode;
+  final void Function(bool supported, bool enabled) onHdrTap;
+  final void Function(bool hasLastCapture) onGalleryTap;
+  final VoidCallback onShutterTap;
+  final VoidCallback onBurstEnd;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final lastCapture = ref.watch(lastCaptureProvider);
+    final isCapturing = ref.watch(isCapturingProvider);
+    final isBursting = ref.watch(isBurstingProvider);
+    final burstPhotos = ref.watch(burstPhotosProvider);
+    final hdrSupported = ref.watch(hdrSupportedProvider);
+    final hdrEnabled = ref.watch(hdrEnabledProvider);
+    final timerDuration = ref.watch(timerDurationProvider);
+    final countdown = ref.watch(timerCountdownProvider);
+    final aeAfLocked = ref.watch(aeAfLockProvider);
+    final optionsExpanded = ref.watch(showCameraOptionsProvider);
+    final cameras = ref.watch(camerasProvider).value ?? [];
+    final proMode = ref.watch(proModeEnabledProvider);
+    final manualEv = ref.watch(manualExposureOffsetProvider);
+    final focalPreset = ref.watch(focalPresetProvider);
+    final showHistogram = ref.watch(showHistogramProvider);
+    final frontMirror = ref.watch(frontMirrorEnabledProvider);
+
+    return IosCameraBottomBar(
+      compactMode: compactMode,
+      modeLabel: modeLabel,
+      thumbnailBytes: lastCapture?.bytes,
+      isCapturing: isCapturing,
+      isBursting: isBursting,
+      burstCount: burstPhotos.length,
+      hdrEnabled: hdrEnabled,
+      hdrSupported: hdrSupported,
+      hdrLabel: l10n.hdrLabel,
+      timerDuration: timerDuration,
+      aeAfLocked: aeAfLocked,
+      optionsExpanded: optionsExpanded,
+      canFlip: cameras.length > 1,
+      shutterEnabled: countdown == null,
+      onHdrTap: () => onHdrTap(hdrSupported, hdrEnabled),
+      onTimerTap: () {
+        ref.read(timerDurationProvider.notifier).state = timerDuration.next;
+      },
+      onExposureLockTap: () {
+        ref.read(cameraControllerProvider.notifier).toggleAeAfLock();
+      },
+      onToggleOptions: () {
+        ref.read(showCameraOptionsProvider.notifier).state = !optionsExpanded;
+      },
+      onGalleryTap: () => onGalleryTap(lastCapture != null),
+      onGalleryLongPress: () => onGalleryTap(false),
+      onShutterTap: onShutterTap,
+      onBurstStart: () {
+        ref.read(cameraControllerProvider.notifier).startBurst();
+      },
+      onBurstEnd: onBurstEnd,
+      onFlipCamera: () =>
+          ref.read(cameraControllerProvider.notifier).switchCamera(),
+      proModeEnabled: proMode,
+      onProModeTap: () {
+        ref.read(proModeEnabledProvider.notifier).state = !proMode;
+      },
+      showHistogram: showHistogram,
+      onHistogramTap: () {
+        ref.read(showHistogramProvider.notifier).state = !showHistogram;
+      },
+      frontMirrorEnabled: frontMirror,
+      onMirrorTap: () {
+        ref.read(frontMirrorEnabledProvider.notifier).state = !frontMirror;
+      },
+      manualExposure: manualEv,
+      onManualExposureChanged: (value) {
+        ref.read(cameraControllerProvider.notifier).setManualExposure(value);
+      },
+      focalPreset: focalPreset,
+      onFocalPresetTap: (preset) {
+        ref.read(cameraControllerProvider.notifier).setZoom(preset);
+      },
     );
   }
 }

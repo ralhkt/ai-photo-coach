@@ -186,8 +186,62 @@ abstract class AppLocalizations {
   /// No description provided for @homeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pick a sample photo or open the camera for guided framing.'**
+  /// **'Check-in pose coaching — reference, analyze, then shoot.'**
   String get homeSubtitle;
+
+  /// No description provided for @homeWorkflowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference → Analyze → Shoot'**
+  String get homeWorkflowLabel;
+
+  /// No description provided for @homeFlowStepReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get homeFlowStepReference;
+
+  /// No description provided for @homeFlowStepAnalyze.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze'**
+  String get homeFlowStepAnalyze;
+
+  /// No description provided for @homeFlowStepShoot.
+  ///
+  /// In en, this message translates to:
+  /// **'Shoot'**
+  String get homeFlowStepShoot;
+
+  /// No description provided for @homeContinueGuided.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue guided shoot'**
+  String get homeContinueGuided;
+
+  /// No description provided for @homeContinueGuidedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference analyzed — jump straight into the camera.'**
+  String get homeContinueGuidedSubtitle;
+
+  /// No description provided for @analysisExpandDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Show full analysis'**
+  String get analysisExpandDetails;
+
+  /// No description provided for @analysisCollapseDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get analysisCollapseDetails;
+
+  /// No description provided for @guidedOverlayTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Overlays'**
+  String get guidedOverlayTools;
 
   /// No description provided for @uploadReferenceTitle.
   ///
@@ -234,7 +288,7 @@ abstract class AppLocalizations {
   /// No description provided for @referenceSamplesSection.
   ///
   /// In en, this message translates to:
-  /// **'Built-in samples'**
+  /// **'Check-in samples'**
   String get referenceSamplesSection;
 
   /// No description provided for @uploadOwnPhotoSection.
@@ -243,53 +297,77 @@ abstract class AppLocalizations {
   /// **'Or upload your photo'**
   String get uploadOwnPhotoSection;
 
-  /// No description provided for @referenceSamplePortraitClassic.
+  /// No description provided for @referenceSampleCheckinCafe.
   ///
   /// In en, this message translates to:
-  /// **'Classic Portrait'**
-  String get referenceSamplePortraitClassic;
+  /// **'Café Selfie'**
+  String get referenceSampleCheckinCafe;
 
-  /// No description provided for @referenceSamplePortraitClassicHint.
+  /// No description provided for @referenceSampleCheckinCafeHint.
   ///
   /// In en, this message translates to:
-  /// **'4:5 portrait post, centered subject'**
-  String get referenceSamplePortraitClassicHint;
+  /// **'Asian woman café selfie — Xiaohongshu style'**
+  String get referenceSampleCheckinCafeHint;
 
-  /// No description provided for @referenceSamplePortraitStory.
+  /// No description provided for @referenceSampleCheckinNeon.
   ///
   /// In en, this message translates to:
-  /// **'Story Portrait'**
-  String get referenceSamplePortraitStory;
+  /// **'Neon Night Portrait'**
+  String get referenceSampleCheckinNeon;
 
-  /// No description provided for @referenceSamplePortraitStoryHint.
+  /// No description provided for @referenceSampleCheckinNeonHint.
   ///
   /// In en, this message translates to:
-  /// **'9:16 vertical story framing'**
-  String get referenceSamplePortraitStoryHint;
+  /// **'Moody neon-lit night check-in'**
+  String get referenceSampleCheckinNeonHint;
 
-  /// No description provided for @referenceSamplePortraitSquare.
+  /// No description provided for @referenceSampleCheckinPortrait.
   ///
   /// In en, this message translates to:
-  /// **'Square Portrait'**
-  String get referenceSamplePortraitSquare;
+  /// **'Street OOTD'**
+  String get referenceSampleCheckinPortrait;
 
-  /// No description provided for @referenceSamplePortraitSquareHint.
+  /// No description provided for @referenceSampleCheckinPortraitHint.
   ///
   /// In en, this message translates to:
-  /// **'1:1 social post composition'**
-  String get referenceSamplePortraitSquareHint;
+  /// **'Mirror selfie OOTD full-body shot'**
+  String get referenceSampleCheckinPortraitHint;
 
-  /// No description provided for @referenceSampleLifestyleCafe.
+  /// No description provided for @referenceSampleCheckinBrunch.
   ///
   /// In en, this message translates to:
-  /// **'Lifestyle Café'**
-  String get referenceSampleLifestyleCafe;
+  /// **'Window Seat Brunch'**
+  String get referenceSampleCheckinBrunch;
 
-  /// No description provided for @referenceSampleLifestyleCafeHint.
+  /// No description provided for @referenceSampleCheckinBrunchHint.
   ///
   /// In en, this message translates to:
-  /// **'Environmental portrait with offset subject'**
-  String get referenceSampleLifestyleCafeHint;
+  /// **'Café window-seat portrait check-in'**
+  String get referenceSampleCheckinBrunchHint;
+
+  /// No description provided for @referenceSampleCheckinTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mountain Peak'**
+  String get referenceSampleCheckinTravel;
+
+  /// No description provided for @referenceSampleCheckinTravelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Woman on summit with scenic vista'**
+  String get referenceSampleCheckinTravelHint;
+
+  /// No description provided for @referenceSampleCheckinBeach.
+  ///
+  /// In en, this message translates to:
+  /// **'Beach Sunset'**
+  String get referenceSampleCheckinBeach;
+
+  /// No description provided for @referenceSampleCheckinBeachHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Asian woman beach sunset silhouette'**
+  String get referenceSampleCheckinBeachHint;
 
   /// No description provided for @analyzingImage.
   ///
@@ -1712,6 +1790,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI shooting advice'**
   String get liveSceneAdviceTitle;
+
+  /// No description provided for @liveSceneMatchedReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Style ref: {title}'**
+  String liveSceneMatchedReference(String title);
 
   /// No description provided for @liveSceneAnalyzeFailed.
   ///

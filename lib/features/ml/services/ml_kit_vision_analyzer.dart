@@ -15,7 +15,7 @@ import 'pose_body_guide_mapper.dart';
 import 'vision_analyzer.dart';
 
 class MlKitVisionAnalyzer implements VisionAnalyzer {
-  static const int _maxMlSide = 1024;
+  static const int _maxMlSide = 640;
 
   MlKitVisionAnalyzer({
     FaceDetector? faceDetector,
@@ -26,14 +26,14 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
   })  : _faceDetector = faceDetector ??
             FaceDetector(
               options: FaceDetectorOptions(
-                enableContours: true,
-                performanceMode: FaceDetectorMode.accurate,
+                enableContours: false,
+                performanceMode: FaceDetectorMode.fast,
               ),
             ),
         _poseDetector = poseDetector ??
             PoseDetector(
               options: PoseDetectorOptions(
-                model: PoseDetectionModel.accurate,
+                model: PoseDetectionModel.base,
               ),
             ),
         _imageLabeler = imageLabeler ??
@@ -69,18 +69,21 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
     final imageWidth = mlImage.width;
     final imageHeight = mlImage.height;
 
-    final faces = await _safeProcessList(
+    final facesFuture = _safeProcessList<Face>(
       () => _faceDetector.processImage(input),
       label: 'face',
     );
-    final poses = await _safeProcessList(
+    final posesFuture = _safeProcessList<Pose>(
       () => _poseDetector.processImage(input),
       label: 'pose',
     );
-    final labels = await _safeProcessList(
+    final labelsFuture = _safeProcessList<ImageLabel>(
       () => _imageLabeler.processImage(input),
       label: 'label',
     );
+    final faces = await facesFuture;
+    final poses = await posesFuture;
+    final labels = await labelsFuture;
 
     final faceBounds = faces
         .map(

@@ -48,6 +48,7 @@ class IosCameraBottomBar extends StatelessWidget {
     this.onManualExposureChanged,
     this.focalPreset = 1.0,
     this.onFocalPresetTap,
+    this.compactMode = false,
   });
 
   final String modeLabel;
@@ -85,92 +86,119 @@ class IosCameraBottomBar extends StatelessWidget {
   final ValueChanged<double>? onManualExposureChanged;
   final double focalPreset;
   final ValueChanged<double>? onFocalPresetTap;
+  final bool compactMode;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black,
-      padding: const EdgeInsets.fromLTRB(24, 4, 24, 12),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (proModeEnabled && onFocalPresetTap != null) ...[
-              IosFocalPresets(
-                currentZoom: focalPreset,
-                onPresetTap: onFocalPresetTap!,
-              ),
-              const SizedBox(height: 8),
-            ],
-            if (proModeEnabled && onManualExposureChanged != null) ...[
-              IosExposureSlider(
-                value: manualExposure,
-                onChanged: onManualExposureChanged!,
-              ),
-              const SizedBox(height: 8),
-            ],
-            IosCameraOptionsStrip(
-              hdrEnabled: hdrEnabled,
-              hdrSupported: hdrSupported,
-              hdrLabel: hdrLabel,
-              timerDuration: timerDuration,
-              aeAfLocked: aeAfLocked,
-              isBursting: isBursting,
-              burstCount: burstCount,
-              expanded: optionsExpanded,
-              onHdrTap: onHdrTap,
-              onTimerTap: onTimerTap,
-              onExposureLockTap: onExposureLockTap,
-              onToggleExpanded: onToggleOptions,
-              proModeEnabled: proModeEnabled,
-              onProModeTap: onProModeTap,
-              aspectRatio: aspectRatio,
-              onAspectRatioTap: onAspectRatioTap,
-              showHistogram: showHistogram,
-              onHistogramTap: onHistogramTap,
-              frontMirrorEnabled: frontMirrorEnabled,
-              onMirrorTap: onMirrorTap,
-            ),
-            Text(
-              modeLabel,
-              style: const TextStyle(
-                color: Color(0xFFFFD60A),
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.1,
-              ),
-            ),
-            const SizedBox(height: 14),
-            SizedBox(
-              height: 84,
-              child: Row(
-                children: [
-                  IosGalleryButton(
-                    thumbnailBytes: thumbnailBytes,
-                    onTap: onGalleryTap,
-                    onLongPress: onGalleryLongPress,
+    final showOptions = !compactMode && optionsExpanded;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [
+            Colors.black.withValues(alpha: 0.82),
+            Colors.black.withValues(alpha: 0.38),
+            Colors.transparent,
+          ],
+          stops: const [0.0, 0.45, 1.0],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showOptions) ...[
+                if (proModeEnabled && onFocalPresetTap != null) ...[
+                  IosFocalPresets(
+                    currentZoom: focalPreset,
+                    onPresetTap: onFocalPresetTap!,
                   ),
-                  Expanded(
-                    child: Center(
-                      child: IosShutterButton(
-                        onPressed: shutterEnabled ? onShutterTap : null,
-                        onBurstStart: shutterEnabled ? onBurstStart : null,
-                        onBurstEnd: shutterEnabled ? onBurstEnd : null,
-                        isCapturing: isCapturing,
-                        isBursting: isBursting,
-                        enabled: shutterEnabled,
-                      ),
+                  const SizedBox(height: 6),
+                ],
+                if (proModeEnabled && onManualExposureChanged != null) ...[
+                  IosExposureSlider(
+                    value: manualExposure,
+                    onChanged: onManualExposureChanged!,
+                  ),
+                  const SizedBox(height: 6),
+                ],
+                IosCameraOptionsStrip(
+                  hdrEnabled: hdrEnabled,
+                  hdrSupported: hdrSupported,
+                  hdrLabel: hdrLabel,
+                  timerDuration: timerDuration,
+                  aeAfLocked: aeAfLocked,
+                  isBursting: isBursting,
+                  burstCount: burstCount,
+                  expanded: showOptions,
+                  onHdrTap: onHdrTap,
+                  onTimerTap: onTimerTap,
+                  onExposureLockTap: onExposureLockTap,
+                  onToggleExpanded: onToggleOptions,
+                  proModeEnabled: proModeEnabled,
+                  onProModeTap: onProModeTap,
+                  showHistogram: showHistogram,
+                  onHistogramTap: onHistogramTap,
+                  frontMirrorEnabled: frontMirrorEnabled,
+                  onMirrorTap: onMirrorTap,
+                ),
+              ] else if (!compactMode)
+                GestureDetector(
+                  onTap: onToggleOptions,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 2),
+                    child: Icon(
+                      Icons.keyboard_arrow_up_rounded,
+                      color: Colors.white54,
+                      size: 20,
                     ),
                   ),
-                  _FlipCameraButton(
-                    onTap: canFlip ? onFlipCamera : null,
-                    enabled: canFlip,
-                  ),
-                ],
+                ),
+              Text(
+                modeLabel,
+                style: const TextStyle(
+                  color: Color(0xFFFFD60A),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.2,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 76,
+                child: Row(
+                  children: [
+                    IosGalleryButton(
+                      thumbnailBytes: thumbnailBytes,
+                      onTap: onGalleryTap,
+                      onLongPress: onGalleryLongPress,
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: IosShutterButton(
+                          onPressed: shutterEnabled ? onShutterTap : null,
+                          onBurstStart: shutterEnabled ? onBurstStart : null,
+                          onBurstEnd: shutterEnabled ? onBurstEnd : null,
+                          isCapturing: isCapturing,
+                          isBursting: isBursting,
+                          enabled: shutterEnabled,
+                        ),
+                      ),
+                    ),
+                    _FlipCameraButton(
+                      onTap: canFlip ? onFlipCamera : null,
+                      enabled: canFlip,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

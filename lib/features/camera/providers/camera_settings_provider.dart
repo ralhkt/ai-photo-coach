@@ -28,7 +28,7 @@ final focusIndicatorProvider = StateProvider<FocusIndicatorState?>(
   (ref) => null,
 );
 
-final showCameraOptionsProvider = StateProvider<bool>((ref) => true);
+final showCameraOptionsProvider = StateProvider<bool>((ref) => false);
 
 final proModeEnabledProvider = StateProvider<bool>((ref) => false);
 

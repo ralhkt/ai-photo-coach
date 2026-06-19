@@ -50,7 +50,7 @@ class CameraScreen extends ConsumerWidget {
             mode: CameraUiMode.free,
             child: CameraSessionLifecycle(
             controller: controller,
-            enableAr: true,
+            enableAr: false,
             shootSessionMode: ShootSessionMode.free,
             child: IosCameraScaffold(
               shootSessionMode: ShootSessionMode.free,
@@ -72,7 +72,7 @@ class CameraScreen extends ConsumerWidget {
                     Positioned(
                       left: 0,
                       right: 0,
-                      bottom: 190,
+                      bottom: MediaQuery.paddingOf(context).bottom + 148,
                       child: _CompositionModeStrip(
                         overlayType: overlayType,
                         onCycle: () {

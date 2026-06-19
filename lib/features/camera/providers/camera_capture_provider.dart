@@ -9,4 +9,6 @@ final flashModeProvider = StateProvider<FlashMode>((ref) => FlashMode.auto);
 
 final isCapturingProvider = StateProvider<bool>((ref) => false);
 
+final cameraSwitchingProvider = StateProvider<bool>((ref) => false);
+
 final captureFlashProvider = StateProvider<bool>((ref) => false);

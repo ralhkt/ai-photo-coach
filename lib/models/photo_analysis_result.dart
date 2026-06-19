@@ -18,6 +18,9 @@ class PhotoAnalysisResult {
     this.userSceneType = SceneType.auto,
     this.deepInsights,
     this.mlDetection,
+    this.matchedReferenceSampleId,
+    this.matchedReferenceTitleKey,
+    this.matchedReferenceImageBytes,
   });
 
   final double sourceAspectRatio;
@@ -30,4 +33,7 @@ class PhotoAnalysisResult {
   final SceneType userSceneType;
   final DeepPhotoInsights? deepInsights;
   final MlDetectionResult? mlDetection;
+  final String? matchedReferenceSampleId;
+  final String? matchedReferenceTitleKey;
+  final Uint8List? matchedReferenceImageBytes;
 }

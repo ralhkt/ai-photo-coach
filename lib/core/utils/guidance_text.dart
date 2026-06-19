@@ -24,23 +24,25 @@ String sceneTypeLabel(AppLocalizations l10n, String sceneTypeKey) {
 
 String referenceSampleTitle(AppLocalizations l10n, String titleKey) {
   return switch (titleKey) {
-    'referenceSamplePortraitClassic' => l10n.referenceSamplePortraitClassic,
-    'referenceSamplePortraitStory' => l10n.referenceSamplePortraitStory,
-    'referenceSamplePortraitSquare' => l10n.referenceSamplePortraitSquare,
-    'referenceSampleLifestyleCafe' => l10n.referenceSampleLifestyleCafe,
+    'referenceSampleCheckinCafe' => l10n.referenceSampleCheckinCafe,
+    'referenceSampleCheckinNeon' => l10n.referenceSampleCheckinNeon,
+    'referenceSampleCheckinPortrait' => l10n.referenceSampleCheckinPortrait,
+    'referenceSampleCheckinBrunch' => l10n.referenceSampleCheckinBrunch,
+    'referenceSampleCheckinTravel' => l10n.referenceSampleCheckinTravel,
+    'referenceSampleCheckinBeach' => l10n.referenceSampleCheckinBeach,
     _ => titleKey,
   };
 }
 
 String referenceSampleSubtitle(AppLocalizations l10n, String subtitleKey) {
   return switch (subtitleKey) {
-    'referenceSamplePortraitClassicHint' =>
-      l10n.referenceSamplePortraitClassicHint,
-    'referenceSamplePortraitStoryHint' => l10n.referenceSamplePortraitStoryHint,
-    'referenceSamplePortraitSquareHint' =>
-      l10n.referenceSamplePortraitSquareHint,
-    'referenceSampleLifestyleCafeHint' =>
-      l10n.referenceSampleLifestyleCafeHint,
+    'referenceSampleCheckinCafeHint' => l10n.referenceSampleCheckinCafeHint,
+    'referenceSampleCheckinNeonHint' => l10n.referenceSampleCheckinNeonHint,
+    'referenceSampleCheckinPortraitHint' =>
+      l10n.referenceSampleCheckinPortraitHint,
+    'referenceSampleCheckinBrunchHint' => l10n.referenceSampleCheckinBrunchHint,
+    'referenceSampleCheckinTravelHint' => l10n.referenceSampleCheckinTravelHint,
+    'referenceSampleCheckinBeachHint' => l10n.referenceSampleCheckinBeachHint,
     _ => subtitleKey,
   };
 }

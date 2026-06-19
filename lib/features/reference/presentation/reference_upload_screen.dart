@@ -1,10 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/theme/app_design_tokens.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/guidance_text.dart';
+import '../../../core/widgets/app_surface_widgets.dart';
 import '../../../models/scene_type.dart';
 import '../data/reference_sample_catalog.dart';
 import '../providers/reference_providers.dart';
@@ -125,8 +130,8 @@ class _ReferenceUploadScreenState extends ConsumerState<ReferenceUploadScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 16),
+                    const CircularProgressIndicator(color: AppTheme.accent),
+                    const SizedBox(height: AppDesignTokens.spaceLg),
                     Text(l10n.analyzingImage),
                   ],
                 ),
@@ -134,44 +139,73 @@ class _ReferenceUploadScreenState extends ConsumerState<ReferenceUploadScreen> {
             : CustomScrollView(
                 slivers: [
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDesignTokens.screenPadding,
+                      AppDesignTokens.spaceLg,
+                      AppDesignTokens.screenPadding,
+                      AppDesignTokens.spaceSm,
+                    ),
                     sliver: SliverToBoxAdapter(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          AppFlowStrip(
+                            activeIndex: 0,
+                            steps: [
+                              l10n.homeFlowStepReference,
+                              l10n.homeFlowStepAnalyze,
+                              l10n.homeFlowStepShoot,
+                            ],
+                          ),
+                          const SizedBox(height: AppDesignTokens.space2xl),
                           Text(
                             l10n.uploadReferenceSubtitle,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge
-                                ?.copyWith(color: Colors.white70),
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.uploadPrompt,
-                            style: const TextStyle(
-                              color: Colors.white38,
-                              fontSize: 13,
-                            ),
+                          const SizedBox(height: AppDesignTokens.space2xl),
+                          AppSectionHeader(
+                            title: l10n.uploadOwnPhotoSection,
+                            subtitle: l10n.selectSceneTypeHint,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            l10n.referenceSamplesSection,
-                            style: Theme.of(context).textTheme.titleSmall,
+                          const SizedBox(height: AppDesignTokens.spaceMd),
+                          AppSegmentedPicker<SceneType>(
+                            items: SceneType.values,
+                            selected: selectedScene,
+                            labelBuilder: (scene) =>
+                                sceneTypeChoiceLabel(l10n, scene),
+                            onSelected: (scene) {
+                              ref
+                                  .read(selectedSceneTypeProvider.notifier)
+                                  .state = scene;
+                            },
                           ),
+                          const SizedBox(height: AppDesignTokens.spaceLg),
+                          FilledButton.icon(
+                            onPressed: _pickFromGallery,
+                            icon: const Icon(Icons.photo_library_outlined),
+                            label: Text(l10n.pickFromGallery),
+                          ),
+                          const SizedBox(height: AppDesignTokens.space3xl),
+                          AppSectionHeader(
+                            title: l10n.referenceSamplesSection,
+                            subtitle: l10n.uploadPrompt,
+                          ),
+                          const SizedBox(height: AppDesignTokens.spaceMd),
                         ],
                       ),
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDesignTokens.screenPadding,
+                    ),
                     sliver: SliverGrid(
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        mainAxisSpacing: 14,
-                        crossAxisSpacing: 14,
-                        childAspectRatio: 0.72,
+                        mainAxisSpacing: AppDesignTokens.spaceMd,
+                        crossAxisSpacing: AppDesignTokens.spaceMd,
+                        childAspectRatio: 0.68,
                       ),
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
@@ -190,52 +224,7 @@ class _ReferenceUploadScreenState extends ConsumerState<ReferenceUploadScreen> {
                       ),
                     ),
                   ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-                    sliver: SliverToBoxAdapter(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            l10n.uploadOwnPhotoSection,
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.selectSceneTypeHint,
-                            style: const TextStyle(
-                              color: Colors.white38,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: SceneType.values.map((scene) {
-                              final isSelected = selectedScene == scene;
-                              return ChoiceChip(
-                                label: Text(sceneTypeChoiceLabel(l10n, scene)),
-                                selected: isSelected,
-                                onSelected: (_) {
-                                  ref
-                                      .read(selectedSceneTypeProvider.notifier)
-                                      .state = scene;
-                                },
-                              );
-                            }).toList(),
-                          ),
-                          const SizedBox(height: 16),
-                          FilledButton.icon(
-                            onPressed: _pickFromGallery,
-                            icon: const Icon(Icons.photo_library_outlined),
-                            label: Text(l10n.pickFromGallery),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
+                  const SliverPadding(padding: EdgeInsets.only(bottom: 32)),
                 ],
               ),
       ),
@@ -258,57 +247,62 @@ class _ReferenceSampleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white12),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(17)),
-                  child: Image.asset(
-                    sample.assetPath,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: Colors.white54,
-                        fontSize: 11,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+    return GestureDetector(
+      onTap: onTap,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppDesignTokens.radiusMd),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.asset(
+              sample.assetPath,
+              fit: BoxFit.cover,
+              cacheWidth: 420,
+            ),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.05),
+                    Colors.black.withValues(alpha: 0.72),
                   ],
+                  stops: const [0.45, 0.7, 1.0],
                 ),
               ),
-            ],
-          ),
+            ),
+            Positioned(
+              left: AppDesignTokens.spaceMd,
+              right: AppDesignTokens.spaceMd,
+              bottom: AppDesignTokens.spaceMd,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: AppDesignTokens.textPrimary,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppDesignTokens.textSecondary,
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

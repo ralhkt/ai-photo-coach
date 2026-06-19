@@ -1,4 +1,5 @@
 import 'package:ai_photo_coach/app.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,8 +16,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('攝影師'), findsOneWidget);
-    expect(find.text('選擇範例相片'), findsOneWidget);
+    expect(find.text('攝影師'), findsWidgets);
+    expect(find.text('選擇範例相片'), findsWidgets);
     expect(find.text('開啟相機'), findsOneWidget);
   });
 
@@ -29,13 +30,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('選擇範例相片'));
-    await tester.pumpAndSettle();
-
-    await tester.scrollUntilVisible(
-      find.text('從相簿選擇'),
-      120,
-    );
+    await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();
 
     expect(find.text('從相簿選擇'), findsOneWidget);

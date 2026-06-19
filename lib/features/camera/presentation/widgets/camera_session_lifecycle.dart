@@ -30,12 +30,18 @@ class CameraSessionLifecycle extends ConsumerStatefulWidget {
 }
 
 class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle> {
-  /// 【修復】僅在首次進入相機頁時建立 session，前後鏡頭切換不重置已拍照片
   bool _sessionStarted = false;
+  bool _servicesStopped = false;
+  late final CameraFrameMonitor _frameMonitor;
+  late final ArSessionNotifier _arNotifier;
+  late final BatterySessionTracker _batteryTracker;
 
   @override
   void initState() {
     super.initState();
+    _frameMonitor = ref.read(cameraFrameMonitorProvider);
+    _arNotifier = ref.read(arSessionProvider.notifier);
+    _batteryTracker = ref.read(batterySessionTrackerProvider);
     Future.microtask(_startServices);
   }
 
@@ -43,7 +49,6 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
   void didUpdateWidget(covariant CameraSessionLifecycle oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.controller, widget.controller)) {
-      // 【修復】只重啟 AR / 場景監測，不呼叫 startSession 清空 captures
       Future.microtask(_restartHardwareServices);
     }
   }
@@ -55,45 +60,67 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
   }
 
   Future<void> _startServices() async {
+    if (!mounted) {
+      return;
+    }
+
     final mode = widget.shootSessionMode;
     if (mode != null && !_sessionStarted) {
       ref.read(shootSessionProvider.notifier).startSession(mode);
       _sessionStarted = true;
-      await ref.read(batterySessionTrackerProvider).begin();
+      await _batteryTracker.begin();
     }
-    await ref.read(cameraFrameMonitorProvider).start(widget.controller);
+    await _frameMonitor.start(widget.controller);
 
     final powerSave = ref.read(powerSaveEnabledProvider);
     final shouldRunAr = widget.enableAr && !powerSave;
     if (shouldRunAr) {
-      await ref.read(arSessionProvider.notifier).start();
+      await _arNotifier.start();
     }
   }
 
   Future<void> _restartHardwareServices() async {
-    await ref.read(cameraFrameMonitorProvider).stop();
-    if (widget.enableAr) {
-      await ref.read(arSessionProvider.notifier).stop();
+    if (!mounted) {
+      return;
     }
-    await ref.read(cameraFrameMonitorProvider).start(widget.controller);
+
+    await _frameMonitor.stop();
+    if (widget.enableAr) {
+      await _arNotifier.stop();
+    }
+
+    if (!widget.controller.value.isInitialized) {
+      return;
+    }
+
+    await _frameMonitor.start(widget.controller);
 
     final powerSave = ref.read(powerSaveEnabledProvider);
     if (widget.enableAr && !powerSave) {
-      await ref.read(arSessionProvider.notifier).start();
+      await _arNotifier.start();
     }
   }
 
-  Future<void> _stopServices() async {
-    await ref.read(cameraFrameMonitorProvider).stop();
+  void _stopServices() {
+    if (_servicesStopped) {
+      return;
+    }
+    _servicesStopped = true;
+
+    _frameMonitor.stop();
     if (widget.enableAr) {
-      await ref.read(arSessionProvider.notifier).stop();
+      _arNotifier.stop();
     }
 
-    if (widget.shootSessionMode != null) {
-      final report = await ref.read(batterySessionTrackerProvider).end();
-      if (report != null && report.startPercent >= 0 && report.endPercent >= 0) {
-        ref.read(lastBatteryReportProvider.notifier).state = report;
-      }
+    if (widget.shootSessionMode != null && _sessionStarted) {
+      _batteryTracker.end().then((report) {
+        if (report != null &&
+            report.startPercent >= 0 &&
+            report.endPercent >= 0 &&
+            mounted) {
+          ref.read(lastBatteryReportProvider.notifier).state = report;
+        }
+      });
     }
   }
 

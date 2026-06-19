@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
+import '../../providers/camera_capture_provider.dart';
+import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
 
 /// When enabled in settings, runs live scene analysis once after the view stabilizes.
@@ -15,7 +17,7 @@ class LiveSceneAutoAnalyzer extends ConsumerStatefulWidget {
 
 class _LiveSceneAutoAnalyzerState extends ConsumerState<LiveSceneAutoAnalyzer> {
   DateTime? _lastTriggered;
-  static const _cooldown = Duration(seconds: 15);
+  static const _cooldown = Duration(seconds: 45);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,9 @@ class _LiveSceneAutoAnalyzerState extends ConsumerState<LiveSceneAutoAnalyzer> {
         return;
       }
 
-      if (ref.read(liveSceneAnalyzingProvider)) {
+      if (ref.read(liveSceneAnalyzingProvider) ||
+          ref.read(isCapturingProvider) ||
+          ref.read(isBurstingProvider)) {
         return;
       }
 

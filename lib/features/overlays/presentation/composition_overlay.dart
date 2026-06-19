@@ -20,9 +20,11 @@ class CompositionOverlay extends StatelessWidget {
     }
 
     return IgnorePointer(
-      child: CustomPaint(
-        painter: CompositionOverlayPainter(type: type),
-        child: const SizedBox.expand(),
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: CompositionOverlayPainter(type: type),
+          child: const SizedBox.expand(),
+        ),
       ),
     );
   }

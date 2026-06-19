@@ -26,6 +26,10 @@ import UIKit
       eventChannel.setStreamHandler(arHandler)
     }
 
+    if #available(iOS 15.0, *) {
+      window?.layer.contentsScale = UIScreen.main.nativeScale
+    }
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

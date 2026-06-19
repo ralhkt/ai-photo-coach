@@ -11,7 +11,6 @@ import '../../../models/photo_analysis_result.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/reference_providers.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
-import '../../scene_stabilization/services/camera_frame_monitor.dart';
 import 'camera_capture_provider.dart';
 import 'camera_providers.dart';
 import 'camera_settings_provider.dart';
@@ -105,7 +104,6 @@ class LiveSceneAnalysisNotifier
     }
 
     final stopwatch = Stopwatch()..start();
-    var streamResumed = false;
 
     try {
       final controller = ref.read(cameraControllerProvider).value;
@@ -115,17 +113,8 @@ class LiveSceneAnalysisNotifier
         );
       }
 
-      final monitor = ref.read(cameraFrameMonitorProvider);
-      await monitor.stop();
-
-      Uint8List? bytes;
-      try {
-        bytes =
-            await ref.read(cameraControllerProvider.notifier).capturePreviewFrame();
-      } finally {
-        await monitor.start(controller);
-        streamResumed = true;
-      }
+      final bytes =
+          await ref.read(cameraControllerProvider.notifier).capturePreviewFrame();
 
       if (bytes == null || bytes.isEmpty) {
         throw LiveSceneAnalysisException(
@@ -171,12 +160,6 @@ class LiveSceneAnalysisNotifier
     } catch (error, stackTrace) {
       debugPrint('LiveSceneAnalysis: unexpected failure: $error');
       debugPrint('$stackTrace');
-      if (!streamResumed) {
-        final controller = ref.read(cameraControllerProvider).value;
-        if (controller != null && controller.value.isInitialized) {
-          await ref.read(cameraFrameMonitorProvider).start(controller);
-        }
-      }
       _fail(LiveSceneAnalysisFailure.analysisFailed, cached: cached);
     }
   }

@@ -5,14 +5,13 @@ import '../../../models/body_part_guides.dart';
 
 /// Builds smooth, anatomical human outline points and paths for guided framing.
 class HumanFrameShapeBuilder {
-  /// Normalized template points (0–1 within subject rect) with elliptical head.
+  /// Poze造型-style standing contour (normalized 0–1 within subject rect).
   ///
-  /// Points trace one continuous clockwise contour so smoothing never crosses
-  /// the body (the previous two-arc layout jumped from neck-left to head-right).
+  /// Slim torso, oval head, slight hip width — arms are drawn separately.
   List<Offset> templatePoints() {
-    const headCenter = Offset(0.50, 0.13);
-    const headRx = 0.16;
-    const headRy = 0.12;
+    const headCenter = Offset(0.50, 0.115);
+    const headRx = 0.135;
+    const headRy = 0.105;
 
     return [
       ..._ellipseArc(
@@ -21,30 +20,32 @@ class HumanFrameShapeBuilder {
         ry: headRy,
         startAngle: -math.pi / 2,
         sweepAngle: math.pi,
-        steps: 10,
+        steps: 12,
       ),
-      const Offset(0.66, 0.26),
-      const Offset(0.74, 0.34),
-      const Offset(0.76, 0.46),
-      const Offset(0.74, 0.58),
-      const Offset(0.68, 0.70),
-      const Offset(0.62, 0.82),
-      const Offset(0.56, 0.94),
-      const Offset(0.50, 0.98),
-      const Offset(0.44, 0.94),
-      const Offset(0.38, 0.82),
-      const Offset(0.32, 0.70),
-      const Offset(0.26, 0.58),
-      const Offset(0.24, 0.46),
-      const Offset(0.26, 0.34),
-      const Offset(0.34, 0.26),
+      const Offset(0.40, 0.24),
+      const Offset(0.36, 0.30),
+      const Offset(0.34, 0.42),
+      const Offset(0.36, 0.54),
+      const Offset(0.38, 0.66),
+      const Offset(0.40, 0.78),
+      const Offset(0.42, 0.90),
+      const Offset(0.46, 0.98),
+      const Offset(0.50, 1.00),
+      const Offset(0.54, 0.98),
+      const Offset(0.58, 0.90),
+      const Offset(0.60, 0.78),
+      const Offset(0.62, 0.66),
+      const Offset(0.64, 0.54),
+      const Offset(0.66, 0.42),
+      const Offset(0.64, 0.30),
+      const Offset(0.60, 0.24),
       ..._ellipseArc(
         center: headCenter,
         rx: headRx,
         ry: headRy,
         startAngle: math.pi / 2,
         sweepAngle: math.pi,
-        steps: 10,
+        steps: 12,
       ),
     ];
   }

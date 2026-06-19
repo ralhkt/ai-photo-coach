@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -40,6 +41,13 @@ class CameraFrameMonitor {
       return;
     }
 
+    // iOS: image stream deadlocks with CameraPreview + takePicture — keep preview live.
+    if (!kIsWeb && Platform.isIOS) {
+      _controller = controller;
+      _isMonitoring = false;
+      return;
+    }
+
     try {
       await controller.startImageStream(_onFrame);
       _isMonitoring = true;
@@ -61,6 +69,45 @@ class CameraFrameMonitor {
       try {
         await controller.stopImageStream();
       } catch (_) {}
+    }
+  }
+
+  /// Pauses the image stream so [takePicture] can run without deadlocking iOS.
+  Future<T> runExclusive<T>(
+    Future<T> Function() action, {
+    bool resumeStream = true,
+  }) async {
+    if (!kIsWeb && Platform.isIOS) {
+      return action();
+    }
+
+    final controller = _controller;
+    final wasMonitoring = _isMonitoring;
+
+    if (wasMonitoring && controller != null && controller.value.isStreamingImages) {
+      try {
+        await controller.stopImageStream();
+      } catch (_) {}
+      _isMonitoring = false;
+      await Future<void>.delayed(const Duration(milliseconds: 120));
+    }
+
+    try {
+      return await action();
+    } finally {
+      if (resumeStream &&
+          wasMonitoring &&
+          controller != null &&
+          controller.value.isInitialized &&
+          !_isMonitoring) {
+        try {
+          await controller.startImageStream(_onFrame);
+          _controller = controller;
+          _isMonitoring = true;
+        } catch (error) {
+          debugPrint('CameraFrameMonitor: failed to resume stream: $error');
+        }
+      }
     }
   }
 

@@ -53,7 +53,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeSubtitle =>
-      'Pick a sample photo or open the camera for guided framing.';
+      'Check-in pose coaching — reference, analyze, then shoot.';
+
+  @override
+  String get homeWorkflowLabel => 'Reference → Analyze → Shoot';
+
+  @override
+  String get homeFlowStepReference => 'Reference';
+
+  @override
+  String get homeFlowStepAnalyze => 'Analyze';
+
+  @override
+  String get homeFlowStepShoot => 'Shoot';
+
+  @override
+  String get homeContinueGuided => 'Continue guided shoot';
+
+  @override
+  String get homeContinueGuidedSubtitle =>
+      'Reference analyzed — jump straight into the camera.';
+
+  @override
+  String get analysisExpandDetails => 'Show full analysis';
+
+  @override
+  String get analysisCollapseDetails => 'Hide details';
+
+  @override
+  String get guidedOverlayTools => 'Overlays';
 
   @override
   String get uploadReferenceTitle => 'Choose Example Photo';
@@ -80,36 +108,51 @@ class AppLocalizationsEn extends AppLocalizations {
       'Samples are ready to practice. You can also upload your own photo below.';
 
   @override
-  String get referenceSamplesSection => 'Built-in samples';
+  String get referenceSamplesSection => 'Check-in samples';
 
   @override
   String get uploadOwnPhotoSection => 'Or upload your photo';
 
   @override
-  String get referenceSamplePortraitClassic => 'Classic Portrait';
+  String get referenceSampleCheckinCafe => 'Café Selfie';
 
   @override
-  String get referenceSamplePortraitClassicHint =>
-      '4:5 portrait post, centered subject';
+  String get referenceSampleCheckinCafeHint =>
+      'Asian woman café selfie — Xiaohongshu style';
 
   @override
-  String get referenceSamplePortraitStory => 'Story Portrait';
+  String get referenceSampleCheckinNeon => 'Neon Night Portrait';
 
   @override
-  String get referenceSamplePortraitStoryHint => '9:16 vertical story framing';
+  String get referenceSampleCheckinNeonHint => 'Moody neon-lit night check-in';
 
   @override
-  String get referenceSamplePortraitSquare => 'Square Portrait';
+  String get referenceSampleCheckinPortrait => 'Street OOTD';
 
   @override
-  String get referenceSamplePortraitSquareHint => '1:1 social post composition';
+  String get referenceSampleCheckinPortraitHint =>
+      'Mirror selfie OOTD full-body shot';
 
   @override
-  String get referenceSampleLifestyleCafe => 'Lifestyle Café';
+  String get referenceSampleCheckinBrunch => 'Window Seat Brunch';
 
   @override
-  String get referenceSampleLifestyleCafeHint =>
-      'Environmental portrait with offset subject';
+  String get referenceSampleCheckinBrunchHint =>
+      'Café window-seat portrait check-in';
+
+  @override
+  String get referenceSampleCheckinTravel => 'Mountain Peak';
+
+  @override
+  String get referenceSampleCheckinTravelHint =>
+      'Woman on summit with scenic vista';
+
+  @override
+  String get referenceSampleCheckinBeach => 'Beach Sunset';
+
+  @override
+  String get referenceSampleCheckinBeachHint =>
+      'Asian woman beach sunset silhouette';
 
   @override
   String get analyzingImage => 'Analyzing image...';
@@ -895,6 +938,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get liveSceneAdviceTitle => 'AI shooting advice';
+
+  @override
+  String liveSceneMatchedReference(String title) {
+    return 'Style ref: $title';
+  }
 
   @override
   String get liveSceneAnalyzeFailed =>
