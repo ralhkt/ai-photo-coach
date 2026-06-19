@@ -6,7 +6,7 @@
 **Repo：** https://github.com/ralhkt/ai-photo-coach  
 **本地路徑：** `/Users/Personal/Documents/Photographer`  
 **最新 commit：** `eec267e`（`main` 已 push）  
-**測試：** 123 項全過
+**測試：** 125 項全過
 
 ---
 
@@ -35,7 +35,14 @@
 - [x] iOS `IosSceneStabilityPoller`（JPEG pHash）
 - [x] BGRA buffer pool
 
-### PR-2 Native 輪廓（iOS 15+，最新）
+### PR-4/5 Native 互動與穩定（iOS 15+，最新）
+- [x] `AlignmentStateMachine` — 三態 Haptic + `autoCaptureRequested` 事件
+- [x] `KalmanContourFilter` C++ — 輪廓時間序列平滑
+- [x] 低光降級 — `score < 18` 切換骨架虛線引導
+- [x] 深色膠囊 Toast + 自動快門（`captureWithTimer`）
+- [x] `PoseSilhouetteSyncController` — 避免重複 channel 寫入
+
+### PR-2 Native 輪廓（iOS 15+）
 - [x] `VNGeneratePersonSegmentationRequest` + C++ RDP/B-spline（`ContourProcessor`）
 - [x] `PoseSilhouetteHandler` MethodChannel + EventChannel
 - [x] `UiKitView` 透明 overlay（CoreGraphics 渲染，Metal shader 待啟用）
@@ -63,8 +70,8 @@
 | PR-1 | Dart 離線範例輪廓 + 三態 overlay | **完成** |
 | PR-2 | Native Vision 分割 + C++ RDP + PlatformChannel | **完成** |
 | PR-3 | Metal 60fps 渲染（shader 已備，待啟用 Toolchain） | 進行中 |
-| PR-4 | 狀態機 A/B/C + Haptic + 自動快門 | 待做 |
-| PR-5 | Kalman 輪廓穩定 + 低光骨架降級 | 待做 |
+| PR-4 | 狀態機 A/B/C + Haptic + 自動快門 | **完成** |
+| PR-5 | Kalman 輪廓穩定 + 低光骨架降級 | **完成** |
 | PR-6 | 獨立 `AVCaptureSession` 預覽管線 | 待做 |
 
 ---
@@ -90,7 +97,10 @@
 5. [ ] 姿勢到位後 → 更新變慢、發熱改善
 6. [ ] **輪廓三態** — 分數 &lt;50 白、50–84 黃、≥85 綠
 7. [ ] **真實輪廓** — 上傳高對比人像 → 輪廓貼合主體（非模板）
-8. [ ] 啟用 Gemini 後 → 分析來源顯示 proxy/gemini
+8. [ ] **Haptic** — 進入黃/綠階段有震動回饋
+9. [ ] **自動快門** — 得分 ≥85 自動拍照（可關閉 `poseSilhouetteAutoCaptureEnabledProvider`）
+10. [ ] **低光降級** — 分數極低時改骨架虛線
+11. [ ] 啟用 Gemini 後 → 分析來源顯示 proxy/gemini
 
 ### P2 — 待規劃
 - [ ] 合照「點選主角」UI

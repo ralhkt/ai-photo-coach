@@ -17,12 +17,16 @@ class PoseSilhouetteAlignmentEvent {
     required this.phase,
     required this.toast,
     required this.enabled,
+    this.phaseChanged = false,
+    this.autoCaptureRequested = false,
   });
 
   final int score;
   final PoseSilhouettePhase phase;
   final String toast;
   final bool enabled;
+  final bool phaseChanged;
+  final bool autoCaptureRequested;
 
   factory PoseSilhouetteAlignmentEvent.fromJson(Map<dynamic, dynamic> map) {
     final phaseName = map['phase'] as String? ?? 'noMatch';
@@ -35,6 +39,8 @@ class PoseSilhouetteAlignmentEvent {
       phase: phase,
       toast: map['toast'] as String? ?? '',
       enabled: map['enabled'] as bool? ?? false,
+      phaseChanged: map['phaseChanged'] as bool? ?? false,
+      autoCaptureRequested: map['autoCaptureRequested'] as bool? ?? false,
     );
   }
 }
@@ -95,6 +101,30 @@ class PoseSilhouettePlatformService {
       });
     } on PlatformException catch (error) {
       debugPrint('PoseSilhouette setGuideContour failed: ${error.message}');
+    }
+  }
+
+  Future<void> setRenderMode(String mode) async {
+    try {
+      await _channel.invokeMethod<void>('setRenderMode', {'mode': mode});
+    } on PlatformException catch (error) {
+      debugPrint('PoseSilhouette setRenderMode failed: ${error.message}');
+    }
+  }
+
+  Future<void> setSkeletonSegments(List<List<Offset>> segments) async {
+    try {
+      await _channel.invokeMethod<void>('setSkeletonSegments', {
+        'segments': [
+          for (final segment in segments)
+            [
+              for (final point in segment)
+                {'dx': point.dx, 'dy': point.dy},
+            ],
+        ],
+      });
+    } on PlatformException catch (error) {
+      debugPrint('PoseSilhouette setSkeletonSegments failed: ${error.message}');
     }
   }
 

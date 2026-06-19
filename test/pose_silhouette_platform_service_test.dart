@@ -13,11 +13,28 @@ void main() {
       'phase': 'aligning',
       'toast': '肢體對齊中…請將身體套入輪廓',
       'enabled': true,
+      'phaseChanged': true,
+      'autoCaptureRequested': false,
     });
 
     expect(event.score, 72);
     expect(event.phase, PoseSilhouettePhase.aligning);
     expect(event.enabled, isTrue);
+    expect(event.phaseChanged, isTrue);
+  });
+
+  test('parses matched auto capture request', () {
+    final event = PoseSilhouetteAlignmentEvent.fromJson({
+      'score': 90,
+      'phase': 'matched',
+      'toast': '完美對齊！可以拍了',
+      'enabled': true,
+      'phaseChanged': true,
+      'autoCaptureRequested': true,
+    });
+
+    expect(event.autoCaptureRequested, isTrue);
+    expect(event.phase, PoseSilhouettePhase.matched);
   });
 
   test('setGuideContour forwards normalized points', () async {

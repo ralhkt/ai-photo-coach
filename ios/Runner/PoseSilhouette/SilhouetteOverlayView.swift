@@ -3,6 +3,8 @@ import UIKit
 @available(iOS 15.0, *)
 final class SilhouetteOverlayView: UIView {
   private var guideContour: [CGPoint] = []
+  private var skeletonSegments: [[CGPoint]] = []
+  private var renderMode = "silhouette"
   private var phase = "noMatch"
   private var exposureBias: Float = 0
 
@@ -19,32 +21,39 @@ final class SilhouetteOverlayView: UIView {
     nil
   }
 
-  func update(points: [CGPoint], phase: String, exposureBias: Float) {
-    guideContour = points
+  func update(
+    contour: [CGPoint],
+    skeletonSegments: [[CGPoint]],
+    renderMode: String,
+    phase: String,
+    exposureBias: Float
+  ) {
+    guideContour = contour
+    self.skeletonSegments = skeletonSegments
+    self.renderMode = renderMode
     self.phase = phase
     self.exposureBias = exposureBias
     setNeedsDisplay()
   }
 
   override func draw(_ rect: CGRect) {
-    guard guideContour.count >= 2 else {
-      return
-    }
-
     guard let context = UIGraphicsGetCurrentContext() else {
       return
     }
 
     let viewport = bounds.size
-    let path = UIBezierPath()
-    let first = mapPoint(guideContour[0], viewport: viewport)
-    path.move(to: first)
-    for index in 1..<guideContour.count {
-      path.addLine(to: mapPoint(guideContour[index], viewport: viewport))
-    }
-    path.close()
-
     let colors = strokeColors(for: phase, exposureBias: exposureBias)
+
+    if renderMode == "skeleton" {
+      drawSkeleton(context: context, viewport: viewport, colors: colors)
+      return
+    }
+
+    guard guideContour.count >= 2 else {
+      return
+    }
+
+    let path = contourPath(guideContour, viewport: viewport)
     context.saveGState()
     context.setShadow(
       offset: .zero,
@@ -57,6 +66,44 @@ final class SilhouetteOverlayView: UIView {
     path.lineCapStyle = .round
     path.stroke()
     context.restoreGState()
+  }
+
+  private func drawSkeleton(
+    context: CGContext,
+    viewport: CGSize,
+    colors: (stroke: UIColor, glow: UIColor)
+  ) {
+    let pattern: [CGFloat] = [6, 4]
+    for segment in skeletonSegments where segment.count >= 2 {
+      let path = UIBezierPath()
+      path.move(to: mapPoint(segment[0], viewport: viewport))
+      for index in 1..<segment.count {
+        path.addLine(to: mapPoint(segment[index], viewport: viewport))
+      }
+      context.saveGState()
+      context.setShadow(
+        offset: .zero,
+        blur: 6,
+        color: colors.glow.withAlphaComponent(0.35).cgColor
+      )
+      colors.stroke.setStroke()
+      path.lineWidth = 1.5
+      path.setLineDash(pattern, count: 2, phase: 0)
+      path.lineJoinStyle = .round
+      path.lineCapStyle = .round
+      path.stroke()
+      context.restoreGState()
+    }
+  }
+
+  private func contourPath(_ points: [CGPoint], viewport: CGSize) -> UIBezierPath {
+    let path = UIBezierPath()
+    path.move(to: mapPoint(points[0], viewport: viewport))
+    for index in 1..<points.count {
+      path.addLine(to: mapPoint(points[index], viewport: viewport))
+    }
+    path.close()
+    return path
   }
 
   private func mapPoint(_ point: CGPoint, viewport: CGSize) -> CGPoint {

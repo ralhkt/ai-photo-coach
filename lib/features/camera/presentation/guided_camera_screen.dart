@@ -15,6 +15,7 @@ import '../../../models/shoot_session.dart';
 import '../../../models/photo_frame_template.dart';
 import '../../../models/subject_shape_kind.dart';
 import '../../frames/presentation/guided_camera_overlay_stack.dart';
+import '../../pose/platform/pose_silhouette_auto_capture_listener.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/guided_frame_providers.dart';
 import '../../reference/providers/reference_providers.dart';
@@ -104,7 +105,8 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
             stabilizer: ref.read(poseContourStabilizerProvider),
           );
 
-          return CameraModeScope(
+          return PoseSilhouetteAutoCaptureListener(
+            child: CameraModeScope(
                 mode: CameraUiMode.guided,
                 onActivated: _applyAnalysisGuidance,
                 child: CameraSessionLifecycle(
@@ -166,6 +168,7 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                   ),
                 ),
               ),
+            ),
           );
         },
       ),

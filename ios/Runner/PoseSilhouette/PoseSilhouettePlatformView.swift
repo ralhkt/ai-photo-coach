@@ -14,8 +14,20 @@ final class PoseSilhouettePlatformView: NSObject, FlutterPlatformView {
     overlayView
   }
 
-  func updateContour(points: [CGPoint], phase: String, exposureBias: Float) {
-    overlayView.update(points: points, phase: phase, exposureBias: exposureBias)
+  func update(
+    contour: [CGPoint],
+    skeletonSegments: [[CGPoint]],
+    renderMode: String,
+    phase: String,
+    exposureBias: Float
+  ) {
+    overlayView.update(
+      contour: contour,
+      skeletonSegments: skeletonSegments,
+      renderMode: renderMode,
+      phase: phase,
+      exposureBias: exposureBias
+    )
   }
 }
 

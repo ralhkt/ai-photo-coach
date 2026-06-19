@@ -3,10 +3,15 @@ import UIKit
 
 final class PoseSilhouetteHandler: NSObject, FlutterStreamHandler {
   private var eventSink: FlutterEventSink?
-  private var guideContour: [CGPoint] = []
+  private var rawGuideContour: [CGPoint] = []
+  private var displayContour: [CGPoint] = []
   private var alignmentScore = 0
   private var enabled = false
+  private var renderMode = "silhouette"
+  private var skeletonSegments: [[CGPoint]] = []
   private var overlays: [Int64: AnyObject] = [:]
+  private let kalmanFilter = KalmanContourFilterBridge()
+  private let stateMachine = AlignmentStateMachine()
 
   func registerChannels(binaryMessenger: FlutterBinaryMessenger, registrar: FlutterPluginRegistrar) {
     let methodChannel = FlutterMethodChannel(
@@ -45,6 +50,9 @@ final class PoseSilhouetteHandler: NSObject, FlutterStreamHandler {
         return
       }
       enabled = value
+      if !enabled {
+        stateMachine.reset()
+      }
       pushOverlayState()
       result(nil)
     case "setGuideContour":
@@ -53,12 +61,13 @@ final class PoseSilhouetteHandler: NSObject, FlutterStreamHandler {
         result(FlutterError(code: "bad_args", message: "points required", details: nil))
         return
       }
-      guideContour = rawPoints.compactMap { dict in
+      rawGuideContour = rawPoints.compactMap { dict in
         guard let dx = dict["dx"], let dy = dict["dy"] else {
           return nil
         }
         return CGPoint(x: dx, y: dy)
       }
+      displayContour = smoothContour(rawGuideContour)
       pushOverlayState()
       result(nil)
     case "setAlignmentScore":
@@ -69,6 +78,31 @@ final class PoseSilhouetteHandler: NSObject, FlutterStreamHandler {
       }
       alignmentScore = max(0, min(100, score))
       emitAlignmentEvent()
+      pushOverlayState()
+      result(nil)
+    case "setRenderMode":
+      guard let args = call.arguments as? [String: Any],
+            let mode = args["mode"] as? String else {
+        result(FlutterError(code: "bad_args", message: "mode required", details: nil))
+        return
+      }
+      renderMode = mode
+      pushOverlayState()
+      result(nil)
+    case "setSkeletonSegments":
+      guard let args = call.arguments as? [String: Any],
+            let segments = args["segments"] as? [[[String: Double]]] else {
+        result(FlutterError(code: "bad_args", message: "segments required", details: nil))
+        return
+      }
+      skeletonSegments = segments.map { segment in
+        segment.compactMap { dict in
+          guard let dx = dict["dx"], let dy = dict["dy"] else {
+            return nil
+          }
+          return CGPoint(x: dx, y: dy)
+        }
+      }.filter { $0.count >= 2 }
       pushOverlayState()
       result(nil)
     case "extractContourFromImage":
@@ -95,6 +129,47 @@ final class PoseSilhouetteHandler: NSObject, FlutterStreamHandler {
     return nil
   }
 
+  private func smoothContour(_ points: [CGPoint]) -> [CGPoint] {
+    guard points.count >= 2 else {
+      return points
+    }
+    let values = points.map { NSValue(cgPoint: $0) }
+    let smoothed = kalmanFilter.smooth(values)
+    return smoothed.map { $0.cgPointValue }
+  }
+
+  private func emitAlignmentEvent() {
+    var payload = stateMachine.update(score: alignmentScore)
+    payload["enabled"] = enabled
+    DispatchQueue.main.async { [weak self] in
+      self?.eventSink?(payload)
+    }
+  }
+
+  private func pushOverlayState() {
+    guard enabled else {
+      return
+    }
+
+    let phase = phaseName(for: alignmentScore)
+    DispatchQueue.main.async { [weak self] in
+      guard let self else {
+        return
+      }
+      if #available(iOS 15.0, *) {
+        for overlay in self.overlays.values {
+          (overlay as? PoseSilhouettePlatformView)?.update(
+            contour: self.displayContour,
+            skeletonSegments: self.skeletonSegments,
+            renderMode: self.renderMode,
+            phase: phase,
+            exposureBias: 0
+          )
+        }
+      }
+    }
+  }
+
   private func phaseName(for score: Int) -> String {
     if score >= 85 {
       return "matched"
@@ -103,50 +178,5 @@ final class PoseSilhouetteHandler: NSObject, FlutterStreamHandler {
       return "aligning"
     }
     return "noMatch"
-  }
-
-  private func toast(for phase: String) -> String {
-    switch phase {
-    case "matched":
-      return "完美對齊！可以拍了"
-    case "aligning":
-      return "肢體對齊中…請將身體套入輪廓"
-    default:
-      return "請站入輪廓中央"
-    }
-  }
-
-  private func emitAlignmentEvent() {
-    let phase = phaseName(for: alignmentScore)
-    let payload: [String: Any] = [
-      "score": alignmentScore,
-      "phase": phase,
-      "toast": toast(for: phase),
-      "enabled": enabled,
-    ]
-    DispatchQueue.main.async { [weak self] in
-      self?.eventSink?(payload)
-    }
-  }
-
-  private func pushOverlayState() {
-    guard enabled, !guideContour.isEmpty else {
-      return
-    }
-    let phase = phaseName(for: alignmentScore)
-    DispatchQueue.main.async { [weak self] in
-      guard let self else {
-        return
-      }
-      if #available(iOS 15.0, *) {
-        for overlay in self.overlays.values {
-          (overlay as? PoseSilhouettePlatformView)?.updateContour(
-            points: self.guideContour,
-            phase: phase,
-            exposureBias: 0
-          )
-        }
-      }
-    }
   }
 }

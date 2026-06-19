@@ -19,6 +19,9 @@
 		B2C3D4E1ED2DC560051581E /* PoseSilhouetteHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D441ED2DC5600515814 /* PoseSilhouetteHandler.swift */; };
 		B2C3D4F1ED2DC560051581F /* PoseSilhouettePlatformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D451ED2DC5600515815 /* PoseSilhouettePlatformView.swift */; };
 		B2C3D521ED2DC5600515822 /* SilhouetteOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D531ED2DC5600515823 /* SilhouetteOverlayView.swift */; };
+		B2C3D541ED2DC5600515824 /* KalmanContourFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D551ED2DC5600515825 /* KalmanContourFilter.cpp */; };
+		B2C3D561ED2DC5600515826 /* KalmanContourFilterBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D571ED2DC5600515827 /* KalmanContourFilterBridge.mm */; };
+		B2C3D581ED2DC5600515828 /* AlignmentStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D591ED2DC5600515829 /* AlignmentStateMachine.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -67,6 +70,11 @@
 		B2C3D441ED2DC5600515814 /* PoseSilhouetteHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseSilhouetteHandler.swift; sourceTree = "<group>"; };
 		B2C3D451ED2DC5600515815 /* PoseSilhouettePlatformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseSilhouettePlatformView.swift; sourceTree = "<group>"; };
 		B2C3D531ED2DC5600515823 /* SilhouetteOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilhouetteOverlayView.swift; sourceTree = "<group>"; };
+		B2C3D551ED2DC5600515825 /* KalmanContourFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = KalmanContourFilter.cpp; sourceTree = "<group>"; };
+		B2C3D571ED2DC5600515827 /* KalmanContourFilterBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KalmanContourFilterBridge.mm; sourceTree = "<group>"; };
+		B2C3D591ED2DC5600515829 /* AlignmentStateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlignmentStateMachine.swift; sourceTree = "<group>"; };
+		B2C3D5A1ED2DC560051582A /* KalmanContourFilter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = KalmanContourFilter.hpp; sourceTree = "<group>"; };
+		B2C3D5B1ED2DC560051582B /* KalmanContourFilterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KalmanContourFilterBridge.h; sourceTree = "<group>"; };
 		B2C3D471ED2DC5600515817 /* ContourProcessor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ContourProcessor.hpp; sourceTree = "<group>"; };
 		B2C3D481ED2DC5600515818 /* ContourProcessorBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContourProcessorBridge.h; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -164,6 +172,11 @@
 				B2C3D401ED2DC5600515810 /* ContourProcessor.cpp */,
 				B2C3D481ED2DC5600515818 /* ContourProcessorBridge.h */,
 				B2C3D411ED2DC5600515811 /* ContourProcessorBridge.mm */,
+				B2C3D5A1ED2DC560051582A /* KalmanContourFilter.hpp */,
+				B2C3D551ED2DC5600515825 /* KalmanContourFilter.cpp */,
+				B2C3D5B1ED2DC560051582B /* KalmanContourFilterBridge.h */,
+				B2C3D571ED2DC5600515827 /* KalmanContourFilterBridge.mm */,
+				B2C3D591ED2DC5600515829 /* AlignmentStateMachine.swift */,
 				B2C3D431ED2DC5600515813 /* GuideContourExtractor.swift */,
 				B2C3D441ED2DC5600515814 /* PoseSilhouetteHandler.swift */,
 				B2C3D451ED2DC5600515815 /* PoseSilhouettePlatformView.swift */,
@@ -420,6 +433,9 @@
 				B2C3D4E1ED2DC560051581E /* PoseSilhouetteHandler.swift in Sources */,
 				B2C3D4F1ED2DC560051581F /* PoseSilhouettePlatformView.swift in Sources */,
 				B2C3D521ED2DC5600515822 /* SilhouetteOverlayView.swift in Sources */,
+				B2C3D541ED2DC5600515824 /* KalmanContourFilter.cpp in Sources */,
+				B2C3D561ED2DC5600515826 /* KalmanContourFilterBridge.mm in Sources */,
+				B2C3D581ED2DC5600515828 /* AlignmentStateMachine.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
 			);

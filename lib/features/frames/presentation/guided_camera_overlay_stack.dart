@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/guidance_text.dart';
 import '../../../core/utils/pose_coaching_hint.dart';
+import '../../pose/platform/pose_silhouette_bridge.dart';
 import '../../pose/platform/pose_silhouette_native_overlay.dart';
+import '../../pose/platform/pose_silhouette_native_toast.dart';
 import '../../pose/providers/pose_coaching_provider.dart';
 import '../../pose/providers/pose_silhouette_provider.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
@@ -80,8 +82,6 @@ class _GuidedCameraOverlayStackState
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(poseSilhouetteSyncProvider);
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewport = Size(constraints.maxWidth, constraints.maxHeight);
@@ -104,6 +104,8 @@ class _GuidedCameraOverlayStackState
                 partLabels: widget.partLabels,
               ),
               PoseSilhouetteNativeOverlay(visible: widget.frameVisible),
+              const PoseSilhouetteBridge(),
+              const PoseSilhouetteNativeToast(),
             ],
           ),
         );
