@@ -70,20 +70,19 @@ class _GuidedCameraOverlayStackState
       builder: (context, constraints) {
         final viewport = Size(constraints.maxWidth, constraints.maxHeight);
         final frameSpec = _frameSpecFor(viewport);
-        final contour = widget.guidance.subjectSilhouettePoints ?? const <Offset>[];
+        final contour =
+            widget.guidance.subjectSilhouettePoints ?? const <Offset>[];
 
-        return RepaintBoundary(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              const _CompositionOverlayLayer(),
-              _OutlineOverlayLayer(
-                imageBytes: widget.imageBytes,
-                frameSpec: frameSpec,
-                selectionContour: contour,
-              ),
-            ],
-          ),
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            const _CompositionOverlayLayer(),
+            _GuidedReferenceOverlay(
+              imageBytes: widget.imageBytes,
+              frameSpec: frameSpec,
+              selectionContour: contour,
+            ),
+          ],
         );
       },
     );
@@ -96,16 +95,22 @@ class _CompositionOverlayLayer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final compositionVisible = ref.watch(guidedCompositionVisibleProvider);
-    final overlayType = ref.watch(overlayTypeProvider);
-    if (compositionVisible && overlayType == CompositionOverlayType.ruleOfThirds) {
-      return const IosCameraGridOverlay();
+    if (!compositionVisible) {
+      return const SizedBox.shrink();
     }
-    return CompositionOverlay(type: overlayType, visible: compositionVisible);
+
+    final overlayType = ref.watch(overlayTypeProvider);
+    if (overlayType == CompositionOverlayType.ruleOfThirds) {
+      return const RepaintBoundary(child: IosCameraGridOverlay());
+    }
+    return RepaintBoundary(
+      child: CompositionOverlay(type: overlayType, visible: true),
+    );
   }
 }
 
-class _OutlineOverlayLayer extends ConsumerWidget {
-  const _OutlineOverlayLayer({
+class _GuidedReferenceOverlay extends ConsumerWidget {
+  const _GuidedReferenceOverlay({
     required this.imageBytes,
     required this.frameSpec,
     required this.selectionContour,
@@ -118,18 +123,80 @@ class _OutlineOverlayLayer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final frameVisible = ref.watch(guidedFrameVisibleProvider);
-    final ghostVisible = ref.watch(referenceGhostVisibleProvider);
-    final alignmentPhase = ref.watch(
-      poseCoachingAlignmentPhaseProvider,
+    if (!frameVisible) {
+      return const SizedBox.shrink();
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _GhostReferenceLayer(
+          imageBytes: imageBytes,
+          frameSpec: frameSpec,
+        ),
+        _OutlineReferenceLayer(
+          imageBytes: imageBytes,
+          frameSpec: frameSpec,
+          selectionContour: selectionContour,
+        ),
+      ],
     );
+  }
+}
+
+class _GhostReferenceLayer extends ConsumerWidget {
+  const _GhostReferenceLayer({
+    required this.imageBytes,
+    required this.frameSpec,
+  });
+
+  final Uint8List imageBytes;
+  final GeneratedFrameSpec frameSpec;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ghostVisible = ref.watch(referenceGhostVisibleProvider);
+    if (!ghostVisible) {
+      return const SizedBox.shrink();
+    }
+
+    return ReferenceGuidedOverlay(
+      imageBytes: imageBytes,
+      frameSpec: frameSpec,
+      selectionContour: const [],
+      visible: true,
+      showGhost: true,
+      showOutline: false,
+    );
+  }
+}
+
+class _OutlineReferenceLayer extends ConsumerWidget {
+  const _OutlineReferenceLayer({
+    required this.imageBytes,
+    required this.frameSpec,
+    required this.selectionContour,
+  });
+
+  final Uint8List imageBytes;
+  final GeneratedFrameSpec frameSpec;
+  final List<Offset> selectionContour;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (selectionContour.length < 8) {
+      return const SizedBox.shrink();
+    }
+
+    final alignmentPhase = ref.watch(poseCoachingAlignmentPhaseProvider);
 
     return ReferenceGuidedOverlay(
       imageBytes: imageBytes,
       frameSpec: frameSpec,
       selectionContour: selectionContour,
-      visible: frameVisible,
-      showGhost: ghostVisible,
-      showOutline: selectionContour.length >= 8,
+      visible: true,
+      showGhost: false,
+      showOutline: true,
       alignmentPhase: alignmentPhase,
     );
   }

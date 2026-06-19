@@ -13,7 +13,7 @@ final class PreviewFrameSamplerHandler: NSObject, AVCaptureVideoDataOutputSample
   private weak var attachedSession: AVCaptureSession?
   private var latestJpeg: Data?
   private var lastSampleTime: CFAbsoluteTime = 0
-  private let minSampleInterval: CFAbsoluteTime = 5.0
+  private let minSampleInterval: CFAbsoluteTime = 2.5
   private let maxJpegSide: CGFloat = 360
 
   private var sessionReadyObserver: NSObjectProtocol?

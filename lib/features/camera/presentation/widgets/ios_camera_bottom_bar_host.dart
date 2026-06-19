@@ -16,7 +16,7 @@ import '../ios_camera_mode_switcher.dart';
 import 'ios_camera_bottom_bar.dart';
 import 'ios_exposure_slider.dart';
 
-/// Bottom chrome — heavy actions pause ML longer; toggles use a brief gate only.
+/// Bottom chrome — guided mode watches fewer providers to avoid chrome jank.
 class IosCameraBottomBarHost extends ConsumerWidget {
   const IosCameraBottomBarHost({
     super.key,
@@ -33,8 +33,38 @@ class IosCameraBottomBarHost extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
     final shellMode = ref.watch(cameraShellModeProvider);
+    if (shellMode == CameraShellMode.guided) {
+      return _GuidedBottomBar(
+        onGalleryTap: onGalleryTap,
+        onShutterTap: onShutterTap,
+        onBurstEnd: onBurstEnd,
+      );
+    }
+    return _FullBottomBar(
+      shellMode: shellMode,
+      onHdrTap: onHdrTap,
+      onGalleryTap: onGalleryTap,
+      onShutterTap: onShutterTap,
+      onBurstEnd: onBurstEnd,
+    );
+  }
+}
+
+class _GuidedBottomBar extends ConsumerWidget {
+  const _GuidedBottomBar({
+    required this.onGalleryTap,
+    required this.onShutterTap,
+    required this.onBurstEnd,
+  });
+
+  final void Function(bool hasLastCapture) onGalleryTap;
+  final VoidCallback onShutterTap;
+  final VoidCallback onBurstEnd;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final modeLabels = [
       l10n.cameraModeVideo,
       l10n.cameraModePhoto,
@@ -42,7 +72,97 @@ class IosCameraBottomBarHost extends ConsumerWidget {
     ];
 
     return IosCameraBottomBar(
-      compactMode: shellMode == CameraShellMode.guided,
+      compactMode: true,
+      showZoomPresets: true,
+      modeLabel: l10n.cameraModeGuided,
+      modeLabels: modeLabels,
+      selectedModeIndex: CameraShellMode.guided.carouselIndex,
+      onModeSelected: (index) {
+        markHeavyCameraInteraction(ref);
+        unawaited(
+          switchIosCameraShellMode(
+            context: context,
+            ref: ref,
+            current: CameraShellMode.guided,
+            target: CameraShellMode.fromCarouselIndex(index),
+          ),
+        );
+      },
+      thumbnailBytes: ref.watch(lastCaptureThumbnailProvider),
+      isCapturing: ref.watch(isCapturingProvider),
+      isBursting: ref.watch(isBurstingProvider),
+      burstCount: ref.watch(
+        burstPhotosProvider.select((photos) => photos.length),
+      ),
+      hdrEnabled: false,
+      hdrSupported: false,
+      hdrLabel: l10n.hdrLabel,
+      timerDuration: CameraTimerDuration.off,
+      aeAfLocked: false,
+      optionsExpanded: false,
+      canFlip: ref.watch(
+        camerasProvider.select((cameras) => (cameras.value ?? []).length > 1),
+      ) &&
+          !ref.watch(cameraSwitchingProvider),
+      isFlipping: ref.watch(cameraSwitchingProvider),
+      shutterEnabled: ref.watch(timerCountdownProvider) == null,
+      onHdrTap: () {},
+      onTimerTap: () {},
+      onExposureLockTap: () {},
+      onToggleOptions: () {},
+      onGalleryTap: () => onGalleryTap(
+        ref.read(lastCaptureThumbnailProvider) != null,
+      ),
+      onGalleryLongPress: () => onGalleryTap(false),
+      onShutterTap: onShutterTap,
+      onBurstStart: () {
+        markHeavyCameraInteraction(ref);
+        unawaited(ref.read(cameraControllerProvider.notifier).startBurst());
+      },
+      onBurstEnd: onBurstEnd,
+      onFlipCamera: () {
+        markHeavyCameraInteraction(ref);
+        unawaited(ref.read(cameraControllerProvider.notifier).switchCamera());
+      },
+      proModeEnabled: false,
+      aspectRatio: CameraAspectRatio.ratio4x3,
+      showHistogram: false,
+      frontMirrorEnabled: true,
+      focalPreset: 1.0,
+      onFocalPresetTap: (preset) {
+        markCameraChromeTap(ref);
+        unawaited(ref.read(cameraControllerProvider.notifier).setZoom(preset));
+      },
+    );
+  }
+}
+
+class _FullBottomBar extends ConsumerWidget {
+  const _FullBottomBar({
+    required this.shellMode,
+    required this.onHdrTap,
+    required this.onGalleryTap,
+    required this.onShutterTap,
+    required this.onBurstEnd,
+  });
+
+  final CameraShellMode shellMode;
+  final void Function(bool supported, bool enabled) onHdrTap;
+  final void Function(bool hasLastCapture) onGalleryTap;
+  final VoidCallback onShutterTap;
+  final VoidCallback onBurstEnd;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final modeLabels = [
+      l10n.cameraModeVideo,
+      l10n.cameraModePhoto,
+      l10n.cameraModeGuided,
+    ];
+
+    return IosCameraBottomBar(
+      compactMode: false,
       showZoomPresets: true,
       modeLabel: _modeLabel(l10n, shellMode),
       modeLabels: modeLabels,

@@ -4,15 +4,13 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
-import 'package:image/image.dart' as img;
-
-import '../../ml/services/ml_input_image_helper.dart';
 import '../models/pose_coaching_result.dart';
 import '../models/trendy_photo_template.dart';
 import 'adaptive_coaching_scheduler.dart';
 import 'pose_coaching_coordinator.dart';
 import 'pose_joint_smoother.dart';
 import 'pose_landmark_utils.dart';
+import 'pose_preview_frame_prep.dart';
 import 'subject_pose_tracker.dart';
 
 /// Runs ML Kit pose inference on preview snapshots and aesthetic coaching math.
@@ -34,8 +32,6 @@ class PoseCoachingService {
         _subjectTracker = subjectTracker ?? SubjectPoseTracker(),
         _jointSmoother = jointSmoother ?? PoseJointSmoother(),
         _captureScheduler = captureScheduler ?? AdaptiveCoachingScheduler();
-
-  static const maxMlSide = 480;
 
   final PoseDetector _poseDetector;
   final PoseCoachingCoordinator _coordinator;
@@ -87,17 +83,24 @@ class PoseCoachingService {
       return null;
     }
 
-    final decoded = img.decodeImage(bytes);
-    if (decoded == null) {
+    final prepared = await compute(preparePreviewFrameForMl, bytes);
+    if (prepared == null) {
       return null;
     }
 
-    final mlImage = _downscaleForMl(decoded);
-    final input = MlInputImageHelper.fromDecodedImage(mlImage);
+    final input = InputImage.fromBytes(
+      bytes: prepared.bgraBytes,
+      metadata: InputImageMetadata(
+        size: Size(prepared.width.toDouble(), prepared.height.toDouble()),
+        rotation: InputImageRotation.rotation0deg,
+        format: InputImageFormat.bgra8888,
+        bytesPerRow: prepared.width * 4,
+      ),
+    );
     return _evaluateInputImage(
       input: input,
-      imageWidth: mlImage.width,
-      imageHeight: mlImage.height,
+      imageWidth: prepared.width,
+      imageHeight: prepared.height,
       rollAngle: rollAngle,
       trendyTemplate: trendyTemplate,
       timestamp: timestamp,
@@ -168,21 +171,6 @@ class PoseCoachingService {
       rollAngle: rollAngle,
       trendyTemplate: trendyTemplate,
       now: timestamp,
-    );
-  }
-
-  img.Image _downscaleForMl(img.Image image) {
-    final longest = image.width > image.height ? image.width : image.height;
-    if (longest <= maxMlSide) {
-      return image;
-    }
-
-    final scale = maxMlSide / longest;
-    return img.copyResize(
-      image,
-      width: (image.width * scale).round(),
-      height: (image.height * scale).round(),
-      interpolation: img.Interpolation.average,
     );
   }
 

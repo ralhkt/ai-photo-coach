@@ -21,7 +21,6 @@ import '../../pose/platform/pose_silhouette_auto_capture_listener.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/guided_frame_providers.dart';
 import '../../reference/providers/reference_providers.dart';
-import '../providers/camera_interaction_provider.dart';
 import '../providers/camera_mode_settings_provider.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_settings_provider.dart';
@@ -124,17 +123,12 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                     sourceAspectRatio: analysis.sourceAspectRatio,
                   ),
                   overlay: _GuidedToolbar(
-                    frameTemplate: guidance.frameTemplate,
                     onChooseFrameTemplate: () {
-                      markCameraChromeTap(ref);
                       ref
                           .read(referenceAnalysisProvider.notifier)
                           .setFrameTemplate(guidance.frameTemplate.next);
                     },
-                    onOpenTools: () {
-                      markCameraChromeTap(ref);
-                      showGuidedOverlayToolsSheet(context);
-                    },
+                    onOpenTools: () => showGuidedOverlayToolsSheet(context),
                   ),
                 ),
               ),
@@ -169,22 +163,18 @@ class _GuidedOverlayHost extends ConsumerWidget {
   }
 }
 
-class _GuidedToolbar extends ConsumerWidget {
+class _GuidedToolbar extends StatelessWidget {
   const _GuidedToolbar({
-    required this.frameTemplate,
     required this.onChooseFrameTemplate,
     required this.onOpenTools,
   });
 
-  final PhotoFrameTemplate frameTemplate;
   final VoidCallback onChooseFrameTemplate;
   final VoidCallback onOpenTools;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final compositionVisible = ref.watch(guidedCompositionVisibleProvider);
-    final frameVisible = ref.watch(guidedFrameVisibleProvider);
     final top = MediaQuery.paddingOf(context).top + 56;
 
     return Stack(
@@ -195,27 +185,9 @@ class _GuidedToolbar extends ConsumerWidget {
           top: top,
           child: Column(
             children: [
-              AppCameraToolButton(
-                icon: compositionVisible
-                    ? Icons.grid_on_rounded
-                    : Icons.grid_off_rounded,
-                tooltip: l10n.toggleOverlay,
-                onTap: () {
-                  markCameraChromeTap(ref);
-                  toggleGuidedCompositionVisible(ref);
-                },
-              ),
+              _GuidedGridToggleButton(tooltip: l10n.toggleOverlay),
               const SizedBox(height: 8),
-              AppCameraToolButton(
-                icon: frameVisible
-                    ? Icons.crop_free_rounded
-                    : Icons.crop_free_outlined,
-                tooltip: l10n.toggleFrame,
-                onTap: () {
-                  markCameraChromeTap(ref);
-                  toggleGuidedFrameVisible(ref);
-                },
-              ),
+              _GuidedFrameToggleButton(tooltip: l10n.toggleFrame),
               const SizedBox(height: 8),
               AppCameraToolButton(
                 icon: Icons.layers_outlined,
@@ -232,6 +204,38 @@ class _GuidedToolbar extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _GuidedGridToggleButton extends ConsumerWidget {
+  const _GuidedGridToggleButton({required this.tooltip});
+
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final visible = ref.watch(guidedCompositionVisibleProvider);
+    return AppCameraToolButton(
+      icon: visible ? Icons.grid_on_rounded : Icons.grid_off_rounded,
+      tooltip: tooltip,
+      onTap: () => toggleGuidedCompositionVisible(ref),
+    );
+  }
+}
+
+class _GuidedFrameToggleButton extends ConsumerWidget {
+  const _GuidedFrameToggleButton({required this.tooltip});
+
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final visible = ref.watch(guidedFrameVisibleProvider);
+    return AppCameraToolButton(
+      icon: visible ? Icons.crop_free_rounded : Icons.crop_free_outlined,
+      tooltip: tooltip,
+      onTap: () => toggleGuidedFrameVisible(ref),
     );
   }
 }

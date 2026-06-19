@@ -40,14 +40,15 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   final PosePreviewFrameSource _androidFrameSource = PosePreviewFrameSource();
   bool _androidStreamAttempted = false;
   bool _iosSamplerAttached = false;
-  bool _iosSamplerDetachedForBusy = false;
 
   bool get _useIosNativeSampler =>
       !kIsWeb && Platform.isIOS && NativePreviewFrameService.instance.isSupported;
 
+  static const _iosNativeMinInterval = Duration(milliseconds: 2500);
+
   Duration get _fallbackInterval {
     if (_useIosNativeSampler) {
-      return const Duration(milliseconds: 2200);
+      return _iosNativeMinInterval;
     }
     if (kIsWeb) {
       return const Duration(milliseconds: 1500);
@@ -83,29 +84,11 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     if (active && !_iosSamplerAttached) {
       await NativePreviewFrameService.instance.attach();
       _iosSamplerAttached = true;
-      _iosSamplerDetachedForBusy = false;
       return;
     }
     if (!active && _iosSamplerAttached) {
       await NativePreviewFrameService.instance.detach();
       _iosSamplerAttached = false;
-    }
-  }
-
-  Future<void> _syncSamplerForBusyState() async {
-    if (!_useIosNativeSampler) {
-      return;
-    }
-    final busy = _isCameraBusy();
-    if (busy && _iosSamplerAttached && !_iosSamplerDetachedForBusy) {
-      await NativePreviewFrameService.instance.detach();
-      _iosSamplerAttached = false;
-      _iosSamplerDetachedForBusy = true;
-      return;
-    }
-    if (!busy && _iosSamplerDetachedForBusy) {
-      _iosSamplerDetachedForBusy = false;
-      await _setSamplerActive(true);
     }
   }
 
@@ -118,8 +101,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     if (shouldRun && _timer == null) {
       _androidStreamAttempted = false;
       unawaited(_setSamplerActive(true));
-      _scheduleNextTick(const Duration(milliseconds: 200));
-      unawaited(_tick());
+      _scheduleNextTick(const Duration(milliseconds: 400));
     } else if (!shouldRun && _timer != null) {
       _timer?.cancel();
       _timer = null;
@@ -147,20 +129,25 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         ref.read(liveSceneAnalyzingProvider) ||
         ref.read(cameraSwitchingProvider) ||
         ref.read(isPreviewSamplingProvider) ||
-        ref.read(isCameraUiInteractionPausedProvider) ||
-        ref.read(cameraChromeBusyProvider);
+        ref.read(isCameraUiInteractionPausedProvider);
   }
 
   Duration _busyRetryDelay() {
     if (ref.read(isCameraUiInteractionPausedProvider) ||
         ref.read(isCapturingProvider) ||
         ref.read(cameraSwitchingProvider)) {
-      return const Duration(milliseconds: 350);
+      return const Duration(milliseconds: 400);
     }
-    if (ref.read(cameraChromeBusyProvider)) {
-      return const Duration(milliseconds: 750);
+    return const Duration(milliseconds: 600);
+  }
+
+  Duration _effectiveCaptureInterval(Duration schedulerInterval) {
+    if (!_useIosNativeSampler) {
+      return schedulerInterval;
     }
-    return const Duration(milliseconds: 350);
+    return schedulerInterval < _iosNativeMinInterval
+        ? _iosNativeMinInterval
+        : schedulerInterval;
   }
 
   bool _shouldPublishResult(PoseCoachingResult result) {
@@ -168,7 +155,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     if (previous == null) {
       return true;
     }
-    if ((result.poseScore - previous.poseScore).abs() >= 4) {
+    if ((result.poseScore - previous.poseScore).abs() >= 8) {
       return true;
     }
     if (result.combinedGuidance != previous.combinedGuidance) {
@@ -205,8 +192,6 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
       return;
     }
 
-    await _syncSamplerForBusyState();
-
     if (_tickInFlight || _isCameraBusy()) {
       _scheduleNextTick(_busyRetryDelay());
       return;
@@ -214,9 +199,11 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
 
     final service = ref.read(poseCoachingServiceProvider);
     final powerSave = ref.read(powerSaveEnabledProvider);
-    _captureInterval = service.captureScheduler.nextInterval(
-      lastResult: _lastResult,
-      powerSave: powerSave,
+    _captureInterval = _effectiveCaptureInterval(
+      service.captureScheduler.nextInterval(
+        lastResult: _lastResult,
+        powerSave: powerSave,
+      ),
     );
 
     final now = DateTime.now();
@@ -226,20 +213,20 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
       now: now,
     )) {
       final wait = _captureInterval - now.difference(_lastCapture);
-      _scheduleNextTick(wait < const Duration(milliseconds: 150)
-          ? const Duration(milliseconds: 150)
+      _scheduleNextTick(wait < const Duration(milliseconds: 200)
+          ? const Duration(milliseconds: 200)
           : wait);
       return;
     }
 
     final controller = ref.read(cameraControllerProvider).value;
     if (controller == null || !controller.value.isInitialized) {
-      _scheduleNextTick(const Duration(milliseconds: 500));
+      _scheduleNextTick(const Duration(milliseconds: 600));
       return;
     }
 
     if (!service.shouldRunInference(now: now)) {
-      _scheduleNextTick(const Duration(milliseconds: 300));
+      _scheduleNextTick(const Duration(milliseconds: 400));
       return;
     }
 
@@ -254,7 +241,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
           return;
         }
         if (bytes == null || bytes.isEmpty) {
-          _scheduleNextTick(const Duration(milliseconds: 400));
+          _scheduleNextTick(_iosNativeMinInterval);
           return;
         }
         _lastCapture = now;
@@ -269,7 +256,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         if (_androidFrameSource.usesImageStream) {
           final frame = _androidFrameSource.consumeLatest();
           if (frame == null) {
-            _scheduleNextTick(const Duration(milliseconds: 300));
+            _scheduleNextTick(const Duration(milliseconds: 400));
             return;
           }
           _lastCapture = now;

@@ -12,8 +12,8 @@ import 'reference_image_cache.dart';
 
 /// Guided overlay: ghost reference photo + Photoshop-style subject outline.
 ///
-/// Both layers decode the same [imageBytes], compute one cover-fit rect from the
-/// decoded aspect ratio, and draw the selection boundary on top of the photo.
+/// Ghost and outline are separate [RepaintBoundary] layers so alignment color
+/// updates do not re-filter the full reference image.
 class ReferenceGuidedOverlay extends StatefulWidget {
   const ReferenceGuidedOverlay({
     super.key,
@@ -42,6 +42,8 @@ class ReferenceGuidedOverlay extends StatefulWidget {
 
 class _ReferenceGuidedOverlayState extends State<ReferenceGuidedOverlay> {
   ui.Image? _image;
+  Path? _outlinePath;
+  Rect? _outlineDest;
 
   @override
   void initState() {
@@ -54,6 +56,11 @@ class _ReferenceGuidedOverlayState extends State<ReferenceGuidedOverlay> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.imageBytes != widget.imageBytes) {
       _decode();
+    }
+    if (oldWidget.frameSpec.cropRect != widget.frameSpec.cropRect ||
+        oldWidget.selectionContour != widget.selectionContour) {
+      _outlinePath = null;
+      _outlineDest = null;
     }
   }
 
@@ -70,43 +77,77 @@ class _ReferenceGuidedOverlayState extends State<ReferenceGuidedOverlay> {
       return const SizedBox.shrink();
     }
 
+    final image = _image!;
+    final imageAspect = image.width / image.height;
+    final outlinePath = widget.showOutline && widget.selectionContour.length >= 8
+        ? _outlinePathFor(
+            cropRect: widget.frameSpec.cropRect,
+            imageAspect: imageAspect,
+            selectionContour: widget.selectionContour,
+          )
+        : null;
+
     return IgnorePointer(
-      child: CustomPaint(
-        painter: _ReferenceGuidedOverlayPainter(
-          image: _image!,
-          cropRect: widget.frameSpec.cropRect,
-          selectionContour: widget.selectionContour,
-          showGhost: widget.showGhost,
-          showOutline: widget.showOutline,
-          ghostOpacity: widget.ghostOpacity,
-          alignmentPhase: widget.alignmentPhase,
-        ),
-        child: const SizedBox.expand(),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (widget.showGhost)
+            RepaintBoundary(
+              child: CustomPaint(
+                painter: _GhostOverlayPainter(
+                  image: image,
+                  cropRect: widget.frameSpec.cropRect,
+                  ghostOpacity: widget.ghostOpacity,
+                ),
+                child: const SizedBox.expand(),
+              ),
+            ),
+          if (outlinePath != null)
+            RepaintBoundary(
+              child: CustomPaint(
+                painter: _OutlineOverlayPainter(
+                  cropRect: widget.frameSpec.cropRect,
+                  outlinePath: outlinePath,
+                  alignmentPhase: widget.alignmentPhase,
+                ),
+                child: const SizedBox.expand(),
+              ),
+            ),
+        ],
       ),
     );
   }
+
+  Path _outlinePathFor({
+    required Rect cropRect,
+    required double imageAspect,
+    required List<Offset> selectionContour,
+  }) {
+    final dest = ReferenceCoverFitMapper.imageDestRect(
+      cropRect: cropRect,
+      imageAspectRatio: imageAspect,
+    );
+    if (_outlinePath != null && _outlineDest == dest) {
+      return _outlinePath!;
+    }
+
+    final mapped = ReferenceCoverFitMapper.mapContour(selectionContour, dest);
+    _outlinePath = HumanFrameShapeBuilder().pointsToSmoothPath(mapped);
+    _outlineDest = dest;
+    return _outlinePath!;
+  }
 }
 
-class _ReferenceGuidedOverlayPainter extends CustomPainter {
-  _ReferenceGuidedOverlayPainter({
+class _GhostOverlayPainter extends CustomPainter {
+  _GhostOverlayPainter({
     required this.image,
     required this.cropRect,
-    required this.selectionContour,
-    required this.showGhost,
-    required this.showOutline,
     required this.ghostOpacity,
-    required this.alignmentPhase,
   });
 
   final ui.Image image;
   final Rect cropRect;
-  final List<Offset> selectionContour;
-  final bool showGhost;
-  final bool showOutline;
   final double ghostOpacity;
-  final AlignmentOverlayPhase alignmentPhase;
-
-  static final _shapeBuilder = HumanFrameShapeBuilder();
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -119,18 +160,6 @@ class _ReferenceGuidedOverlayPainter extends CustomPainter {
     canvas.save();
     canvas.clipRect(cropRect);
 
-    if (showGhost) {
-      _drawGhost(canvas, dest);
-    }
-
-    if (showOutline && selectionContour.length >= 8) {
-      _drawSelectionOutline(canvas, dest);
-    }
-
-    canvas.restore();
-  }
-
-  void _drawGhost(Canvas canvas, Rect dest) {
     final src = Rect.fromLTWH(
       0,
       0,
@@ -147,16 +176,38 @@ class _ReferenceGuidedOverlayPainter extends CustomPainter {
       ]);
 
     canvas.drawImageRect(image, src, dest, paint);
+    canvas.restore();
   }
 
-  void _drawSelectionOutline(Canvas canvas, Rect dest) {
-    final mapped = ReferenceCoverFitMapper.mapContour(selectionContour, dest);
-    final path = _shapeBuilder.pointsToSmoothPath(mapped);
+  @override
+  bool shouldRepaint(covariant _GhostOverlayPainter oldDelegate) {
+    return oldDelegate.image != image ||
+        oldDelegate.cropRect != cropRect ||
+        oldDelegate.ghostOpacity != ghostOpacity;
+  }
+}
 
+class _OutlineOverlayPainter extends CustomPainter {
+  _OutlineOverlayPainter({
+    required this.cropRect,
+    required this.outlinePath,
+    required this.alignmentPhase,
+  });
+
+  final Rect cropRect;
+  final Path outlinePath;
+  final AlignmentOverlayPhase alignmentPhase;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = outlinePath;
     final strokeColor =
         AlignmentOverlayState.strokeColorForPhase(alignmentPhase);
     final glowColor =
         AlignmentOverlayState.glowColorForPhase(alignmentPhase);
+
+    canvas.save();
+    canvas.clipRect(cropRect);
 
     canvas.drawPath(
       path,
@@ -189,16 +240,12 @@ class _ReferenceGuidedOverlayPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..isAntiAlias = true,
     );
+
+    canvas.restore();
   }
 
   @override
-  bool shouldRepaint(covariant _ReferenceGuidedOverlayPainter oldDelegate) {
-    return oldDelegate.image != image ||
-        oldDelegate.cropRect != cropRect ||
-        oldDelegate.selectionContour != selectionContour ||
-        oldDelegate.showGhost != showGhost ||
-        oldDelegate.showOutline != showOutline ||
-        oldDelegate.ghostOpacity != ghostOpacity ||
-        oldDelegate.alignmentPhase != alignmentPhase;
+  bool shouldRepaint(covariant _OutlineOverlayPainter oldDelegate) {
+    return oldDelegate.alignmentPhase != alignmentPhase;
   }
 }
