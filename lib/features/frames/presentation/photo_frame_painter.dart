@@ -17,6 +17,7 @@ class PhotoFramePainter extends CustomPainter {
     this.bodyPartLabels,
     this.showBodyParts = true,
     this.minimalPozeStyle = true,
+    this.poseAligned = false,
   });
 
   final GeneratedFrameSpec frameSpec;
@@ -24,6 +25,7 @@ class PhotoFramePainter extends CustomPainter {
   final BodyPartLabels? bodyPartLabels;
   final bool showBodyParts;
   final bool minimalPozeStyle;
+  final bool poseAligned;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -110,14 +112,11 @@ class PhotoFramePainter extends CustomPainter {
         );
 
     if (minimalPozeStyle) {
-      canvas.drawPath(
-        silhouette,
-        Paint()
-          ..color = PozeWireframeStyle.lineColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = PozeWireframeStyle.minimalBodyStrokeWidth
-          ..strokeJoin = StrokeJoin.round
-          ..strokeCap = StrokeCap.round,
+      _drawPozeMinimalGuide(
+        canvas,
+        subject: subject,
+        silhouette: silhouette,
+        headOval: spec.bodyPartGuides?.headOval,
       );
       return;
     }
@@ -151,13 +150,97 @@ class PhotoFramePainter extends CustomPainter {
     }
   }
 
+  void _drawPozeMinimalGuide(
+    Canvas canvas, {
+    required Rect subject,
+    required Path silhouette,
+    Rect? headOval,
+  }) {
+    final strokeColor =
+        poseAligned ? PozeWireframeStyle.alignedColor : PozeWireframeStyle.lineColor;
+
+    canvas.drawPath(
+      silhouette,
+      Paint()
+        ..color = PozeWireframeStyle.silhouetteFillColor
+        ..style = PaintingStyle.fill,
+    );
+
+    _drawPozeLimbs(canvas, subject, PozeWireframeLimbs.seatedPhone, strokeColor);
+
+    canvas.drawPath(
+      silhouette,
+      Paint()
+        ..color = strokeColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = PozeWireframeStyle.minimalBodyStrokeWidth
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round,
+    );
+
+    if (headOval != null) {
+      _drawPozeFaceFocusFrame(canvas, headOval, strokeColor);
+    }
+
+    _drawPozeViewfinderCrosshair(canvas, subject);
+  }
+
+  void _drawPozeFaceFocusFrame(Canvas canvas, Rect headOval, Color strokeColor) {
+    final focusRect = Rect.fromCenter(
+      center: headOval.center,
+      width: headOval.width * 1.08,
+      height: headOval.height * 1.12,
+    );
+    final rounded = RRect.fromRectAndRadius(
+      focusRect,
+      Radius.circular(focusRect.width * 0.28),
+    );
+    final path = Path()..addRRect(rounded);
+
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = PozeWireframeStyle.faceFocusGlowColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = PozeWireframeStyle.faceFocusGlowStrokeWidth,
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = poseAligned ? strokeColor : PozeWireframeStyle.faceFocusColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = PozeWireframeStyle.faceFocusStrokeWidth,
+    );
+  }
+
+  void _drawPozeViewfinderCrosshair(Canvas canvas, Rect subject) {
+    final center = subject.center;
+    const arm = PozeWireframeStyle.crosshairArm;
+    final paint = Paint()
+      ..color = PozeWireframeStyle.crosshairColor
+      ..strokeWidth = 0.5
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawLine(
+      Offset(center.dx - arm, center.dy),
+      Offset(center.dx + arm, center.dy),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx, center.dy - arm),
+      Offset(center.dx, center.dy + arm),
+      paint,
+    );
+  }
+
   void _drawPozeLimbs(
     Canvas canvas,
     Rect subject,
-    PozeWireframeLimbs limbs,
-  ) {
+    PozeWireframeLimbs limbs, [
+    Color? strokeColor,
+  ]) {
     final limbPaint = Paint()
-      ..color = PozeWireframeStyle.lineColor
+      ..color = strokeColor ?? PozeWireframeStyle.lineColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = PozeWireframeStyle.limbStrokeWidth
       ..strokeJoin = StrokeJoin.round
@@ -393,10 +476,11 @@ class PhotoFramePainter extends CustomPainter {
   }
 
   void _drawHeadCrosshair(Canvas canvas, Offset center) {
-    const arm = 14.0;
+    const arm = PozeWireframeStyle.crosshairArm;
     final paint = Paint()
-      ..color = const Color(0xAAFFD60A)
-      ..strokeWidth = 1.2;
+      ..color = PozeWireframeStyle.crosshairColor
+      ..strokeWidth = 0.5
+      ..strokeCap = StrokeCap.round;
     canvas.drawLine(
       Offset(center.dx - arm, center.dy),
       Offset(center.dx + arm, center.dy),
@@ -407,7 +491,6 @@ class PhotoFramePainter extends CustomPainter {
       Offset(center.dx, center.dy + arm),
       paint,
     );
-    canvas.drawCircle(center, 4, paint..style = PaintingStyle.stroke);
   }
 
   void _drawBodyPartGuides(Canvas canvas, MappedBodyPartGuides guides) {
@@ -551,6 +634,7 @@ class PhotoFramePainter extends CustomPainter {
     return oldDelegate.frameSpec != frameSpec ||
         oldDelegate.templateLabel != templateLabel ||
         oldDelegate.showBodyParts != showBodyParts ||
-        oldDelegate.minimalPozeStyle != minimalPozeStyle;
+        oldDelegate.minimalPozeStyle != minimalPozeStyle ||
+        oldDelegate.poseAligned != poseAligned;
   }
 }

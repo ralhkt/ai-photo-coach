@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import '../../features/frames/services/poze_frame_layout.dart';
 import '../../features/reference/services/body_part_guide_service.dart';
 import '../../features/reference/services/human_frame_shape_builder.dart';
@@ -38,13 +40,20 @@ class CoachingGuidanceHelper {
     );
   }
 
-  /// Poze overlay: single centered wireframe aligned with the viewfinder.
+  /// Poze overlay: seated phone pose, centered in the viewfinder.
   CameraGuidance forPozeOverlay(CameraGuidance guidance) {
-    final stabilized = PozeFrameLayout.stabilizeForOverlay(
+    final stabilized = PozeFrameLayout.seatedOverlayRect(
       guidance.subjectTargetRect,
     );
-    final templatePoints =
-        _shapeBuilder.mapTemplateToSubject(stabilized);
+    final templatePoints = _shapeBuilder
+        .seatedPhonePosePoints()
+        .map(
+          (point) => Offset(
+            stabilized.left + point.dx * stabilized.width,
+            stabilized.top + point.dy * stabilized.height,
+          ),
+        )
+        .toList();
     final bodyParts = _bodyPartGuideService.derive(
       subjectRect: stabilized,
       silhouettePoints: templatePoints,

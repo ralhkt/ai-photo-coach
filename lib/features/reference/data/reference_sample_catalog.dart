@@ -2,7 +2,7 @@ import '../../../models/scene_type.dart';
 
 /// Bundled reference photos offered alongside gallery upload in the picker.
 ///
-/// Each [assetPath] maps to a curated 小紅書-style influencer check-in photo.
+/// Each [assetPath] maps to a curated lifestyle portrait reference.
 class ReferenceSample {
   const ReferenceSample({
     required this.id,

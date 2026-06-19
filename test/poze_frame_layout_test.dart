@@ -25,6 +25,15 @@ void main() {
     expect(stabilized.height, greaterThan(0.6));
   });
 
+  test('seated overlay rect stays centered for sideways drift', () {
+    final drifted = Rect.fromLTWH(0.08, 0.20, 0.40, 0.70);
+    final seated = PozeFrameLayout.seatedOverlayRect(drifted);
+
+    expect(seated.center.dx, closeTo(0.52, 0.02));
+    expect(seated.width, closeTo(0.56, 0.02));
+    expect(seated.height, closeTo(0.72, 0.02));
+  });
+
   test('forPozeOverlay produces centered human silhouette', () {
     const guidance = CameraGuidance(
       frameTemplate: PhotoFrameTemplate.portraitPost,
@@ -43,7 +52,7 @@ void main() {
     final overlay = CoachingGuidanceHelper().forPozeOverlay(guidance);
 
     expect(overlay.subjectShape, SubjectShapeKind.humanSilhouette);
-    expect(overlay.subjectTargetRect.center.dx, closeTo(0.5, 0.02));
+    expect(overlay.subjectTargetRect.center.dx, closeTo(0.52, 0.02));
     expect(overlay.subjectSilhouettePoints, isNotNull);
   });
 }

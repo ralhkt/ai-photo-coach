@@ -52,8 +52,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cycleOverlay => 'Cycle overlay';
 
   @override
-  String get homeSubtitle =>
-      'Check-in pose coaching — reference, analyze, then shoot.';
+  String get homeSubtitle => 'Choose a reference. Get guidance. Take the shot.';
+
+  @override
+  String get homeHeadlineContinue => 'Continue guided shoot';
+
+  @override
+  String get homeHeadlineStart => 'Start guided shoot';
+
+  @override
+  String get homeSectionStartNew => 'More options';
+
+  @override
+  String get homeSectionGetStarted => 'Get started';
+
+  @override
+  String get homeEnterGuidedCamera => 'Enter guided camera';
+
+  @override
+  String get poseCoachAligning => 'Align your body to the outline.';
+
+  @override
+  String get poseCoachMatched => 'Pose aligned. Ready to shoot.';
+
+  @override
+  String get poseCoachAdjust => 'Adjust position to align your face.';
+
+  @override
+  String get openCameraSkipTitle => 'Skip guidance';
+
+  @override
+  String get openCameraSkipSubtitle => 'Free shoot without pose guidance.';
 
   @override
   String get homeWorkflowLabel => 'Reference → Analyze → Shoot';
@@ -72,7 +101,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeContinueGuidedSubtitle =>
-      'Reference analyzed — jump straight into the camera.';
+      'Reference analyzed. Open the camera to continue.';
 
   @override
   String get analysisExpandDetails => 'Show full analysis';
@@ -88,14 +117,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uploadReferenceSubtitle =>
-      'Pick a built-in sample or upload your own photo from the gallery.';
+      'Use a built-in sample or choose from your library.';
 
   @override
   String get openCameraTitle => 'Open Camera';
 
   @override
-  String get openCameraSubtitle =>
-      'Free shoot + ✨ AI scene analysis with live composition tips.';
+  String get openCameraSubtitle => 'Free shoot with live scene analysis.';
 
   @override
   String get pickFromGallery => 'Choose from Gallery';
@@ -104,55 +132,51 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pickFromCamera => 'Take Reference Photo';
 
   @override
-  String get uploadPrompt =>
-      'Samples are ready to practice. You can also upload your own photo below.';
+  String get uploadPrompt => 'Choose a sample or upload your own photo.';
 
   @override
-  String get referenceSamplesSection => 'Check-in samples';
+  String get referenceSamplesSection => 'Sample photos';
 
   @override
-  String get uploadOwnPhotoSection => 'Or upload your photo';
+  String get uploadOwnPhotoSection => 'Upload a photo';
 
   @override
-  String get referenceSampleCheckinCafe => 'Café Selfie';
+  String get referenceSampleCheckinCafe => 'Café portrait';
 
   @override
   String get referenceSampleCheckinCafeHint =>
-      'Asian woman café selfie — Xiaohongshu style';
+      'Indoor light, half-length framing';
 
   @override
-  String get referenceSampleCheckinNeon => 'Neon Night Portrait';
+  String get referenceSampleCheckinNeon => 'Neon night';
 
   @override
-  String get referenceSampleCheckinNeonHint => 'Moody neon-lit night check-in';
+  String get referenceSampleCheckinNeonHint => 'Low light, side-lit portrait';
 
   @override
-  String get referenceSampleCheckinPortrait => 'Street OOTD';
+  String get referenceSampleCheckinPortrait => 'Mirror full-length';
 
   @override
-  String get referenceSampleCheckinPortraitHint =>
-      'Mirror selfie OOTD full-body shot';
+  String get referenceSampleCheckinPortraitHint => 'Vertical frame, full-body';
 
   @override
-  String get referenceSampleCheckinBrunch => 'Window Seat Brunch';
+  String get referenceSampleCheckinBrunch => 'Window seat';
 
   @override
-  String get referenceSampleCheckinBrunchHint =>
-      'Café window-seat portrait check-in';
+  String get referenceSampleCheckinBrunchHint => 'Soft side light, seated pose';
 
   @override
-  String get referenceSampleCheckinTravel => 'Mountain Peak';
+  String get referenceSampleCheckinTravel => 'Mountain vista';
 
   @override
   String get referenceSampleCheckinTravelHint =>
-      'Woman on summit with scenic vista';
+      'Open background, scenic depth';
 
   @override
-  String get referenceSampleCheckinBeach => 'Beach Sunset';
+  String get referenceSampleCheckinBeach => 'Beach sunset';
 
   @override
-  String get referenceSampleCheckinBeachHint =>
-      'Asian woman beach sunset silhouette';
+  String get referenceSampleCheckinBeachHint => 'Backlit silhouette, low angle';
 
   @override
   String get analyzingImage => 'Analyzing image...';
@@ -474,6 +498,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mlAnalysisSourceMlKit => 'ML Kit (on-device)';
 
   @override
+  String get mlAnalysisSourceGemini => 'Gemini Vision';
+
+  @override
+  String get mlAnalysisSourceOpenRouter => 'OpenRouter (Gemini)';
+
+  @override
   String get mlAnalysisSourceFallback => 'Heuristic fallback';
 
   @override
@@ -696,25 +726,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingGetStarted => 'Get started';
 
   @override
-  String get onboardingTitle1 => 'Your on-device photo coach';
+  String get onboardingTitle1 => 'On-device guidance';
 
   @override
   String get onboardingBody1 =>
-      'Pick a sample photo or open the camera — all analysis runs locally on your phone.';
+      'Analysis runs on your device. No connection required.';
 
   @override
-  String get onboardingTitle2 => 'Real-time framing guides';
+  String get onboardingTitle2 => 'Live composition aids';
 
   @override
   String get onboardingBody2 =>
-      'Composition grids, pose alignment, and exposure hints help you match the shot.';
+      'Grids, pose outlines, and exposure hints appear in the viewfinder.';
 
   @override
-  String get onboardingTitle3 => 'Session feedback';
+  String get onboardingTitle3 => 'Shoot review';
 
   @override
   String get onboardingBody3 =>
-      'When you finish shooting, get a quick summary with your best shot and tips.';
+      'See your best shot and suggestions when you finish.';
 
   @override
   String get endSession => 'Finish session';
@@ -924,24 +954,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get liveSceneCameraBusyHint =>
-      'Wait until timer, burst, or capture finishes, then tap ✨.';
+      'Wait until the timer, burst, or capture finishes, then tap Analyze Scene.';
 
   @override
-  String get liveSceneCoachTitle => 'AI scene analysis';
+  String get liveSceneCoachTitle => 'Scene analysis';
 
   @override
   String get liveSceneCoachHint =>
-      'Tap ✨ (top right) to analyze the scene and apply composition tips.';
+      'Tap Analyze Scene in the upper-right corner for composition guidance.';
 
   @override
-  String get liveSceneCoachDismiss => 'Got it';
+  String get liveSceneCoachDismiss => 'OK';
 
   @override
-  String get liveSceneAdviceTitle => 'AI shooting advice';
+  String get liveSceneAdviceTitle => 'Shooting guidance';
 
   @override
   String liveSceneMatchedReference(String title) {
-    return 'Style ref: $title';
+    return 'Reference style: $title';
   }
 
   @override

@@ -186,8 +186,68 @@ abstract class AppLocalizations {
   /// No description provided for @homeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Check-in pose coaching — reference, analyze, then shoot.'**
+  /// **'Choose a reference. Get guidance. Take the shot.'**
   String get homeSubtitle;
+
+  /// No description provided for @homeHeadlineContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue guided shoot'**
+  String get homeHeadlineContinue;
+
+  /// No description provided for @homeHeadlineStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start guided shoot'**
+  String get homeHeadlineStart;
+
+  /// No description provided for @homeSectionStartNew.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get homeSectionStartNew;
+
+  /// No description provided for @homeSectionGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get homeSectionGetStarted;
+
+  /// No description provided for @homeEnterGuidedCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter guided camera'**
+  String get homeEnterGuidedCamera;
+
+  /// No description provided for @poseCoachAligning.
+  ///
+  /// In en, this message translates to:
+  /// **'Align your body to the outline.'**
+  String get poseCoachAligning;
+
+  /// No description provided for @poseCoachMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Pose aligned. Ready to shoot.'**
+  String get poseCoachMatched;
+
+  /// No description provided for @poseCoachAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjust position to align your face.'**
+  String get poseCoachAdjust;
+
+  /// No description provided for @openCameraSkipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip guidance'**
+  String get openCameraSkipTitle;
+
+  /// No description provided for @openCameraSkipSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free shoot without pose guidance.'**
+  String get openCameraSkipSubtitle;
 
   /// No description provided for @homeWorkflowLabel.
   ///
@@ -222,7 +282,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeContinueGuidedSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Reference analyzed — jump straight into the camera.'**
+  /// **'Reference analyzed. Open the camera to continue.'**
   String get homeContinueGuidedSubtitle;
 
   /// No description provided for @analysisExpandDetails.
@@ -252,7 +312,7 @@ abstract class AppLocalizations {
   /// No description provided for @uploadReferenceSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pick a built-in sample or upload your own photo from the gallery.'**
+  /// **'Use a built-in sample or choose from your library.'**
   String get uploadReferenceSubtitle;
 
   /// No description provided for @openCameraTitle.
@@ -264,7 +324,7 @@ abstract class AppLocalizations {
   /// No description provided for @openCameraSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Free shoot + ✨ AI scene analysis with live composition tips.'**
+  /// **'Free shoot with live scene analysis.'**
   String get openCameraSubtitle;
 
   /// No description provided for @pickFromGallery.
@@ -282,91 +342,91 @@ abstract class AppLocalizations {
   /// No description provided for @uploadPrompt.
   ///
   /// In en, this message translates to:
-  /// **'Samples are ready to practice. You can also upload your own photo below.'**
+  /// **'Choose a sample or upload your own photo.'**
   String get uploadPrompt;
 
   /// No description provided for @referenceSamplesSection.
   ///
   /// In en, this message translates to:
-  /// **'Check-in samples'**
+  /// **'Sample photos'**
   String get referenceSamplesSection;
 
   /// No description provided for @uploadOwnPhotoSection.
   ///
   /// In en, this message translates to:
-  /// **'Or upload your photo'**
+  /// **'Upload a photo'**
   String get uploadOwnPhotoSection;
 
   /// No description provided for @referenceSampleCheckinCafe.
   ///
   /// In en, this message translates to:
-  /// **'Café Selfie'**
+  /// **'Café portrait'**
   String get referenceSampleCheckinCafe;
 
   /// No description provided for @referenceSampleCheckinCafeHint.
   ///
   /// In en, this message translates to:
-  /// **'Asian woman café selfie — Xiaohongshu style'**
+  /// **'Indoor light, half-length framing'**
   String get referenceSampleCheckinCafeHint;
 
   /// No description provided for @referenceSampleCheckinNeon.
   ///
   /// In en, this message translates to:
-  /// **'Neon Night Portrait'**
+  /// **'Neon night'**
   String get referenceSampleCheckinNeon;
 
   /// No description provided for @referenceSampleCheckinNeonHint.
   ///
   /// In en, this message translates to:
-  /// **'Moody neon-lit night check-in'**
+  /// **'Low light, side-lit portrait'**
   String get referenceSampleCheckinNeonHint;
 
   /// No description provided for @referenceSampleCheckinPortrait.
   ///
   /// In en, this message translates to:
-  /// **'Street OOTD'**
+  /// **'Mirror full-length'**
   String get referenceSampleCheckinPortrait;
 
   /// No description provided for @referenceSampleCheckinPortraitHint.
   ///
   /// In en, this message translates to:
-  /// **'Mirror selfie OOTD full-body shot'**
+  /// **'Vertical frame, full-body'**
   String get referenceSampleCheckinPortraitHint;
 
   /// No description provided for @referenceSampleCheckinBrunch.
   ///
   /// In en, this message translates to:
-  /// **'Window Seat Brunch'**
+  /// **'Window seat'**
   String get referenceSampleCheckinBrunch;
 
   /// No description provided for @referenceSampleCheckinBrunchHint.
   ///
   /// In en, this message translates to:
-  /// **'Café window-seat portrait check-in'**
+  /// **'Soft side light, seated pose'**
   String get referenceSampleCheckinBrunchHint;
 
   /// No description provided for @referenceSampleCheckinTravel.
   ///
   /// In en, this message translates to:
-  /// **'Mountain Peak'**
+  /// **'Mountain vista'**
   String get referenceSampleCheckinTravel;
 
   /// No description provided for @referenceSampleCheckinTravelHint.
   ///
   /// In en, this message translates to:
-  /// **'Woman on summit with scenic vista'**
+  /// **'Open background, scenic depth'**
   String get referenceSampleCheckinTravelHint;
 
   /// No description provided for @referenceSampleCheckinBeach.
   ///
   /// In en, this message translates to:
-  /// **'Beach Sunset'**
+  /// **'Beach sunset'**
   String get referenceSampleCheckinBeach;
 
   /// No description provided for @referenceSampleCheckinBeachHint.
   ///
   /// In en, this message translates to:
-  /// **'Asian woman beach sunset silhouette'**
+  /// **'Backlit silhouette, low angle'**
   String get referenceSampleCheckinBeachHint;
 
   /// No description provided for @analyzingImage.
@@ -963,6 +1023,18 @@ abstract class AppLocalizations {
   /// **'ML Kit (on-device)'**
   String get mlAnalysisSourceMlKit;
 
+  /// No description provided for @mlAnalysisSourceGemini.
+  ///
+  /// In en, this message translates to:
+  /// **'Gemini Vision'**
+  String get mlAnalysisSourceGemini;
+
+  /// No description provided for @mlAnalysisSourceOpenRouter.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenRouter (Gemini)'**
+  String get mlAnalysisSourceOpenRouter;
+
   /// No description provided for @mlAnalysisSourceFallback.
   ///
   /// In en, this message translates to:
@@ -1374,37 +1446,37 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingTitle1.
   ///
   /// In en, this message translates to:
-  /// **'Your on-device photo coach'**
+  /// **'On-device guidance'**
   String get onboardingTitle1;
 
   /// No description provided for @onboardingBody1.
   ///
   /// In en, this message translates to:
-  /// **'Pick a sample photo or open the camera — all analysis runs locally on your phone.'**
+  /// **'Analysis runs on your device. No connection required.'**
   String get onboardingBody1;
 
   /// No description provided for @onboardingTitle2.
   ///
   /// In en, this message translates to:
-  /// **'Real-time framing guides'**
+  /// **'Live composition aids'**
   String get onboardingTitle2;
 
   /// No description provided for @onboardingBody2.
   ///
   /// In en, this message translates to:
-  /// **'Composition grids, pose alignment, and exposure hints help you match the shot.'**
+  /// **'Grids, pose outlines, and exposure hints appear in the viewfinder.'**
   String get onboardingBody2;
 
   /// No description provided for @onboardingTitle3.
   ///
   /// In en, this message translates to:
-  /// **'Session feedback'**
+  /// **'Shoot review'**
   String get onboardingTitle3;
 
   /// No description provided for @onboardingBody3.
   ///
   /// In en, this message translates to:
-  /// **'When you finish shooting, get a quick summary with your best shot and tips.'**
+  /// **'See your best shot and suggestions when you finish.'**
   String get onboardingBody3;
 
   /// No description provided for @endSession.
@@ -1764,37 +1836,37 @@ abstract class AppLocalizations {
   /// No description provided for @liveSceneCameraBusyHint.
   ///
   /// In en, this message translates to:
-  /// **'Wait until timer, burst, or capture finishes, then tap ✨.'**
+  /// **'Wait until the timer, burst, or capture finishes, then tap Analyze Scene.'**
   String get liveSceneCameraBusyHint;
 
   /// No description provided for @liveSceneCoachTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI scene analysis'**
+  /// **'Scene analysis'**
   String get liveSceneCoachTitle;
 
   /// No description provided for @liveSceneCoachHint.
   ///
   /// In en, this message translates to:
-  /// **'Tap ✨ (top right) to analyze the scene and apply composition tips.'**
+  /// **'Tap Analyze Scene in the upper-right corner for composition guidance.'**
   String get liveSceneCoachHint;
 
   /// No description provided for @liveSceneCoachDismiss.
   ///
   /// In en, this message translates to:
-  /// **'Got it'**
+  /// **'OK'**
   String get liveSceneCoachDismiss;
 
   /// No description provided for @liveSceneAdviceTitle.
   ///
   /// In en, this message translates to:
-  /// **'AI shooting advice'**
+  /// **'Shooting guidance'**
   String get liveSceneAdviceTitle;
 
   /// No description provided for @liveSceneMatchedReference.
   ///
   /// In en, this message translates to:
-  /// **'Style ref: {title}'**
+  /// **'Reference style: {title}'**
   String liveSceneMatchedReference(String title);
 
   /// No description provided for @liveSceneAnalyzeFailed.

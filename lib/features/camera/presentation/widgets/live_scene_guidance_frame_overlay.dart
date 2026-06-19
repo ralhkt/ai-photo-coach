@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/coaching_guidance_helper.dart';
+import '../../../../core/utils/pose_coaching_hint.dart';
+import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../frames/presentation/photo_frame_overlay.dart';
 import '../../../frames/presentation/poze_wireframe_style.dart';
 import '../../../frames/presentation/reference_ghost_overlay.dart';
@@ -23,6 +25,8 @@ class LiveSceneGuidanceFrameOverlay extends ConsumerWidget {
       CoachingGuidanceHelper().ensureHumanSilhouette(analysis.guidance),
     );
     final ghostBytes = analysis.matchedReferenceImageBytes;
+    final stability = ref.watch(sceneStabilityProvider);
+    final poseAligned = isPoseAligned(stability);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -51,6 +55,7 @@ class LiveSceneGuidanceFrameOverlay extends ConsumerWidget {
                 visible: true,
                 showBodyParts: false,
                 minimalPozeStyle: true,
+                poseAligned: poseAligned,
               ),
             ],
           ),

@@ -5,6 +5,50 @@ import '../../../models/body_part_guides.dart';
 
 /// Builds smooth, anatomical human outline points and paths for guided framing.
 class HumanFrameShapeBuilder {
+  /// Poze-style seated side profile — phone toward face, legs bent.
+  ///
+  /// Arms are drawn separately via [PozeWireframeLimbs.seatedPhone].
+  List<Offset> seatedPhonePosePoints() {
+    const headCenter = Offset(0.58, 0.115);
+    const headRx = 0.11;
+    const headRy = 0.085;
+
+    return [
+      ..._ellipseArc(
+        center: headCenter,
+        rx: headRx,
+        ry: headRy,
+        startAngle: -math.pi / 2,
+        sweepAngle: math.pi,
+        steps: 10,
+      ),
+      const Offset(0.52, 0.22),
+      const Offset(0.48, 0.30),
+      const Offset(0.44, 0.42),
+      const Offset(0.42, 0.54),
+      const Offset(0.40, 0.66),
+      const Offset(0.38, 0.78),
+      const Offset(0.36, 0.90),
+      const Offset(0.40, 0.98),
+      const Offset(0.50, 1.00),
+      const Offset(0.58, 0.96),
+      const Offset(0.62, 0.84),
+      const Offset(0.64, 0.70),
+      const Offset(0.66, 0.56),
+      const Offset(0.68, 0.42),
+      const Offset(0.66, 0.30),
+      const Offset(0.62, 0.22),
+      ..._ellipseArc(
+        center: headCenter,
+        rx: headRx,
+        ry: headRy,
+        startAngle: math.pi / 2,
+        sweepAngle: math.pi,
+        steps: 10,
+      ),
+    ];
+  }
+
   /// Poze造型-style standing contour (normalized 0–1 within subject rect).
   ///
   /// Slim torso, oval head, slight hip width — arms are drawn separately.

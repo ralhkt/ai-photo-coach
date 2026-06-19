@@ -13,6 +13,30 @@ import '../../settings/presentation/settings_screen.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
+  void _openReferenceUpload(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const ReferenceUploadScreen(),
+      ),
+    );
+  }
+
+  void _openCamera(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const CameraScreen(),
+      ),
+    );
+  }
+
+  void _openGuidedCamera(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const GuidedCameraScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
@@ -42,19 +66,23 @@ class HomeScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(
                 AppDesignTokens.screenPadding,
-                AppDesignTokens.spaceSm,
+                AppDesignTokens.spaceMd,
                 AppDesignTokens.screenPadding,
                 AppDesignTokens.space2xl,
               ),
               children: [
                 Text(
-                  l10n.appTitle,
-                  style: theme.textTheme.headlineLarge,
+                  hasAnalysis
+                      ? l10n.homeHeadlineContinue
+                      : l10n.homeHeadlineStart,
+                  style: theme.textTheme.headlineMedium,
                 ),
-                const SizedBox(height: AppDesignTokens.spaceSm),
+                const SizedBox(height: AppDesignTokens.spaceMd),
                 Text(
                   l10n.homeSubtitle,
-                  style: theme.textTheme.bodyLarge,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: AppDesignTokens.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: AppDesignTokens.space3xl),
                 AppFlowStrip(
@@ -66,50 +94,51 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: AppDesignTokens.space3xl),
-                if (hasAnalysis)
+                if (hasAnalysis) ...[
                   AppHeroCard(
                     badge: l10n.homeFlowStepShoot,
                     title: l10n.homeContinueGuided,
                     subtitle: l10n.homeContinueGuidedSubtitle,
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const GuidedCameraScreen(),
-                        ),
-                      );
-                    },
+                    actionLabel: l10n.homeEnterGuidedCamera,
+                    onPressed: () => _openGuidedCamera(context),
                   ),
-                if (hasAnalysis)
-                  const SizedBox(height: AppDesignTokens.spaceLg),
-                AppGroupedSection(
-                  header: l10n.homeSubtitle,
-                  children: [
-                    AppGroupedRow(
-                      icon: Icons.photo_library_outlined,
-                      title: l10n.uploadReferenceTitle,
-                      subtitle: l10n.uploadReferenceSubtitle,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => const ReferenceUploadScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    AppGroupedRow(
-                      icon: Icons.photo_camera_outlined,
-                      title: l10n.openCameraTitle,
-                      subtitle: l10n.openCameraSubtitle,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => const CameraScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                  const SizedBox(height: AppDesignTokens.space2xl),
+                  AppGroupedSection(
+                    header: l10n.homeSectionStartNew,
+                    children: [
+                      AppGroupedRow(
+                        icon: Icons.photo_library_outlined,
+                        title: l10n.uploadReferenceTitle,
+                        subtitle: l10n.uploadReferenceSubtitle,
+                        onTap: () => _openReferenceUpload(context),
+                      ),
+                      AppGroupedRow(
+                        icon: Icons.photo_camera_outlined,
+                        title: l10n.openCameraSkipTitle,
+                        subtitle: l10n.openCameraSkipSubtitle,
+                        tertiary: true,
+                        onTap: () => _openCamera(context),
+                      ),
+                    ],
+                  ),
+                ] else
+                  AppGroupedSection(
+                    header: l10n.homeSectionGetStarted,
+                    children: [
+                      AppGroupedRow(
+                        icon: Icons.photo_library_outlined,
+                        title: l10n.uploadReferenceTitle,
+                        subtitle: l10n.uploadReferenceSubtitle,
+                        onTap: () => _openReferenceUpload(context),
+                      ),
+                      AppGroupedRow(
+                        icon: Icons.photo_camera_outlined,
+                        title: l10n.openCameraTitle,
+                        subtitle: l10n.openCameraSubtitle,
+                        onTap: () => _openCamera(context),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -117,13 +146,7 @@ class HomeScreen extends ConsumerWidget {
             AppStickyCtaBar(
               label: l10n.uploadReferenceTitle,
               icon: Icons.photo_library_outlined,
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const ReferenceUploadScreen(),
-                  ),
-                );
-              },
+              onPressed: () => _openReferenceUpload(context),
             ),
         ],
       ),

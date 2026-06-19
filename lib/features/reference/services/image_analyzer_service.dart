@@ -58,13 +58,11 @@ class ImageAnalyzerService {
     final aspectRatio = width / height;
     final brightness = _averageBrightness(decoded);
 
-    final MlDetectionResult mlDetection = forLiveCoaching
-        ? await HeuristicVisionAnalyzer().analyze(
-            bytes: normalizedBytes,
-            width: width,
-            height: height,
-          )
-        : await _analyzeWithMlFallback(normalizedBytes, width, height);
+    final MlDetectionResult mlDetection = await _analyzeWithMlFallback(
+      normalizedBytes,
+      width,
+      height,
+    );
 
     final heuristicSubject = _detectSubjectRegion(decoded, userSceneType);
     final subjectRect = _mergeSubjectRect(

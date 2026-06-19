@@ -34,6 +34,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('從相簿選擇'), findsOneWidget);
-    expect(find.text('或上傳自己的相片'), findsOneWidget);
+    expect(find.text('上傳相片'), findsOneWidget);
   });
 }

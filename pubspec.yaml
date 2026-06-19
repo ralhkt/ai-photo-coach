@@ -23,6 +23,7 @@ dependencies:
   google_mlkit_image_labeling: ^0.14.0
   shared_preferences: ^2.5.3
   battery_plus: ^6.2.1
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_test:

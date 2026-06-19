@@ -75,7 +75,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('AI 拍攝建議'), findsOneWidget);
+    expect(find.text('拍攝建議'), findsOneWidget);
     expect(find.textContaining('構圖'), findsWidgets);
   });
 

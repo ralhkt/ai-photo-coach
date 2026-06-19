@@ -29,7 +29,7 @@ class AppFlowStrip extends StatelessWidget {
                   child: Container(
                     height: AppDesignTokens.hairline,
                     color: i <= activeIndex
-                        ? AppTheme.accent.withValues(alpha: 0.5)
+                        ? AppDesignTokens.accentCoach.withValues(alpha: 0.5)
                         : AppDesignTokens.separator,
                   ),
                 ),
@@ -42,7 +42,7 @@ class AppFlowStrip extends StatelessWidget {
                   child: Container(
                     height: AppDesignTokens.hairline,
                     color: i < activeIndex
-                        ? AppTheme.accent.withValues(alpha: 0.5)
+                        ? AppDesignTokens.accentCoach.withValues(alpha: 0.5)
                         : AppDesignTokens.separator,
                   ),
                 ),
@@ -79,7 +79,7 @@ class _CapsuleDot extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: completed || active
-            ? AppTheme.accent
+            ? AppDesignTokens.accentCoach
             : AppDesignTokens.fillSecondary,
       ),
     );
@@ -166,6 +166,7 @@ class AppGroupedRow extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.showChevron = true,
+    this.tertiary = false,
   });
 
   final String title;
@@ -174,6 +175,7 @@ class AppGroupedRow extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool showChevron;
+  final bool tertiary;
 
   @override
   Widget build(BuildContext context) {
@@ -187,22 +189,42 @@ class AppGroupedRow extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppDesignTokens.spaceLg,
-            vertical: AppDesignTokens.spaceMd,
+            vertical: AppDesignTokens.spaceLg,
           ),
           child: Row(
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 22, color: AppDesignTokens.textSecondary),
+                Icon(
+                  icon,
+                  size: 22,
+                  color: tertiary
+                      ? AppDesignTokens.textQuaternary
+                      : AppDesignTokens.textSecondary,
+                ),
                 const SizedBox(width: AppDesignTokens.spaceMd),
               ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: theme.textTheme.titleSmall),
+                    Text(
+                      title,
+                      style: tertiary
+                          ? theme.textTheme.bodyLarge?.copyWith(
+                              color: AppDesignTokens.textSecondary,
+                            )
+                          : theme.textTheme.titleSmall,
+                    ),
                     if (subtitle != null) ...[
                       const SizedBox(height: 2),
-                      Text(subtitle!, style: theme.textTheme.bodySmall),
+                      Text(
+                        subtitle!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: tertiary
+                              ? AppDesignTokens.textTertiary
+                              : null,
+                        ),
+                      ),
                     ],
                   ],
                 ),
@@ -223,71 +245,80 @@ class AppGroupedRow extends StatelessWidget {
   }
 }
 
-/// Primary hero card — fill only, yellow reserved for one CTA per screen.
+/// Primary hero card — yellow reserved for the embedded CTA button only.
 class AppHeroCard extends StatelessWidget {
   const AppHeroCard({
     super.key,
     required this.title,
     required this.subtitle,
-    required this.onTap,
+    required this.actionLabel,
+    required this.onPressed,
     this.badge,
   });
 
   final String title;
   final String subtitle;
-  final VoidCallback onTap;
+  final String actionLabel;
+  final VoidCallback onPressed;
   final String? badge;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Material(
-      color: AppDesignTokens.fillTertiary,
-      borderRadius: AppDesignTokens.cardRadius,
-      child: InkWell(
-        onTap: onTap,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppDesignTokens.fillTertiary,
         borderRadius: AppDesignTokens.cardRadius,
-        child: Padding(
-          padding: const EdgeInsets.all(AppDesignTokens.spaceXl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (badge != null)
-                Container(
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppDesignTokens.spaceXl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (badge != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDesignTokens.spaceSm,
                     vertical: AppDesignTokens.spaceXs,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.accent.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(AppDesignTokens.radiusPill),
+                    color: AppDesignTokens.accentCoach.withValues(alpha: 0.18),
+                    borderRadius:
+                        BorderRadius.circular(AppDesignTokens.radiusPill),
                   ),
                   child: Text(
                     badge!,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: AppTheme.accent,
+                      color: AppDesignTokens.accentCoach,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-              if (badge != null) const SizedBox(height: AppDesignTokens.spaceMd),
-              Text(
-                title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
               ),
-              const SizedBox(height: AppDesignTokens.spaceXs),
-              Text(subtitle, style: theme.textTheme.bodyMedium),
-              const SizedBox(height: AppDesignTokens.spaceMd),
-              Icon(
-                Icons.arrow_forward_rounded,
-                size: 18,
-                color: AppTheme.accent,
+            if (badge != null) const SizedBox(height: AppDesignTokens.spaceMd),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: AppDesignTokens.spaceXs),
+            Text(
+              subtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppDesignTokens.textSecondary,
+              ),
+            ),
+            const SizedBox(height: AppDesignTokens.spaceLg),
+            FilledButton.icon(
+              onPressed: onPressed,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: Text(actionLabel),
+            ),
+          ],
         ),
       ),
     );

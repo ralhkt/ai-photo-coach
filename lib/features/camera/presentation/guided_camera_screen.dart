@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/widgets/app_glass_widgets.dart';
 
-import '../../../core/utils/guidance_text.dart';
 import '../../../core/utils/coaching_guidance_helper.dart';
+import '../../../core/utils/guidance_text.dart';
+import '../../../core/utils/pose_coaching_hint.dart';
+import '../../scene_stabilization/providers/scene_stability_provider.dart';
 
 import '../../../models/camera_aspect_ratio.dart';
 import '../../../models/shoot_session.dart';
@@ -66,7 +68,6 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
 
     final guidance = analysis.guidance;
     final partLabels = bodyPartLabels(l10n);
-    final primaryHint = guidanceHintLabel(l10n, guidance.framingHintKey);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -121,7 +122,7 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                   onGridTap: () =>
                       setState(() => _compositionVisible = !_compositionVisible),
                   onFrameTap: () => setState(() => _frameVisible = !_frameVisible),
-                  guidanceChip: _GuidanceChip(hint: primaryHint),
+                  guidanceChip: const _PoseCoachingChip(),
                   croppedOverlay: GuidedCameraOverlayStack(
                     guidance: coachingGuidance,
                     imageBytes: analysis.imageBytes,
@@ -169,14 +170,19 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
   }
 }
 
-class _GuidanceChip extends StatelessWidget {
-  const _GuidanceChip({required this.hint});
-
-  final String hint;
+class _PoseCoachingChip extends ConsumerWidget {
+  const _PoseCoachingChip();
 
   @override
-  Widget build(BuildContext context) {
-    return AppCoachPill(message: hint);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final stability = ref.watch(sceneStabilityProvider);
+    final aligned = isPoseAligned(stability);
+
+    return AppCoachPill(
+      message: poseCoachingHint(l10n, stability),
+      icon: aligned ? Icons.check_circle_outline_rounded : Icons.accessibility_new_rounded,
+    );
   }
 }
 

@@ -11,6 +11,15 @@ abstract final class PozeFrameLayout {
     );
   }
 
+  /// Seated side-profile rect — café / mirror selfie poses (Poze default).
+  static Rect canonicalSeatedRect() {
+    return Rect.fromCenter(
+      center: const Offset(0.52, 0.52),
+      width: 0.56,
+      height: 0.72,
+    );
+  }
+
   /// Recenters a detected subject rect when contrast heuristics drift sideways.
   static Rect stabilizeForOverlay(Rect rect) {
     final width = rect.width.clamp(0.42, 0.56);
@@ -25,6 +34,20 @@ abstract final class PozeFrameLayout {
       center: Offset(stabilizedX, centerY),
       width: width,
       height: height,
+    );
+  }
+
+  /// Poze overlay uses a seated phone pose box, centered and drift-corrected.
+  static Rect seatedOverlayRect(Rect rect) {
+    final canonical = canonicalSeatedRect();
+    final horizontalDrift = (rect.center.dx - 0.5).abs();
+    final stabilizedX = horizontalDrift > 0.14 ? canonical.center.dx : rect.center.dx;
+    final centerY = rect.center.dy.clamp(0.44, 0.58);
+
+    return Rect.fromCenter(
+      center: Offset(stabilizedX, centerY),
+      width: canonical.width,
+      height: canonical.height,
     );
   }
 }

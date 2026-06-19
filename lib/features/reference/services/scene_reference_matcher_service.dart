@@ -2,7 +2,7 @@ import '../data/reference_sample_catalog.dart';
 import '../../../models/photo_analysis_result.dart';
 import '../../../models/scene_type.dart';
 
-/// Picks the closest bundled 小紅書-style reference for a live scene analysis.
+/// Picks the closest bundled lifestyle reference for a live scene analysis.
 class SceneReferenceMatcherService {
   const SceneReferenceMatcherService();
 

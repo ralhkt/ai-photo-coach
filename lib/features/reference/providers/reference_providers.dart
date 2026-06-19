@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/vision_api_config.dart';
 import '../../../models/camera_guidance.dart';
 import '../../../models/photo_analysis_result.dart';
 import '../../../models/photo_frame_template.dart';
@@ -9,12 +10,18 @@ import '../../../models/scene_type.dart';
 import '../../ml/providers/ml_providers.dart';
 import '../services/frame_generator_service.dart';
 import '../services/image_analyzer_service.dart';
+import '../services/photo_analysis_agent_factory.dart';
 
 final imageAnalyzerProvider = Provider<ImageAnalyzerService>((ref) {
   return ImageAnalyzerService(
     visionAnalyzer: ref.watch(visionAnalyzerProvider),
+    agent: createPhotoAnalysisAgent(),
   );
 });
+
+final visionApiConfiguredProvider = Provider<bool>(
+  (ref) => VisionApiConfig.isVisionConfigured,
+);
 
 final frameGeneratorProvider = Provider<FrameGeneratorService>(
   (ref) => FrameGeneratorService(),

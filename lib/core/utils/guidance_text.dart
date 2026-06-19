@@ -132,6 +132,8 @@ String insightLabel(AppLocalizations l10n, String key) {
 String mlAnalysisSourceLabel(AppLocalizations l10n, String source) {
   return switch (source) {
     'ml_kit' || 'ml_kit_hybrid' => l10n.mlAnalysisSourceMlKit,
+    'gemini_vision' || 'gemini_proxy' => l10n.mlAnalysisSourceGemini,
+    'openrouter_vision' => l10n.mlAnalysisSourceOpenRouter,
     _ => l10n.mlAnalysisSourceFallback,
   };
 }
