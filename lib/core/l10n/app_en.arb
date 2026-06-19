@@ -261,6 +261,15 @@
   "alignmentStepTorso": "3. Align torso inside white frame",
   "alignmentStepHips": "4. Match hip position to purple frame",
   "toggleGhostOverlay": "Toggle reference ghost",
+  "guidedGhostOpacityLabel": "Ghost opacity",
+  "guidedGhostOpacityPercent": "{percent}%",
+  "@guidedGhostOpacityPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "toggleBodyPartGuides": "Toggle body-part guides",
   "settingsTitle": "Settings",
   "settingsLanguageSection": "Language",

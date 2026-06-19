@@ -727,6 +727,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toggleGhostOverlay => 'Toggle reference ghost';
 
   @override
+  String get guidedGhostOpacityLabel => 'Ghost opacity';
+
+  @override
+  String guidedGhostOpacityPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
   String get toggleBodyPartGuides => 'Toggle body-part guides';
 
   @override

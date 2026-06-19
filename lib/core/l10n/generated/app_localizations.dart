@@ -1437,6 +1437,18 @@ abstract class AppLocalizations {
   /// **'Toggle reference ghost'**
   String get toggleGhostOverlay;
 
+  /// No description provided for @guidedGhostOpacityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ghost opacity'**
+  String get guidedGhostOpacityLabel;
+
+  /// No description provided for @guidedGhostOpacityPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String guidedGhostOpacityPercent(int percent);
+
   /// No description provided for @toggleBodyPartGuides.
   ///
   /// In en, this message translates to:

@@ -696,6 +696,14 @@ class AppLocalizationsZh extends AppLocalizations {
   String get toggleGhostOverlay => '切换参考半透明图';
 
   @override
+  String get guidedGhostOpacityLabel => '幽灵图透明度';
+
+  @override
+  String guidedGhostOpacityPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
   String get toggleBodyPartGuides => '切换身体部位框';
 
   @override
@@ -1744,6 +1752,14 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get toggleGhostOverlay => '切換參考半透明圖';
+
+  @override
+  String get guidedGhostOpacityLabel => '幽靈圖透明度';
+
+  @override
+  String guidedGhostOpacityPercent(int percent) {
+    return '$percent%';
+  }
 
   @override
   String get toggleBodyPartGuides => '切換身體部位框';

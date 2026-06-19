@@ -223,6 +223,15 @@
   "alignmentStepTorso": "3. 身體對齊白色軀幹框",
   "alignmentStepHips": "4. 腰部對齊紫色臀框",
   "toggleGhostOverlay": "切換參考半透明圖",
+  "guidedGhostOpacityLabel": "幽靈圖透明度",
+  "guidedGhostOpacityPercent": "{percent}%",
+  "@guidedGhostOpacityPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
   "toggleBodyPartGuides": "切換身體部位框",
   "settingsTitle": "設定",
   "settingsLanguageSection": "語言",

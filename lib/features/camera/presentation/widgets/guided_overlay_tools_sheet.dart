@@ -1,3 +1,5 @@
+import 'dart:ui' show FontFeature;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,7 +10,6 @@ import '../../../../core/utils/guidance_text.dart';
 import '../../../reference/providers/guided_frame_providers.dart';
 import '../../../reference/providers/reference_providers.dart';
 import '../../providers/camera_interaction_provider.dart';
-
 
 Future<void> showGuidedOverlayToolsSheet(BuildContext context) {
   return showModalBottomSheet<void>(
@@ -58,6 +59,10 @@ class _GuidedOverlayToolsSheet extends ConsumerWidget {
                 ref.read(referenceGhostVisibleProvider.notifier).state = value;
               },
             ),
+            if (ghostVisible) ...[
+              const SizedBox(height: AppDesignTokens.spaceSm),
+              const _GhostOpacitySlider(),
+            ],
             if (guidance != null) ...[
               const SizedBox(height: AppDesignTokens.spaceMd),
               Text(
@@ -77,6 +82,53 @@ class _GuidedOverlayToolsSheet extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _GhostOpacitySlider extends ConsumerWidget {
+  const _GhostOpacitySlider();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final opacity = ref.watch(referenceGhostOpacityProvider);
+    final percent = (opacity * 100).round();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.tune_rounded, color: AppTheme.coach, size: 22),
+            const SizedBox(width: AppDesignTokens.spaceMd),
+            Expanded(
+              child: Text(
+                l10n.guidedGhostOpacityLabel,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            Text(
+              l10n.guidedGhostOpacityPercent(percent),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: AppDesignTokens.textSecondary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+            ),
+          ],
+        ),
+        Slider(
+          value: opacity.clamp(guidedGhostOpacityMin, guidedGhostOpacityMax),
+          min: guidedGhostOpacityMin,
+          max: guidedGhostOpacityMax,
+          divisions: 32,
+          activeColor: AppTheme.coach,
+          onChangeStart: (_) => markGuidedUserActivity(ref),
+          onChanged: (value) {
+            ref.read(referenceGhostOpacityProvider.notifier).state = value;
+          },
+        ),
+      ],
     );
   }
 }

@@ -173,6 +173,8 @@ class _GhostReferenceLayer extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    final ghostOpacity = ref.watch(referenceGhostOpacityProvider);
+
     return ReferenceGuidedOverlay(
       imageBytes: imageBytes,
       frameSpec: frameSpec,
@@ -180,6 +182,7 @@ class _GhostReferenceLayer extends ConsumerWidget {
       visible: true,
       showGhost: true,
       showOutline: false,
+      ghostOpacity: ghostOpacity,
     );
   }
 }

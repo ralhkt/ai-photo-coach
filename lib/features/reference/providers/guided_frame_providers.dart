@@ -3,11 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models/photo_frame_template.dart';
 import '../../camera/providers/camera_interaction_provider.dart';
+import '../../frames/presentation/poze_wireframe_style.dart';
 import '../../pose/providers/pose_coaching_provider.dart';
 import '../../pose/services/alignment_overlay_state.dart';
 import 'reference_providers.dart';
 
 final referenceGhostVisibleProvider = StateProvider<bool>((ref) => true);
+
+/// Guided ghost overlay opacity — user-adjustable in overlay tools sheet.
+final referenceGhostOpacityProvider = StateProvider<double>(
+  (ref) => PozeWireframeStyle.ghostOpacity,
+);
+
+const guidedGhostOpacityMin = 0.08;
+const guidedGhostOpacityMax = 0.72;
 
 /// Guided-mode composition grid — isolated from preview subtree rebuilds.
 final guidedCompositionVisibleProvider = StateProvider<bool>((ref) => true);
