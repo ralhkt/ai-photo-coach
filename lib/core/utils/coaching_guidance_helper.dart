@@ -48,12 +48,23 @@ class CoachingGuidanceHelper {
   }) {
     final smoothed = stabilizer?.stabilize(guidance) ?? guidance;
     final skeleton = smoothed.subjectPoseSkeleton;
-    if (skeleton != null &&
-        skeleton.length >= 2 &&
-        smoothed.subjectSilhouettePoints != null &&
-        smoothed.subjectSilhouettePoints!.isNotEmpty) {
+    final hasSilhouette = smoothed.subjectSilhouettePoints != null &&
+        smoothed.subjectSilhouettePoints!.isNotEmpty;
+    final hasBodyParts = smoothed.bodyPartGuides != null;
+
+    if (skeleton != null && skeleton.length >= 2 && hasSilhouette) {
       return smoothed;
     }
+
+    // Reference upload with silhouette/body guides — keep subject rect, not Poze.
+    if (hasSilhouette && hasBodyParts) {
+      return smoothed;
+    }
+
+    if (skeleton != null && skeleton.length >= 2) {
+      return smoothed;
+    }
+
     return forPozeOverlay(smoothed);
   }
 

@@ -299,7 +299,8 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
   Future<Uint8List?> capturePreviewFrame([
     PreviewCaptureRequest request = const PreviewCaptureRequest(),
   ]) async {
-    if (ref.read(isCameraUiInteractionPausedProvider)) {
+    if (!request.forceCapture &&
+        ref.read(isCameraUiInteractionPausedProvider)) {
       return null;
     }
 

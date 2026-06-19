@@ -4,7 +4,7 @@ import '../models/trendy_photo_template.dart';
 /// Builds a live-coaching template from an uploaded reference photo pose.
 abstract final class ReferencePoseTemplateFactory {
   static TrendyPhotoTemplate? fromLandmarks(List<PosePoint3D> landmarks) {
-    if (landmarks.length < 8) {
+    if (landmarks.length < 6) {
       return null;
     }
 

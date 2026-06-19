@@ -3,6 +3,7 @@ class PreviewCaptureRequest {
   const PreviewCaptureRequest({
     this.maxSide = 720,
     this.lightweight = false,
+    this.forceCapture = false,
   });
 
   /// Downscale longest edge before returning JPEG bytes.
@@ -10,6 +11,9 @@ class PreviewCaptureRequest {
 
   /// Skips AF/AE/flash churn — use for high-frequency coaching polls.
   final bool lightweight;
+
+  /// Bypass UI-interaction pause — use for explicit ✨ analyze taps.
+  final bool forceCapture;
 
   static const coaching = PreviewCaptureRequest(
     maxSide: 480,

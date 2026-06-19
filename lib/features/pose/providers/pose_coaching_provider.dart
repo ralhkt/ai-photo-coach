@@ -37,12 +37,14 @@ void clearActiveTrendyTemplate(WidgetRef ref) {
 /// Uses the uploaded reference photo pose as the live coaching target.
 void loadReferencePoseTemplate(Ref ref, ReferencePoseAnalysis? pose) {
   if (pose == null || !pose.hasTemplateLandmarks) {
-    ref.read(activeTrendyTemplateProvider.notifier).state = null;
     return;
   }
 
-  ref.read(activeTrendyTemplateProvider.notifier).state =
+  final template =
       ReferencePoseTemplateFactory.fromLandmarks(pose.templateLandmarks);
+  if (template != null) {
+    ref.read(activeTrendyTemplateProvider.notifier).state = template;
+  }
 }
 
 /// Whether the background pose coaching loop should run.

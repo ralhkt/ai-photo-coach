@@ -9,11 +9,18 @@ import '../models/preview_capture_request.dart';
 import '../platform/native_preview_frame_service.dart';
 import '../providers/camera_providers.dart';
 
-/// Captures a preview JPEG for live scene analysis without blocking the UI thread.
+/// Captures a preview JPEG for live scene analysis.
 Future<Uint8List?> captureLiveSceneFrame(
   Ref ref, {
   PreviewCaptureRequest request = const PreviewCaptureRequest(),
 }) async {
+  // Manual ✨ analyze: takePicture immediately — native sampler needs ~5s warmup.
+  if (request.forceCapture) {
+    return ref
+        .read(cameraControllerProvider.notifier)
+        .capturePreviewFrame(request);
+  }
+
   if (!kIsWeb && Platform.isIOS && NativePreviewFrameService.instance.isSupported) {
     final native = await _captureViaNativeSampler();
     if (native != null && native.isNotEmpty) {

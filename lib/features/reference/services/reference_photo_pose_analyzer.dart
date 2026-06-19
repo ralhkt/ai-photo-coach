@@ -135,6 +135,6 @@ class ReferencePoseAnalysis {
   final int landmarkCount;
   final List<PosePoint3D> templateLandmarks;
 
-  bool get hasSkeleton => skeletonSegments.length >= 4;
-  bool get hasTemplateLandmarks => templateLandmarks.length >= 8;
+  bool get hasSkeleton => skeletonSegments.length >= 2;
+  bool get hasTemplateLandmarks => templateLandmarks.length >= 6;
 }

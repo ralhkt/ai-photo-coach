@@ -17,6 +17,7 @@ import 'camera_capture_provider.dart';
 import 'camera_interaction_provider.dart';
 import 'camera_providers.dart';
 import 'camera_settings_provider.dart';
+import 'live_scene_analysis_logic.dart';
 import 'pose_contour_stabilizer_provider.dart';
 
 enum LiveSceneAnalysisFailure {
@@ -60,12 +61,15 @@ class LiveSceneAnalysisNotifier
   @override
   Future<PhotoAnalysisResult?> build() async => null;
 
-  bool get _isCameraBusy {
-    return ref.read(isBurstingProvider) ||
-        ref.read(timerCountdownProvider) != null ||
-        ref.read(isCapturingProvider) ||
-        ref.read(cameraSwitchingProvider) ||
-        ref.read(isCameraUiInteractionPausedProvider);
+  bool _isCameraBusy({required bool manual}) {
+    return isLiveSceneCameraBusy(
+      bursting: ref.read(isBurstingProvider),
+      timerActive: ref.read(timerCountdownProvider) != null,
+      capturing: ref.read(isCapturingProvider),
+      switching: ref.read(cameraSwitchingProvider),
+      uiInteractionPaused: ref.read(isCameraUiInteractionPausedProvider),
+      manual: manual,
+    );
   }
 
   void _setAnalyzing(bool value) {
@@ -79,9 +83,7 @@ class LiveSceneAnalysisNotifier
   void _fail(LiveSceneAnalysisFailure failure, {PhotoAnalysisResult? cached}) {
     _setError(failure);
     _setAnalyzing(false);
-    if (cached != null) {
-      state = AsyncData(cached);
-    }
+    state = AsyncData(cached);
   }
 
   Future<void> analyzeCurrentScene({bool manual = true}) async {
@@ -98,7 +100,7 @@ class LiveSceneAnalysisNotifier
       return;
     }
 
-    if (_isCameraBusy) {
+    if (_isCameraBusy(manual: manual)) {
       _fail(LiveSceneAnalysisFailure.cameraBusy, cached: cached);
       return;
     }
@@ -121,7 +123,11 @@ class LiveSceneAnalysisNotifier
 
       final bytes = await captureLiveSceneFrame(
         ref,
-        request: const PreviewCaptureRequest(maxSide: 960),
+        request: PreviewCaptureRequest(
+          maxSide: 960,
+          lightweight: true,
+          forceCapture: manual,
+        ),
       );
 
       if (bytes == null || bytes.isEmpty) {

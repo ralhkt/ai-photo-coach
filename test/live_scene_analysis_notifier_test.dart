@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:ai_photo_coach/features/camera/providers/camera_interaction_provider.dart';
 import 'package:ai_photo_coach/features/camera/providers/camera_settings_provider.dart';
 import 'package:ai_photo_coach/features/camera/providers/live_scene_analysis_provider.dart';
 import 'package:ai_photo_coach/features/scene_stabilization/providers/scene_stability_provider.dart';
@@ -83,6 +84,20 @@ void main() {
 
       expect(container.read(liveSceneAnalyzingProvider), isFalse);
       expect(container.read(liveSceneAnalysisErrorProvider), isNull);
+    });
+
+    test('auto analyze respects UI interaction pause', () async {
+      container.read(cameraUiInteractionProvider.notifier).state =
+          DateTime.now();
+
+      await container
+          .read(liveSceneAnalysisProvider.notifier)
+          .analyzeCurrentScene(manual: false);
+
+      expect(
+        container.read(liveSceneAnalysisErrorProvider),
+        LiveSceneAnalysisFailure.cameraBusy,
+      );
     });
 
     test('manual analyze runs even when scene is stable and advice exists',
