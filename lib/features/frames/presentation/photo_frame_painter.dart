@@ -20,6 +20,7 @@ class PhotoFramePainter extends CustomPainter {
     this.minimalPozeStyle = true,
     this.poseAligned = false,
     this.alignmentScore,
+    this.renderHumanSilhouette = true,
   });
 
   final GeneratedFrameSpec frameSpec;
@@ -29,6 +30,7 @@ class PhotoFramePainter extends CustomPainter {
   final bool minimalPozeStyle;
   final bool poseAligned;
   final int? alignmentScore;
+  final bool renderHumanSilhouette;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -45,7 +47,7 @@ class PhotoFramePainter extends CustomPainter {
       _drawCornerBrackets(canvas, crop, borderPaint);
     }
 
-    if (isHumanFrame) {
+    if (isHumanFrame && renderHumanSilhouette) {
       _drawHumanSubjectFrame(canvas, frameSpec, subject);
     } else if (showBodyParts && frameSpec.bodyPartGuides != null) {
       _drawBodyPartGuides(canvas, frameSpec.bodyPartGuides!);
@@ -659,6 +661,7 @@ class PhotoFramePainter extends CustomPainter {
         oldDelegate.showBodyParts != showBodyParts ||
         oldDelegate.minimalPozeStyle != minimalPozeStyle ||
         oldDelegate.poseAligned != poseAligned ||
-        oldDelegate.alignmentScore != alignmentScore;
+        oldDelegate.alignmentScore != alignmentScore ||
+        oldDelegate.renderHumanSilhouette != renderHumanSilhouette;
   }
 }

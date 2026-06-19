@@ -4,6 +4,7 @@ import UIKit
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private let arHandler = ArPlatformHandler()
+  private let poseSilhouetteHandler = PoseSilhouetteHandler()
 
   override func application(
     _ application: UIApplication,
@@ -13,6 +14,8 @@ import UIKit
 
     if let controller = window?.rootViewController as? FlutterViewController {
       let messenger = controller.binaryMessenger
+      let registrar = self.registrar(forPlugin: "PoseSilhouettePlugin")!
+
       let methodChannel = FlutterMethodChannel(
         name: "com.aiphotocoach.app/ar",
         binaryMessenger: messenger
@@ -24,6 +27,11 @@ import UIKit
         binaryMessenger: messenger
       )
       eventChannel.setStreamHandler(arHandler)
+
+      poseSilhouetteHandler.registerChannels(
+        binaryMessenger: messenger,
+        registrar: registrar
+      )
     }
 
     if #available(iOS 15.0, *) {

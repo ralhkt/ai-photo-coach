@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/guidance_text.dart';
 import '../../../core/utils/pose_coaching_hint.dart';
+import '../../pose/platform/pose_silhouette_native_overlay.dart';
 import '../../pose/providers/pose_coaching_provider.dart';
+import '../../pose/providers/pose_silhouette_provider.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../models/body_part_labels.dart';
 import '../../../models/camera_guidance.dart';
@@ -78,6 +80,8 @@ class _GuidedCameraOverlayStackState
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(poseSilhouetteSyncProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewport = Size(constraints.maxWidth, constraints.maxHeight);
@@ -99,6 +103,7 @@ class _GuidedCameraOverlayStackState
                 frameVisible: widget.frameVisible,
                 partLabels: widget.partLabels,
               ),
+              PoseSilhouetteNativeOverlay(visible: widget.frameVisible),
             ],
           ),
         );
@@ -160,6 +165,8 @@ class _FrameOverlayLayer extends ConsumerWidget {
     final bodyPartsVisible = ref.watch(bodyPartGuidesVisibleProvider);
     final stability = ref.watch(sceneStabilityProvider);
     final coaching = ref.watch(poseCoachingResultProvider);
+    final nativeSilhouette =
+        ref.watch(poseSilhouetteNativeSupportedProvider).valueOrNull ?? false;
     final l10n = AppLocalizations.of(context)!;
 
     return PhotoFrameOverlay(
@@ -174,6 +181,7 @@ class _FrameOverlayLayer extends ConsumerWidget {
         coaching: coaching,
       ),
       alignmentScore: coaching?.poseScore,
+      renderHumanSilhouette: !nativeSilhouette,
     );
   }
 }

@@ -6,7 +6,7 @@
 **Repo：** https://github.com/ralhkt/ai-photo-coach  
 **本地路徑：** `/Users/Personal/Documents/Photographer`  
 **最新 commit：** `eec267e`（`main` 已 push）  
-**測試：** 121 項全過
+**測試：** 123 項全過
 
 ---
 
@@ -35,7 +35,13 @@
 - [x] iOS `IosSceneStabilityPoller`（JPEG pHash）
 - [x] BGRA buffer pool
 
-### PR-1 動態輪廓 MVP（Dart 層，最新）
+### PR-2 Native 輪廓（iOS 15+，最新）
+- [x] `VNGeneratePersonSegmentationRequest` + C++ RDP/B-spline（`ContourProcessor`）
+- [x] `PoseSilhouetteHandler` MethodChannel + EventChannel
+- [x] `UiKitView` 透明 overlay（CoreGraphics 渲染，Metal shader 待啟用）
+- [x] 引導相機自動同步輪廓 + 分數；Native 啟用時隱藏 Flutter 重複輪廓
+
+### PR-1 動態輪廓 MVP（Dart 層）
 - [x] `PortraitContourExtractor` — 對比度 mask、Moore 邊界追蹤、RDP、弧長重採樣
 - [x] `SubjectSilhouetteService` — 優先真實輪廓，失敗 fallback 模板
 - [x] `AlignmentOverlayState` — 三態著色（白 &lt;50 / 黃 50–84 / 綠 ≥85）
@@ -55,8 +61,8 @@
 | PR | 內容 | 狀態 |
 |----|------|------|
 | PR-1 | Dart 離線範例輪廓 + 三態 overlay | **完成** |
-| PR-2 | Native `VNGeneratePersonSegmentationRequest` | 待做 |
-| PR-3 | C++ RDP + Metal 60fps 渲染 | 待做 |
+| PR-2 | Native Vision 分割 + C++ RDP + PlatformChannel | **完成** |
+| PR-3 | Metal 60fps 渲染（shader 已備，待啟用 Toolchain） | 進行中 |
 | PR-4 | 狀態機 A/B/C + Haptic + 自動快門 | 待做 |
 | PR-5 | Kalman 輪廓穩定 + 低光骨架降級 | 待做 |
 | PR-6 | 獨立 `AVCaptureSession` 預覽管線 | 待做 |
@@ -102,6 +108,8 @@
 |------|------|
 | 交接 | `tool/SESSION_HANDOFF.md` |
 | 部署 | `tool/deploy_iphone_with_proxy.sh` |
+| Native 輪廓 | `ios/Runner/PoseSilhouette/` |
+| Dart Platform | `lib/features/pose/platform/pose_silhouette_platform_service.dart` |
 | 輪廓提取 | `lib/features/reference/services/portrait_contour_extractor.dart` |
 | 輪廓服務 | `lib/features/reference/services/subject_silhouette_service.dart` |
 | 三態著色 | `lib/features/pose/services/alignment_overlay_state.dart` |
