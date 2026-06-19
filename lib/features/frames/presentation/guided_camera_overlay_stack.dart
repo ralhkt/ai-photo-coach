@@ -1,20 +1,24 @@
+import 'dart:async';
 import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/guidance_text.dart';
-import '../../pose/platform/pose_silhouette_bridge.dart';
 import '../../pose/platform/pose_silhouette_native_overlay.dart';
+import '../../pose/platform/pose_silhouette_skeleton_builder.dart';
 import '../../pose/platform/pose_silhouette_native_toast.dart';
 import '../../pose/presentation/pose_alignment_coach_toast.dart';
 import '../../pose/presentation/pose_skeleton_overlay.dart';
 import '../../pose/providers/pose_coaching_provider.dart';
 import '../../pose/providers/pose_silhouette_provider.dart';
+import '../../../models/body_part_guides.dart';
 import '../../../models/body_part_labels.dart';
 import '../../../models/composition_overlay_type.dart';
 import '../../../models/camera_guidance.dart';
+import '../../camera/providers/camera_interaction_provider.dart';
 import '../../../models/camera_aspect_ratio.dart';
 import '../../../models/photo_frame_template.dart';
 import '../../camera/presentation/widgets/ios_camera_grid_overlay.dart';
@@ -100,12 +104,11 @@ class _GuidedCameraOverlayStackState
                 template: widget.guidance.frameTemplate,
                 partLabels: widget.partLabels,
               ),
-              const _GuidedNativeSilhouetteLayer(),
+              _GuidedNativeSilhouetteLayer(frameSpec: frameSpec),
               _LiveSkeletonOverlay(
                 fallbackSkeletonCount:
                     widget.guidance.subjectPoseSkeleton?.length ?? 0,
               ),
-              const PoseSilhouetteBridge(),
               const PoseSilhouetteNativeToast(),
               const _GuidedCoachToastLayer(),
             ],
@@ -116,11 +119,102 @@ class _GuidedCameraOverlayStackState
   }
 }
 
-class _GuidedNativeSilhouetteLayer extends ConsumerWidget {
-  const _GuidedNativeSilhouetteLayer();
+class _GuidedNativeSilhouetteLayer extends ConsumerStatefulWidget {
+  const _GuidedNativeSilhouetteLayer({required this.frameSpec});
+
+  final GeneratedFrameSpec frameSpec;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_GuidedNativeSilhouetteLayer> createState() =>
+      _GuidedNativeSilhouetteLayerState();
+}
+
+class _GuidedNativeSilhouetteLayerState
+    extends ConsumerState<_GuidedNativeSilhouetteLayer> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncNativeOverlay());
+  }
+
+  @override
+  void didUpdateWidget(covariant _GuidedNativeSilhouetteLayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncNativeOverlay());
+  }
+
+  void _syncNativeOverlay() {
+    if (ref.read(isCameraUiInteractionPausedProvider)) {
+      return;
+    }
+
+    final supported =
+        ref.read(poseSilhouetteNativeSupportedProvider).valueOrNull;
+    if (supported != true) {
+      return;
+    }
+
+    final frameVisible = ref.read(guidedFrameVisibleProvider);
+    final coaching = ref.read(poseCoachingResultProvider);
+    final points = widget.frameSpec.viewportSilhouettePoints;
+    final skeleton = widget.frameSpec.viewportSkeletonSegments;
+    final guides = widget.frameSpec.bodyPartGuides;
+    final score = coaching?.poseScore ?? 0;
+    final enabled = frameVisible && points.length >= 4;
+    final renderMode = enabled ? 'silhouette' : 'skeleton';
+
+    final skeletonSegments = skeleton.isNotEmpty
+        ? skeleton
+        : guides == null
+            ? const <List<Offset>>[]
+            : _viewportSkeletonFromGuides(guides);
+
+    unawaited(
+      ref.read(poseSilhouetteSyncControllerProvider).sync(
+            service: ref.read(poseSilhouetteServiceProvider),
+            supported: true,
+            contour: enabled ? points : null,
+            score: score,
+            enabled: enabled || skeletonSegments.isNotEmpty,
+            renderMode: renderMode,
+            skeletonSegments: skeletonSegments,
+          ),
+    );
+  }
+
+  List<List<Offset>> _viewportSkeletonFromGuides(MappedBodyPartGuides guides) {
+    final crop = widget.frameSpec.cropRect;
+    if (crop.width <= 0 || crop.height <= 0) {
+      return const [];
+    }
+
+    Offset norm(Offset point) => Offset(
+          ((point.dx - crop.left) / crop.width).clamp(0.0, 1.0),
+          ((point.dy - crop.top) / crop.height).clamp(0.0, 1.0),
+        );
+
+    final imageGuides = BodyPartGuides(
+      headOval: guides.headOval,
+      shoulders: guides.shoulders,
+      torso: guides.torso,
+      hips: guides.hips,
+    );
+
+    return PoseSilhouetteSkeletonBuilder.fromBodyGuides(imageGuides).map(
+      (segment) => [for (final point in segment) norm(point)],
+    ).toList(growable: false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(poseCoachingResultProvider, (_, __) => _syncNativeOverlay());
+    ref.listen(guidedFrameVisibleProvider, (_, __) => _syncNativeOverlay());
+    ref.listen(poseSilhouetteNativeSupportedProvider, (previous, next) {
+      if (previous?.valueOrNull != true && next.valueOrNull == true) {
+        _syncNativeOverlay();
+      }
+    });
+
     final frameVisible = ref.watch(guidedFrameVisibleProvider);
     return PoseSilhouetteNativeOverlay(visible: frameVisible);
   }

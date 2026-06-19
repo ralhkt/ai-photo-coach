@@ -50,6 +50,12 @@ enum GuideContourExtractor {
       return nil
     }
 
+    let maskWidth = CVPixelBufferGetWidth(maskBuffer)
+    let maskHeight = CVPixelBufferGetHeight(maskBuffer)
+    guard maskWidth > 0, maskHeight > 0 else {
+      return nil
+    }
+
     guard let contour = contourFromMask(
       maskBuffer,
       rdpEpsilon: rdpEpsilon,
@@ -58,8 +64,8 @@ enum GuideContourExtractor {
       return nil
     }
 
-    let width = CGFloat(cgImage.width)
-    let height = CGFloat(cgImage.height)
+    let width = CGFloat(maskWidth)
+    let height = CGFloat(maskHeight)
     return contour.map { point in
       [
         "dx": Double(point.x / width),

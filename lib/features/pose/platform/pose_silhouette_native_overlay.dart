@@ -45,9 +45,11 @@ class _PoseSilhouetteNativeOverlayState
     }
 
     return const IgnorePointer(
-      child: UiKitView(
-        viewType: PoseSilhouettePlatformService.platformViewType,
-        layoutDirection: TextDirection.ltr,
+      child: SizedBox.expand(
+        child: UiKitView(
+          viewType: PoseSilhouettePlatformService.platformViewType,
+          layoutDirection: TextDirection.ltr,
+        ),
       ),
     );
   }
