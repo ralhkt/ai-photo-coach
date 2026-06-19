@@ -4,6 +4,7 @@ import '../../../core/theme/app_design_tokens.dart';
 import '../../../models/body_part_labels.dart';
 import '../../reference/services/frame_generator_service.dart' show GeneratedFrameSpec;
 import 'photo_frame_painter.dart';
+import 'poze_wireframe_style.dart';
 
 class PhotoFrameOverlay extends StatefulWidget {
   const PhotoFrameOverlay({
@@ -18,6 +19,7 @@ class PhotoFrameOverlay extends StatefulWidget {
     this.poseAligned = false,
     this.alignmentScore,
     this.renderHumanSilhouette = true,
+    this.skeletonStrokeWidth,
   });
 
   final GeneratedFrameSpec frameSpec;
@@ -30,6 +32,7 @@ class PhotoFrameOverlay extends StatefulWidget {
   final bool poseAligned;
   final int? alignmentScore;
   final bool renderHumanSilhouette;
+  final double? skeletonStrokeWidth;
 
   @override
   State<PhotoFrameOverlay> createState() => _PhotoFrameOverlayState();
@@ -103,6 +106,8 @@ class _PhotoFrameOverlayState extends State<PhotoFrameOverlay>
               poseAligned: widget.poseAligned,
               alignmentScore: widget.alignmentScore,
               renderHumanSilhouette: widget.renderHumanSilhouette,
+              skeletonStrokeWidth:
+                  widget.skeletonStrokeWidth ?? PozeWireframeStyle.limbStrokeWidth,
             ),
             child: const SizedBox.expand(),
           ),

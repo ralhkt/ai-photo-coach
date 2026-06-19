@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
-import '../../../models/composition_overlay_type.dart';
 import '../../../models/shoot_session.dart';
-import '../../overlays/presentation/composition_overlay.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_mode_settings_provider.dart';
@@ -21,7 +19,6 @@ class CameraScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final cameraState = ref.watch(cameraControllerProvider);
     final overlayVisible = ref.watch(overlayVisibleProvider);
-    final overlayType = ref.watch(overlayTypeProvider);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -49,96 +46,23 @@ class CameraScreen extends ConsumerWidget {
           return CameraModeScope(
             mode: CameraUiMode.free,
             child: CameraSessionLifecycle(
-            controller: controller,
-            enableAr: false,
-            shootSessionMode: ShootSessionMode.free,
-            child: IosCameraScaffold(
-              shootSessionMode: ShootSessionMode.free,
               controller: controller,
-              modeLabel: l10n.cameraModePhoto,
-              gridEnabled: overlayVisible,
-              showGridButton: true,
-              onGridTap: () {
-                ref.read(overlayVisibleProvider.notifier).state = !overlayVisible;
-              },
-              croppedOverlay: CompositionOverlay(
-                type: overlayType,
-                visible: overlayVisible,
-              ),
-              overlay: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (overlayVisible)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: MediaQuery.paddingOf(context).bottom + 148,
-                      child: _CompositionModeStrip(
-                        overlayType: overlayType,
-                        onCycle: () {
-                          ref.read(overlayTypeProvider.notifier).state =
-                              overlayType.next;
-                        },
-                      ),
-                    ),
-                ],
+              enableAr: false,
+              shootSessionMode: ShootSessionMode.free,
+              child: IosCameraScaffold(
+                shootSessionMode: ShootSessionMode.free,
+                controller: controller,
+                modeLabel: l10n.cameraModePhoto,
+                gridEnabled: overlayVisible,
+                showGridButton: false,
+                croppedOverlay: null,
+                overlay: const SizedBox.shrink(),
               ),
             ),
-          ),
           );
         },
       ),
     );
-  }
-}
-
-class _CompositionModeStrip extends StatelessWidget {
-  const _CompositionModeStrip({
-    required this.overlayType,
-    required this.onCycle,
-  });
-
-  final CompositionOverlayType overlayType;
-  final VoidCallback onCycle;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
-    return Center(
-      child: GestureDetector(
-        onTap: onCycle,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.45),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.grid_on_rounded, color: Colors.white70, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                _label(l10n, overlayType),
-                style: const TextStyle(color: Colors.white, fontSize: 13),
-              ),
-              const SizedBox(width: 4),
-              const Icon(Icons.unfold_more_rounded, color: Colors.white54, size: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _label(AppLocalizations l10n, CompositionOverlayType type) {
-    return switch (type) {
-      CompositionOverlayType.ruleOfThirds => l10n.overlayRuleOfThirds,
-      CompositionOverlayType.goldenRatio => l10n.overlayGoldenRatio,
-      CompositionOverlayType.center => l10n.overlayCenter,
-      CompositionOverlayType.diagonal => l10n.overlayDiagonal,
-    };
   }
 }
 
@@ -161,4 +85,3 @@ class _LoadingView extends StatelessWidget {
     );
   }
 }
-

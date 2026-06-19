@@ -8,10 +8,12 @@ class CompositionOverlay extends StatelessWidget {
     super.key,
     required this.type,
     required this.visible,
+    this.nativeGrid = false,
   });
 
   final CompositionOverlayType type;
   final bool visible;
+  final bool nativeGrid;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,10 @@ class CompositionOverlay extends StatelessWidget {
     return IgnorePointer(
       child: RepaintBoundary(
         child: CustomPaint(
-          painter: CompositionOverlayPainter(type: type),
+          painter: CompositionOverlayPainter(
+            type: type,
+            nativeGrid: nativeGrid,
+          ),
           child: const SizedBox.expand(),
         ),
       ),

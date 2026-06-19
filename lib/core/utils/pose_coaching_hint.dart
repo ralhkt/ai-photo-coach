@@ -1,5 +1,6 @@
 import '../l10n/generated/app_localizations.dart';
 import '../../features/pose/models/pose_coaching_result.dart';
+import '../../features/pose/services/alignment_overlay_state.dart';
 import '../../features/scene_stabilization/providers/scene_stability_provider.dart';
 
 /// Dynamic Poze-style coaching copy for the camera hint pill.
@@ -25,8 +26,19 @@ String resolvePoseCoachingMessage({
   required SceneStabilityStatus stability,
   PoseCoachingResult? coaching,
 }) {
-  if (coaching != null && coaching.combinedGuidance.isNotEmpty) {
-    return coaching.combinedGuidance;
+  if (coaching != null) {
+    final needsTiltOrProportionHint =
+        !coaching.isLevel || coaching.proportionStatus != 'OK';
+    if (needsTiltOrProportionHint && coaching.combinedGuidance.isNotEmpty) {
+      return coaching.combinedGuidance;
+    }
+    if (coaching.poseScore > 0) {
+      final phase = AlignmentOverlayState.phaseForScore(coaching.poseScore);
+      return AlignmentOverlayState.toastForPhase(phase, l10n: l10n);
+    }
+    if (coaching.combinedGuidance.isNotEmpty) {
+      return coaching.combinedGuidance;
+    }
   }
   return poseCoachingHint(l10n, stability);
 }

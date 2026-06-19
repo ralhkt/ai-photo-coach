@@ -41,6 +41,22 @@ class CoachingGuidanceHelper {
     );
   }
 
+  /// Guided camera: keep reference skeleton/silhouette when analysis found a pose.
+  CameraGuidance forGuidedOverlay(
+    CameraGuidance guidance, {
+    PoseContourStabilizer? stabilizer,
+  }) {
+    final smoothed = stabilizer?.stabilize(guidance) ?? guidance;
+    final skeleton = smoothed.subjectPoseSkeleton;
+    if (skeleton != null &&
+        skeleton.length >= 4 &&
+        smoothed.subjectSilhouettePoints != null &&
+        smoothed.subjectSilhouettePoints!.isNotEmpty) {
+      return smoothed;
+    }
+    return forPozeOverlay(smoothed);
+  }
+
   /// Poze overlay: seated phone pose, centered in the viewfinder.
   CameraGuidance forPozeOverlay(
     CameraGuidance guidance, {

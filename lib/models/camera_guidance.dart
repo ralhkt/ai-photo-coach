@@ -19,6 +19,7 @@ class CameraGuidance {
     required this.angleHintKey,
     this.subjectShape = SubjectShapeKind.rectangle,
     this.subjectSilhouettePoints,
+    this.subjectPoseSkeleton,
     this.bodyPartGuides,
   });
 
@@ -34,6 +35,10 @@ class CameraGuidance {
   final String angleHintKey;
   final SubjectShapeKind subjectShape;
   final List<Offset>? subjectSilhouettePoints;
+
+  /// Art-student bone lines extracted from the reference photo (normalized 0–1).
+  final List<List<Offset>>? subjectPoseSkeleton;
+
   final BodyPartGuides? bodyPartGuides;
 
   CameraGuidance copyWith({
@@ -49,6 +54,7 @@ class CameraGuidance {
     String? angleHintKey,
     SubjectShapeKind? subjectShape,
     List<Offset>? subjectSilhouettePoints,
+    List<List<Offset>>? subjectPoseSkeleton,
     BodyPartGuides? bodyPartGuides,
   }) {
     return CameraGuidance(
@@ -65,6 +71,8 @@ class CameraGuidance {
       subjectShape: subjectShape ?? this.subjectShape,
       subjectSilhouettePoints:
           subjectSilhouettePoints ?? this.subjectSilhouettePoints,
+      subjectPoseSkeleton:
+          subjectPoseSkeleton ?? this.subjectPoseSkeleton,
       bodyPartGuides: bodyPartGuides ?? this.bodyPartGuides,
     );
   }

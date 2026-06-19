@@ -17,9 +17,10 @@ abstract final class PoseLandmarkUtils {
     PoseLandmarkType type, {
     required int imageWidth,
     required int imageHeight,
+    double likelihoodThreshold = minLikelihood,
   }) {
     final landmark = pose.landmarks[type];
-    if (landmark == null || landmark.likelihood < minLikelihood) {
+    if (landmark == null || landmark.likelihood < likelihoodThreshold) {
       return null;
     }
     if (imageWidth <= 0 || imageHeight <= 0) {
@@ -39,6 +40,7 @@ abstract final class PoseLandmarkUtils {
     Pose pose, {
     required int imageWidth,
     required int imageHeight,
+    double likelihoodThreshold = minLikelihood,
   }) {
     final result = <PoseLandmarkType, PosePoint3D>{};
     for (final type in landmarkOrder) {
@@ -47,6 +49,7 @@ abstract final class PoseLandmarkUtils {
         type,
         imageWidth: imageWidth,
         imageHeight: imageHeight,
+        likelihoodThreshold: likelihoodThreshold,
       );
       if (point != null) {
         result[type] = point;

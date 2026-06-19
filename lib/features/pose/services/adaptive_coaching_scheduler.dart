@@ -4,10 +4,10 @@ import 'pose_aesthetic_analyzer.dart';
 /// Dynamically adjusts preview capture rate based on coaching state.
 class AdaptiveCoachingScheduler {
   AdaptiveCoachingScheduler({
-    this.searchingInterval = const Duration(milliseconds: 500),
-    this.adjustingInterval = const Duration(milliseconds: 650),
-    this.matchedInterval = const Duration(milliseconds: 1000),
-    this.powerSaveInterval = const Duration(milliseconds: 1100),
+    this.searchingInterval = const Duration(milliseconds: 900),
+    this.adjustingInterval = const Duration(milliseconds: 1100),
+    this.matchedInterval = const Duration(milliseconds: 1500),
+    this.powerSaveInterval = const Duration(milliseconds: 1800),
   });
 
   final Duration searchingInterval;
@@ -31,7 +31,7 @@ class AdaptiveCoachingScheduler {
       return searchingInterval;
     }
 
-    final score = lastResult.poseScore ?? 0;
+    final score = lastResult.poseScore;
     final delta = (score - _lastScore).abs();
     _lastScore = score;
 

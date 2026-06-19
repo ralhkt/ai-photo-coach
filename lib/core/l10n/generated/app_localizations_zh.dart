@@ -78,6 +78,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get poseCoachAdjust => '微调位置以对齐脸部。';
 
   @override
+  String get alignmentToastNoMatch => '请站入轮廓中央';
+
+  @override
+  String get alignmentToastAligning => '肢体对齐中…请将身体套入轮廓';
+
+  @override
+  String get alignmentToastMatched => '完美对齐！可以拍了';
+
+  @override
   String get openCameraSkipTitle => '略过引导';
 
   @override
@@ -293,10 +302,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hintAngleLevel => '保持镜头水平';
 
   @override
-  String get cameraModePhoto => '相片';
+  String get cameraModePhoto => '影相';
+
+  @override
+  String get cameraModeVideo => '录影';
 
   @override
   String get cameraModeGuided => '引导';
+
+  @override
+  String get cameraModeVideoComingSoon => '录影功能即将推出';
+
+  @override
+  String get cameraFormatJpeg => 'JPEG';
+
+  @override
+  String get cameraFormatMegapixel => '24';
+
+  @override
+  String get cameraModeSwitchNeedReference => '请先上传并分析参考照，才能使用引导模式。';
+
+  @override
+  String get cameraModeUploadReference => '上传参考照';
+
+  @override
+  String get cameraModeSwipeHint => '左右滑动或点选，在「相片」与「引导」模式间切换';
+
+  @override
+  String get cameraModeCoachGotIt => '知道了';
 
   @override
   String get captureFailed => '拍照失败。';
@@ -983,6 +1016,30 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get subjectDetectionFailedBody => '找不到脸部或身体骨架。请改用更清晰、人物置中的打卡照后再试。';
+
+  @override
+  String get skeletonStudioTitle => '骨架工作室';
+
+  @override
+  String get skeletonViewOverlay => '叠加照片';
+
+  @override
+  String get skeletonViewOnly => '仅骨架';
+
+  @override
+  String get skeletonStrokeWidthLabel => '线条粗细';
+
+  @override
+  String get skeletonExportPng => '导出 PNG 到相册';
+
+  @override
+  String get skeletonExporting => '正在导出…';
+
+  @override
+  String get skeletonExportSuccess => '骨架图已保存到相册';
+
+  @override
+  String get skeletonExportFailed => '导出失败，请确认相册权限后再试';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -1057,6 +1114,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get poseCoachAdjust => '微調位置以對齊臉部。';
+
+  @override
+  String get alignmentToastNoMatch => '請站入輪廓中央';
+
+  @override
+  String get alignmentToastAligning => '肢體對齊中…請將身體套入輪廓';
+
+  @override
+  String get alignmentToastMatched => '完美對齊！可以拍了';
 
   @override
   String get openCameraSkipTitle => '略過引導';
@@ -1274,10 +1340,34 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get hintAngleLevel => '保持鏡頭水平';
 
   @override
-  String get cameraModePhoto => '相片';
+  String get cameraModePhoto => '影相';
+
+  @override
+  String get cameraModeVideo => '錄影';
 
   @override
   String get cameraModeGuided => '引導';
+
+  @override
+  String get cameraModeVideoComingSoon => '錄影功能即將推出';
+
+  @override
+  String get cameraFormatJpeg => 'JPEG';
+
+  @override
+  String get cameraFormatMegapixel => '24';
+
+  @override
+  String get cameraModeSwitchNeedReference => '請先上傳並分析參考照，才能使用引導模式。';
+
+  @override
+  String get cameraModeUploadReference => '上傳參考照';
+
+  @override
+  String get cameraModeSwipeHint => '左右滑動或點選，在「相片」與「引導」模式間切換';
+
+  @override
+  String get cameraModeCoachGotIt => '知道了';
 
   @override
   String get captureFailed => '拍照失敗。';
@@ -1964,4 +2054,28 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get subjectDetectionFailedBody => '找不到臉部或身體骨架。請改用更清晰、人物置中的打卡照後再試。';
+
+  @override
+  String get skeletonStudioTitle => '骨架工作室';
+
+  @override
+  String get skeletonViewOverlay => '疊加照片';
+
+  @override
+  String get skeletonViewOnly => '僅骨架';
+
+  @override
+  String get skeletonStrokeWidthLabel => '線條粗細';
+
+  @override
+  String get skeletonExportPng => '匯出 PNG 到相簿';
+
+  @override
+  String get skeletonExporting => '正在匯出…';
+
+  @override
+  String get skeletonExportSuccess => '骨架圖已儲存到相簿';
+
+  @override
+  String get skeletonExportFailed => '匯出失敗，請確認相簿權限後再試';
 }

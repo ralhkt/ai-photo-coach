@@ -8,14 +8,30 @@ import '../../../models/photo_analysis_result.dart';
 import '../../../models/photo_frame_template.dart';
 import '../../../models/scene_type.dart';
 import '../../ml/providers/ml_providers.dart';
+import '../../pose/providers/pose_coaching_provider.dart';
+import '../../pose/providers/pose_silhouette_provider.dart';
 import '../services/frame_generator_service.dart';
 import '../services/image_analyzer_service.dart';
+import '../services/subject_silhouette_service.dart';
 import '../services/photo_analysis_agent_factory.dart';
+import '../services/reference_photo_pose_analyzer.dart';
+
+final referencePhotoPoseAnalyzerProvider =
+    Provider<ReferencePhotoPoseAnalyzer>((ref) {
+  final analyzer = ReferencePhotoPoseAnalyzer();
+  ref.onDispose(analyzer.dispose);
+  return analyzer;
+});
 
 final imageAnalyzerProvider = Provider<ImageAnalyzerService>((ref) {
+  final nativeContour = ref.watch(poseSilhouetteServiceProvider);
   return ImageAnalyzerService(
     visionAnalyzer: ref.watch(visionAnalyzerProvider),
     agent: createPhotoAnalysisAgent(),
+    referencePoseAnalyzer: ref.watch(referencePhotoPoseAnalyzerProvider),
+    silhouetteService: SubjectSilhouetteService(
+      nativeContourExtractor: nativeContour.extractContourFromImage,
+    ),
   );
 });
 
@@ -46,10 +62,13 @@ class ReferenceAnalysisNotifier extends AsyncNotifier<PhotoAnalysisResult?> {
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      return ref.read(imageAnalyzerProvider).analyze(
-            bytes,
-            userSceneType: userSceneType,
-          );
+      final analyzer = ref.read(imageAnalyzerProvider);
+      final result = await analyzer.analyze(
+        bytes,
+        userSceneType: userSceneType,
+      );
+      loadReferencePoseTemplate(ref, analyzer.lastReferencePoseAnalysis);
+      return result;
     });
   }
 
@@ -83,6 +102,7 @@ class ReferenceAnalysisNotifier extends AsyncNotifier<PhotoAnalysisResult?> {
           angleHintKey: guidance.angleHintKey,
           subjectShape: guidance.subjectShape,
           subjectSilhouettePoints: guidance.subjectSilhouettePoints,
+          subjectPoseSkeleton: guidance.subjectPoseSkeleton,
           bodyPartGuides: guidance.bodyPartGuides,
         ),
         sceneTypeKey: current.sceneTypeKey,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/l10n/generated/app_localizations.dart';
 import 'pose_aesthetic_analyzer.dart';
 
 /// Poze-style overlay color state driven by alignment score.
@@ -36,7 +37,17 @@ abstract final class AlignmentOverlayState {
     };
   }
 
-  static String toastForPhase(AlignmentOverlayPhase phase) {
+  static String toastForPhase(
+    AlignmentOverlayPhase phase, {
+    AppLocalizations? l10n,
+  }) {
+    if (l10n != null) {
+      return switch (phase) {
+        AlignmentOverlayPhase.noMatch => l10n.alignmentToastNoMatch,
+        AlignmentOverlayPhase.aligning => l10n.alignmentToastAligning,
+        AlignmentOverlayPhase.matched => l10n.alignmentToastMatched,
+      };
+    }
     return switch (phase) {
       AlignmentOverlayPhase.noMatch => '請站入輪廓中央',
       AlignmentOverlayPhase.aligning => '肢體對齊中…請將身體套入輪廓',

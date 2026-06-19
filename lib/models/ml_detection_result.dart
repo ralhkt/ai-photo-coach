@@ -14,6 +14,7 @@ class MlDetectionResult {
     this.aestheticScore,
     this.faceCount = 0,
     this.hasPose = false,
+    this.poseSkeletonSegments = const [],
   });
 
   final String source;
@@ -26,7 +27,12 @@ class MlDetectionResult {
   final int faceCount;
   final bool hasPose;
 
+  /// Normalized bone polylines detected in the reference photo.
+  final List<List<Offset>> poseSkeletonSegments;
+
   bool get hasFaces => faceBounds.isNotEmpty;
+
+  bool get hasPoseSkeleton => poseSkeletonSegments.isNotEmpty;
 
   bool get isMlPowered => source == 'ml_kit';
 }

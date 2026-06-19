@@ -11,17 +11,20 @@ class CompositionOverlayPainter extends CustomPainter {
     required this.type,
     this.lineColor = AppTheme.overlayLine,
     this.accentColor = AppTheme.overlayAccent,
+    this.nativeGrid = false,
   });
 
   final CompositionOverlayType type;
   final Color lineColor;
   final Color accentColor;
+  final bool nativeGrid;
 
   @override
   void paint(Canvas canvas, Size size) {
+    final effectiveLineColor = nativeGrid ? const Color(0xB3FFFFFF) : lineColor;
     final linePaint = Paint()
-      ..color = lineColor
-      ..strokeWidth = CameraConstants.overlayStrokeWidth
+      ..color = effectiveLineColor
+      ..strokeWidth = nativeGrid ? 1.0 : CameraConstants.overlayStrokeWidth
       ..style = PaintingStyle.stroke;
 
     final accentPaint = Paint()
@@ -55,12 +58,14 @@ class CompositionOverlayPainter extends CustomPainter {
       canvas.drawLine(Offset(0, thirdH * i), Offset(size.width, thirdH * i), linePaint);
     }
 
-    _drawPowerPoints(canvas, [
-      Offset(thirdW, thirdH),
-      Offset(thirdW * 2, thirdH),
-      Offset(thirdW, thirdH * 2),
-      Offset(thirdW * 2, thirdH * 2),
-    ], accentPaint);
+    if (!nativeGrid) {
+      _drawPowerPoints(canvas, [
+        Offset(thirdW, thirdH),
+        Offset(thirdW * 2, thirdH),
+        Offset(thirdW, thirdH * 2),
+        Offset(thirdW * 2, thirdH * 2),
+      ], accentPaint);
+    }
   }
 
   void _drawGoldenRatio(
@@ -131,6 +136,7 @@ class CompositionOverlayPainter extends CustomPainter {
   bool shouldRepaint(covariant CompositionOverlayPainter oldDelegate) {
     return oldDelegate.type != type ||
         oldDelegate.lineColor != lineColor ||
-        oldDelegate.accentColor != accentColor;
+        oldDelegate.accentColor != accentColor ||
+        oldDelegate.nativeGrid != nativeGrid;
   }
 }

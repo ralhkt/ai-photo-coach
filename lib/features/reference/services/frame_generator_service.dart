@@ -17,6 +17,7 @@ class GeneratedFrameSpec {
     this.subjectSilhouettePath,
     this.bodyPartGuides,
     this.headCenter,
+    this.poseSkeletonSegments = const [],
   });
 
   final PhotoFrameTemplate template;
@@ -27,6 +28,9 @@ class GeneratedFrameSpec {
   final Path? subjectSilhouettePath;
   final MappedBodyPartGuides? bodyPartGuides;
   final Offset? headCenter;
+
+  /// Mapped art-student skeleton lines in crop canvas coordinates.
+  final List<List<Offset>> poseSkeletonSegments;
 }
 
 class MappedBodyPartGuides {
@@ -113,6 +117,14 @@ class FrameGeneratorService {
       headCenter = bodyParts.headOval.center;
     }
 
+    final skeletonSegments = _mapSkeletonSegments(
+      guidance.subjectPoseSkeleton,
+      cropRect,
+      sourceAspectRatio: sourceAspectRatio,
+      targetAspectRatio: targetAspectRatio,
+      remapForCropArea: viewportIsCropArea,
+    );
+
     return GeneratedFrameSpec(
       template: template,
       cropRect: cropRect,
@@ -122,7 +134,35 @@ class FrameGeneratorService {
       subjectSilhouettePath: silhouettePath,
       bodyPartGuides: bodyParts,
       headCenter: headCenter,
+      poseSkeletonSegments: skeletonSegments,
     );
+  }
+
+  List<List<Offset>> _mapSkeletonSegments(
+    List<List<Offset>>? segments,
+    Rect cropRect, {
+    double? sourceAspectRatio,
+    double? targetAspectRatio,
+    bool remapForCropArea = false,
+  }) {
+    if (segments == null || segments.isEmpty) {
+      return const [];
+    }
+
+    return [
+      for (final segment in segments)
+        if (segment.length >= 2)
+          [
+            for (final point in segment)
+              _mapImageNormalizedPoint(
+                point,
+                cropRect,
+                sourceAspectRatio: sourceAspectRatio,
+                targetAspectRatio: targetAspectRatio,
+                remapForCropArea: remapForCropArea,
+              ),
+          ],
+    ];
   }
 
   MappedBodyPartGuides _mapBodyPartGuidesToCrop(

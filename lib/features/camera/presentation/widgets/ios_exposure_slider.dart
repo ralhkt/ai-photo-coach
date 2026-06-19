@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/l10n/generated/app_localizations.dart';
+import 'ios_camera_ui_kit.dart';
 
 class IosExposureSlider extends StatelessWidget {
   const IosExposureSlider({
@@ -16,14 +17,8 @@ class IosExposureSlider extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
+    return IosCameraGlassPill(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.45),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white12),
-      ),
       child: Row(
         children: [
           const Icon(Icons.exposure, color: Colors.white70, size: 18),
@@ -34,7 +29,7 @@ class IosExposureSlider extends StatelessWidget {
               min: -2,
               max: 2,
               divisions: 16,
-              activeColor: const Color(0xFFFFD60A),
+              activeColor: IosCameraUiKit.accentYellow,
               onChanged: onChanged,
             ),
           ),

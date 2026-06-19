@@ -87,11 +87,22 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     await ref.read(cameraFrameMonitorProvider).stop();
     ref.read(focusIndicatorProvider.notifier).state = null;
 
-    _cameraIndex = (_cameraIndex + 1) % cameras.length;
+    _cameraIndex = oppositeCameraIndex(
+      cameras: cameras,
+      currentIndex: _cameraIndex,
+    );
+    final nextCamera = cameras[_cameraIndex];
+    final flashMode = flashModeForLens(
+      ref.read(flashModeProvider),
+      nextCamera.lensDirection,
+    );
+    if (flashMode != ref.read(flashModeProvider)) {
+      ref.read(flashModeProvider.notifier).state = flashMode;
+    }
     try {
       final controller = await ref.read(cameraServiceProvider).switchTo(
-            cameras[_cameraIndex],
-            flashMode: ref.read(flashModeProvider),
+            nextCamera,
+            flashMode: flashMode,
           );
       state = AsyncData(controller);
       ref.read(focalPresetProvider.notifier).state = 1.0;
@@ -278,12 +289,12 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
 
     return ref.read(cameraFrameMonitorProvider).runExclusive(() async {
       final savedFlash = ref.read(flashModeProvider);
-      ref.read(isCapturingProvider.notifier).state = true;
+      ref.read(isPreviewSamplingProvider.notifier).state = true;
       try {
         await controller.setFlashMode(FlashMode.off);
 
         if (!kIsWeb && Platform.isIOS) {
-          await Future<void>.delayed(const Duration(milliseconds: 180));
+          await Future<void>.delayed(const Duration(milliseconds: 80));
         }
 
         try {
@@ -322,7 +333,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
         try {
           await controller.setFlashMode(savedFlash);
         } catch (_) {}
-        ref.read(isCapturingProvider.notifier).state = false;
+        ref.read(isPreviewSamplingProvider.notifier).state = false;
       }
     });
   }
@@ -507,3 +518,31 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
 final cameraServiceProvider = Provider<CameraService>((ref) {
   return CameraService();
 });
+
+/// Picks the first camera facing the opposite direction (front ↔ back).
+int oppositeCameraIndex({
+  required List<CameraDescription> cameras,
+  required int currentIndex,
+}) {
+  if (cameras.isEmpty) {
+    return currentIndex;
+  }
+
+  final safeIndex = currentIndex.clamp(0, cameras.length - 1);
+  final currentDirection = cameras[safeIndex].lensDirection;
+  final targetDirection = currentDirection == CameraLensDirection.front
+      ? CameraLensDirection.back
+      : CameraLensDirection.front;
+
+  final targetIndex = cameras.indexWhere(
+    (camera) => camera.lensDirection == targetDirection,
+  );
+  return targetIndex >= 0 ? targetIndex : safeIndex;
+}
+
+FlashMode flashModeForLens(FlashMode mode, CameraLensDirection direction) {
+  if (direction == CameraLensDirection.front && mode == FlashMode.torch) {
+    return FlashMode.off;
+  }
+  return mode;
+}

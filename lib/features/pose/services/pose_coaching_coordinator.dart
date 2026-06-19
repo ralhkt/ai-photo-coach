@@ -53,7 +53,7 @@ class PoseCoachingInput {
 /// ```
 class PoseCoachingCoordinator {
   PoseCoachingCoordinator({
-    this.minInterval = const Duration(milliseconds: 200),
+    this.minInterval = const Duration(milliseconds: 350),
     this.templatePose = seatedPhoneTemplatePose,
     this.offloadToIsolate = false,
   });
@@ -115,8 +115,21 @@ class PoseCoachingCoordinator {
       );
     }
 
-    _latestResult = result;
-    return result;
+    _latestResult = _attachFrameMetadata(
+      result,
+      landmarks: pose == null
+          ? const {}
+          : PoseLandmarkUtils.imputeMissingLandmarks(
+              PoseLandmarkUtils.poseToNormalizedMap(
+                pose,
+                imageWidth: imageWidth,
+                imageHeight: imageHeight,
+              ),
+            ),
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
+    );
+    return _latestResult;
   }
 
   /// Uses temporally smoothed landmarks (subject tracker + joint EMA upstream).
@@ -150,8 +163,26 @@ class PoseCoachingCoordinator {
       );
     }
 
-    _latestResult = result;
-    return result;
+    _latestResult = _attachFrameMetadata(
+      result,
+      landmarks: imputed,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
+    );
+    return _latestResult;
+  }
+
+  PoseCoachingResult _attachFrameMetadata(
+    PoseCoachingResult result, {
+    required Map<PoseLandmarkType, PosePoint3D> landmarks,
+    required int imageWidth,
+    required int imageHeight,
+  }) {
+    return result.copyWith(
+      landmarks: landmarks,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
+    );
   }
 
   Future<PoseCoachingResult> _evaluateInIsolate({

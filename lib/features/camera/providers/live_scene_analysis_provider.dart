@@ -60,7 +60,8 @@ class LiveSceneAnalysisNotifier
   bool get _isCameraBusy {
     return ref.read(isBurstingProvider) ||
         ref.read(timerCountdownProvider) != null ||
-        ref.read(isCapturingProvider);
+        ref.read(isCapturingProvider) ||
+        ref.read(cameraSwitchingProvider);
   }
 
   void _setAnalyzing(bool value) {

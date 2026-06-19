@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import 'ios_camera_ui_kit.dart';
+
 class IosGalleryButton extends StatelessWidget {
   const IosGalleryButton({
     super.key,
@@ -20,19 +22,22 @@ class IosGalleryButton extends StatelessWidget {
       onTap: onTap,
       onLongPress: onLongPress,
       child: Container(
-        width: 50,
-        height: 50,
+        width: IosCameraUiKit.gallerySize,
+        height: IosCameraUiKit.gallerySize,
         decoration: BoxDecoration(
-          color: const Color(0xFF2C2C2E),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white.withOpacity(0.85), width: 2),
+          color: IosCameraUiKit.galleryFill,
+          borderRadius: BorderRadius.circular(IosCameraUiKit.galleryRadius),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.85),
+            width: IosCameraUiKit.galleryBorderWidth,
+          ),
         ),
         clipBehavior: Clip.antiAlias,
         child: thumbnailBytes != null
             ? Image.memory(thumbnailBytes!, fit: BoxFit.cover)
             : Icon(
                 Icons.photo_outlined,
-                color: Colors.white.withOpacity(0.7),
+                color: IosCameraUiKit.textSecondary,
                 size: 24,
               ),
       ),

@@ -9,17 +9,22 @@ import '../../../core/utils/pose_coaching_hint.dart';
 import '../../pose/platform/pose_silhouette_bridge.dart';
 import '../../pose/platform/pose_silhouette_native_overlay.dart';
 import '../../pose/platform/pose_silhouette_native_toast.dart';
+import '../../pose/presentation/pose_alignment_coach_toast.dart';
+import '../../pose/presentation/pose_skeleton_overlay.dart';
 import '../../pose/providers/pose_coaching_provider.dart';
 import '../../pose/providers/pose_silhouette_provider.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../models/body_part_labels.dart';
+import '../../../models/composition_overlay_type.dart';
 import '../../../models/camera_guidance.dart';
 import '../../../models/camera_aspect_ratio.dart';
 import '../../../models/photo_frame_template.dart';
+import '../../camera/presentation/widgets/ios_camera_grid_overlay.dart';
 import '../../overlays/presentation/composition_overlay.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/guided_frame_providers.dart';
 import '../../reference/providers/reference_providers.dart';
+import '../../reference/providers/reference_skeleton_providers.dart';
 import '../../reference/services/frame_generator_service.dart';
 import 'photo_frame_overlay.dart';
 import 'poze_wireframe_style.dart';
@@ -104,8 +109,13 @@ class _GuidedCameraOverlayStackState
                 partLabels: widget.partLabels,
               ),
               PoseSilhouetteNativeOverlay(visible: widget.frameVisible),
+              PoseSkeletonOverlay(
+                visible: widget.frameVisible &&
+                    (widget.guidance.subjectPoseSkeleton?.length ?? 0) < 4,
+              ),
               const PoseSilhouetteBridge(),
               const PoseSilhouetteNativeToast(),
+              PoseAlignmentCoachToast(visible: widget.frameVisible),
             ],
           ),
         );
@@ -122,6 +132,9 @@ class _CompositionOverlayLayer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final overlayType = ref.watch(overlayTypeProvider);
+    if (visible && overlayType == CompositionOverlayType.ruleOfThirds) {
+      return const IosCameraGridOverlay();
+    }
     return CompositionOverlay(type: overlayType, visible: visible);
   }
 }
@@ -169,6 +182,7 @@ class _FrameOverlayLayer extends ConsumerWidget {
     final coaching = ref.watch(poseCoachingResultProvider);
     final nativeSilhouette =
         ref.watch(poseSilhouetteNativeSupportedProvider).valueOrNull ?? false;
+    final skeletonStrokeWidth = ref.watch(skeletonStrokeWidthProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return PhotoFrameOverlay(
@@ -184,6 +198,7 @@ class _FrameOverlayLayer extends ConsumerWidget {
       ),
       alignmentScore: coaching?.poseScore,
       renderHumanSilhouette: !nativeSilhouette,
+      skeletonStrokeWidth: skeletonStrokeWidth,
     );
   }
 }

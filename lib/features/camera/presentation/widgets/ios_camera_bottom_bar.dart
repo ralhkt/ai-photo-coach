@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../models/camera_aspect_ratio.dart';
 import '../../../../models/camera_timer_duration.dart';
+import 'ios_camera_mode_carousel.dart';
 import 'ios_camera_options_strip.dart';
+import 'ios_camera_ui_kit.dart';
 import 'ios_exposure_slider.dart';
 import 'ios_focal_presets.dart';
 import 'ios_gallery_button.dart';
@@ -49,9 +51,16 @@ class IosCameraBottomBar extends StatelessWidget {
     this.focalPreset = 1.0,
     this.onFocalPresetTap,
     this.compactMode = false,
+    this.modeLabels = const [],
+    this.selectedModeIndex = 0,
+    this.onModeSelected,
+    this.showZoomPresets = true,
   });
 
   final String modeLabel;
+  final List<String> modeLabels;
+  final int selectedModeIndex;
+  final ValueChanged<int>? onModeSelected;
   final Uint8List? thumbnailBytes;
   final VoidCallback onGalleryTap;
   final VoidCallback onGalleryLongPress;
@@ -87,46 +96,22 @@ class IosCameraBottomBar extends StatelessWidget {
   final double focalPreset;
   final ValueChanged<double>? onFocalPresetTap;
   final bool compactMode;
+  final bool showZoomPresets;
 
   @override
   Widget build(BuildContext context) {
-    final showOptions = !compactMode && optionsExpanded;
+    final modes = modeLabels.isNotEmpty ? modeLabels : [modeLabel];
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            Colors.black.withValues(alpha: 0.82),
-            Colors.black.withValues(alpha: 0.38),
-            Colors.transparent,
-          ],
-          stops: const [0.0, 0.45, 1.0],
-        ),
-      ),
+    return IosCameraChromeBar(
+      edge: IosCameraChromeEdge.bottom,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: SafeArea(
           top: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (showOptions) ...[
-                if (proModeEnabled && onFocalPresetTap != null) ...[
-                  IosFocalPresets(
-                    currentZoom: focalPreset,
-                    onPresetTap: onFocalPresetTap!,
-                  ),
-                  const SizedBox(height: 6),
-                ],
-                if (proModeEnabled && onManualExposureChanged != null) ...[
-                  IosExposureSlider(
-                    value: manualExposure,
-                    onChanged: onManualExposureChanged!,
-                  ),
-                  const SizedBox(height: 6),
-                ],
+              if (optionsExpanded && !compactMode) ...[
                 IosCameraOptionsStrip(
                   hdrEnabled: hdrEnabled,
                   hdrSupported: hdrSupported,
@@ -135,7 +120,7 @@ class IosCameraBottomBar extends StatelessWidget {
                   aeAfLocked: aeAfLocked,
                   isBursting: isBursting,
                   burstCount: burstCount,
-                  expanded: showOptions,
+                  expanded: true,
                   onHdrTap: onHdrTap,
                   onTimerTap: onTimerTap,
                   onExposureLockTap: onExposureLockTap,
@@ -146,31 +131,28 @@ class IosCameraBottomBar extends StatelessWidget {
                   onHistogramTap: onHistogramTap,
                   frontMirrorEnabled: frontMirrorEnabled,
                   onMirrorTap: onMirrorTap,
+                  showExpandChevron: false,
+                  aspectRatio: aspectRatio,
+                  onAspectRatioTap: onAspectRatioTap,
                 ),
-              ] else if (!compactMode)
-                GestureDetector(
-                  onTap: onToggleOptions,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 2),
-                    child: Icon(
-                      Icons.keyboard_arrow_up_rounded,
-                      color: Colors.white54,
-                      size: 20,
-                    ),
-                  ),
+                const SizedBox(height: 4),
+              ],
+              if (showZoomPresets && onFocalPresetTap != null) ...[
+                IosFocalPresets(
+                  currentZoom: focalPreset,
+                  onPresetTap: onFocalPresetTap!,
                 ),
-              Text(
-                modeLabel,
-                style: const TextStyle(
-                  color: Color(0xFFFFD60A),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
+                const SizedBox(height: 6),
+              ],
+              if (proModeEnabled && onManualExposureChanged != null) ...[
+                IosExposureSlider(
+                  value: manualExposure,
+                  onChanged: onManualExposureChanged!,
                 ),
-              ),
-              const SizedBox(height: 10),
+                const SizedBox(height: 6),
+              ],
               SizedBox(
-                height: 76,
+                height: IosCameraUiKit.bottomControlRowHeight,
                 child: Row(
                   children: [
                     IosGalleryButton(
@@ -197,6 +179,24 @@ class IosCameraBottomBar extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(height: 4),
+              IosCameraModeCarousel(
+                modes: modes,
+                selectedIndex: selectedModeIndex.clamp(0, modes.length - 1),
+                onModeSelected: onModeSelected,
+              ),
+              if (isBursting)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    '×$burstCount',
+                    style: const TextStyle(
+                      color: IosCameraUiKit.accentYellow,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -216,16 +216,19 @@ class _FlipCameraButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 50,
-        height: 50,
-        decoration: const BoxDecoration(
-          color: Color(0xFF3A3A3C),
+        width: IosCameraUiKit.flipDiameter,
+        height: IosCameraUiKit.flipDiameter,
+        decoration: BoxDecoration(
+          color: IosCameraUiKit.flipFill,
           shape: BoxShape.circle,
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.18),
+          ),
         ),
         child: Icon(
           Icons.cameraswitch_rounded,
-          color: Colors.white.withOpacity(enabled ? 1 : 0.35),
-          size: 26,
+          color: Colors.white.withValues(alpha: enabled ? 0.95 : 0.35),
+          size: 24,
         ),
       ),
     );

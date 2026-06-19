@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +12,7 @@ import '../../../../core/utils/guidance_text.dart';
 import '../../../../core/utils/pose_coaching_hint.dart';
 import '../../../../core/widgets/app_glass_widgets.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
+import '../../../../models/camera_aspect_ratio.dart';
 import '../../../../models/camera_timer_duration.dart';
 import '../../../../models/captured_photo.dart';
 import '../../../../models/shoot_session.dart';
@@ -22,9 +25,12 @@ import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
 import '../../../pose/providers/pose_coaching_provider.dart';
 import '../burst_review_screen.dart';
+import '../camera_shell_mode.dart';
+import '../ios_camera_mode_switcher.dart';
 import '../photo_review_screen.dart';
 import 'ios_camera_bottom_bar.dart';
 import 'ios_camera_layers.dart';
+import 'ios_camera_ui_kit.dart';
 
 class IosCameraScaffold extends ConsumerStatefulWidget {
   const IosCameraScaffold({
@@ -215,8 +221,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
     });
 
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    final isGuidedMode = widget.shootSessionMode == ShootSessionMode.guided;
-    const bottomChromeHeight = 132.0;
+    const bottomChromeHeight = IosCameraUiKit.bottomChromeHeight;
     const guidedHintHeight = 44.0;
 
     return Stack(
@@ -229,6 +234,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
               controller: widget.controller,
               croppedOverlay: widget.croppedOverlay,
               showLiveGuidanceFrame: _isFreeShootMode,
+              showNativeGrid: widget.gridEnabled,
             ),
             widget.overlay,
             IosCameraPhase2Layer(enabled: widget.enablePhase2),
@@ -237,14 +243,6 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
             IosCameraAnalyzingLayer(enabled: _isFreeShootMode),
             IosCameraTopBarLayer(
               onClose: () => _handleClose(context),
-              onGridTap: widget.onGridTap,
-              onFrameTap: widget.onFrameTap,
-              gridEnabled: widget.gridEnabled,
-              frameEnabled: widget.frameEnabled,
-              showGridButton: widget.showGridButton,
-              showFrameButton: widget.showFrameButton,
-              showAiAnalyzeButton: _isFreeShootMode,
-              onAiAnalyzeTap: () => _analyzeLiveScene(context),
               centerLabel: widget.centerTopLabel,
             ),
             const IosCameraHistogramLayer(),
@@ -288,7 +286,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
           right: 0,
           bottom: 0,
           child: _IosCameraBottomBarLayer(
-            compactMode: isGuidedMode,
+            shellMode: CameraShellMode.fromShootSession(widget.shootSessionMode),
             modeLabel: widget.modeLabel ?? l10n.cameraModePhoto,
             onHdrTap: (supported, enabled) =>
                 _handleHdrTap(context, l10n, supported, enabled),
@@ -470,16 +468,16 @@ class _LivePoseCoachingChip extends ConsumerWidget {
 
 class _IosCameraBottomBarLayer extends ConsumerWidget {
   const _IosCameraBottomBarLayer({
+    required this.shellMode,
     required this.modeLabel,
     required this.onHdrTap,
     required this.onGalleryTap,
     required this.onShutterTap,
     required this.onBurstEnd,
-    this.compactMode = false,
   });
 
+  final CameraShellMode shellMode;
   final String modeLabel;
-  final bool compactMode;
   final void Function(bool supported, bool enabled) onHdrTap;
   final void Function(bool hasLastCapture) onGalleryTap;
   final VoidCallback onShutterTap;
@@ -505,9 +503,30 @@ class _IosCameraBottomBarLayer extends ConsumerWidget {
     final showHistogram = ref.watch(showHistogramProvider);
     final frontMirror = ref.watch(frontMirrorEnabledProvider);
 
+    final modeLabels = [
+      l10n.cameraModeVideo,
+      l10n.cameraModePhoto,
+      l10n.cameraModeGuided,
+    ];
+    final aspectRatio = ref.watch(cameraAspectRatioProvider);
+
     return IosCameraBottomBar(
-      compactMode: compactMode,
+      compactMode: shellMode == CameraShellMode.guided,
+      showZoomPresets: true,
       modeLabel: modeLabel,
+      modeLabels: modeLabels,
+      selectedModeIndex: shellMode.carouselIndex,
+      onModeSelected: (index) {
+        final target = CameraShellMode.fromCarouselIndex(index);
+        unawaited(
+          switchIosCameraShellMode(
+            context: context,
+            ref: ref,
+            current: shellMode,
+            target: target,
+          ),
+        );
+      },
       thumbnailBytes: lastCapture?.bytes,
       isCapturing: isCapturing,
       isBursting: isBursting,
@@ -542,6 +561,10 @@ class _IosCameraBottomBarLayer extends ConsumerWidget {
       proModeEnabled: proMode,
       onProModeTap: () {
         ref.read(proModeEnabledProvider.notifier).state = !proMode;
+      },
+      aspectRatio: aspectRatio,
+      onAspectRatioTap: () {
+        ref.read(cameraAspectRatioProvider.notifier).state = aspectRatio.next;
       },
       showHistogram: showHistogram,
       onHistogramTap: () {

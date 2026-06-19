@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'ios_camera_ui_kit.dart';
+
 class IosShutterButton extends StatefulWidget {
   const IosShutterButton({
     super.key,
@@ -28,8 +30,12 @@ class _IosShutterButtonState extends State<IosShutterButton> {
 
   @override
   Widget build(BuildContext context) {
-    final scale = _pressed ? 0.9 : 1.0;
+    final scale = _pressed ? IosCameraUiKit.pressScale : 1.0;
     final bursting = widget.isBursting;
+    final ringOpacity = widget.enabled ? 1.0 : 0.35;
+    final innerSize = bursting || widget.isCapturing
+        ? IosCameraUiKit.shutterBurstInner
+        : IosCameraUiKit.shutterInnerDiameter;
 
     return GestureDetector(
       onTapDown: widget.enabled ? (_) => setState(() => _pressed = true) : null,
@@ -68,34 +74,36 @@ class _IosShutterButtonState extends State<IosShutterButton> {
           : null,
       child: AnimatedScale(
         scale: scale,
-        duration: const Duration(milliseconds: 80),
+        duration: IosCameraUiKit.pressAnimation,
         child: SizedBox(
-          width: 78,
-          height: 78,
+          width: IosCameraUiKit.shutterOuterDiameter,
+          height: IosCameraUiKit.shutterOuterDiameter,
           child: Stack(
             alignment: Alignment.center,
             children: [
               Container(
-                width: 78,
-                height: 78,
+                width: IosCameraUiKit.shutterOuterDiameter,
+                height: IosCameraUiKit.shutterOuterDiameter,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.white.withOpacity(widget.enabled ? 1 : 0.35),
-                    width: 4,
+                    color: Colors.white.withValues(alpha: ringOpacity),
+                    width: IosCameraUiKit.shutterRingWidth,
                   ),
                 ),
               ),
               AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                width: bursting || widget.isCapturing ? 34 : 64,
-                height: bursting || widget.isCapturing ? 34 : 64,
+                duration: IosCameraUiKit.morphAnimation,
+                width: innerSize,
+                height: innerSize,
                 decoration: BoxDecoration(
                   color: bursting
-                      ? const Color(0xFFFFD60A)
-                      : Colors.white.withOpacity(widget.enabled ? 1 : 0.35),
+                      ? IosCameraUiKit.accentYellow
+                      : Colors.white.withValues(alpha: ringOpacity),
                   borderRadius: BorderRadius.circular(
-                    bursting || widget.isCapturing ? 8 : 32,
+                    bursting || widget.isCapturing
+                        ? IosCameraUiKit.shutterBurstRadius
+                        : innerSize / 2,
                   ),
                 ),
               ),

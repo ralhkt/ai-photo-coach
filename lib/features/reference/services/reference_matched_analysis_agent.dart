@@ -90,6 +90,7 @@ class ReferenceMatchedPhotoAnalysisAgent implements PhotoAnalysisAgent {
           ? SubjectShapeKind.humanSilhouette
           : live.subjectShape,
       subjectSilhouettePoints: reference.subjectSilhouettePoints,
+      subjectPoseSkeleton: reference.subjectPoseSkeleton,
       bodyPartGuides: reference.bodyPartGuides,
       framingHintKey: live.framingHintKey,
       exposureHintKey: live.exposureHintKey,

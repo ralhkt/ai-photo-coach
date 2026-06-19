@@ -12,6 +12,7 @@ import '../../../models/ml_detection_result.dart';
 import 'ml_aesthetic_scorer.dart';
 import 'ml_input_image_helper.dart';
 import '../../pose/services/subject_pose_tracker.dart';
+import '../../reference/services/reference_pose_skeleton_extractor.dart';
 import 'pose_body_guide_mapper.dart';
 import 'vision_analyzer.dart';
 
@@ -96,6 +97,7 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
         .toList();
 
     BodyPartGuides? bodyGuides;
+    List<List<Offset>> poseSkeleton = const [];
     Rect? poseSubject;
     var hasPose = false;
 
@@ -117,6 +119,11 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
         imageHeight: imageHeight,
       );
       hasPose = bodyGuides != null;
+      poseSkeleton = ReferencePoseSkeletonExtractor.fromPose(
+        primaryPose,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+      );
     }
 
     final sceneLabels = labels
@@ -141,6 +148,7 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
       aestheticScore: _aestheticScorer.scoreFromLabels(sceneLabels),
       faceCount: faces.length,
       hasPose: hasPose,
+      poseSkeletonSegments: poseSkeleton,
     );
   }
 

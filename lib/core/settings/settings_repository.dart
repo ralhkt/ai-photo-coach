@@ -15,6 +15,9 @@ class SettingsRepository {
   static const _powerSaveKey = 'power_save_enabled';
   static const _autoLiveSceneKey = 'auto_live_scene_analysis';
   static const _liveSceneCoachKey = 'live_scene_coach_dismissed';
+  static const _cameraModeCoachKey = 'camera_mode_coach_dismissed';
+  static const _skeletonStrokeWidthKey = 'skeleton_stroke_width';
+  static const _skeletonOnlyPreviewKey = 'skeleton_only_preview';
 
   Future<AppSettings> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -26,7 +29,28 @@ class SettingsRepository {
       powerSaveEnabled: prefs.getBool(_powerSaveKey) ?? false,
       autoLiveSceneAnalysis: prefs.getBool(_autoLiveSceneKey) ?? false,
       liveSceneCoachDismissed: prefs.getBool(_liveSceneCoachKey) ?? false,
+      cameraModeCoachDismissed: prefs.getBool(_cameraModeCoachKey) ?? false,
     );
+  }
+
+  Future<double> loadSkeletonStrokeWidth() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(_skeletonStrokeWidthKey) ?? 2.2;
+  }
+
+  Future<void> saveSkeletonStrokeWidth(double width) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(_skeletonStrokeWidthKey, width);
+  }
+
+  Future<bool> loadSkeletonOnlyPreview() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_skeletonOnlyPreviewKey) ?? false;
+  }
+
+  Future<void> saveSkeletonOnlyPreview(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_skeletonOnlyPreviewKey, value);
   }
 
   Future<void> save(AppSettings settings) async {
@@ -38,6 +62,7 @@ class SettingsRepository {
     await prefs.setBool(_powerSaveKey, settings.powerSaveEnabled);
     await prefs.setBool(_autoLiveSceneKey, settings.autoLiveSceneAnalysis);
     await prefs.setBool(_liveSceneCoachKey, settings.liveSceneCoachDismissed);
+    await prefs.setBool(_cameraModeCoachKey, settings.cameraModeCoachDismissed);
   }
 
   PromptStrength _parsePromptStrength(String? value) {

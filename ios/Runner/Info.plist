@@ -28,6 +28,8 @@
 	<string>Camera access is required to provide real-time photography coaching.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is required to analyze reference images.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>需要寫入相簿權限，才能儲存匯出的骨架練習圖。</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

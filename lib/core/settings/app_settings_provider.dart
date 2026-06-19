@@ -53,6 +53,11 @@ class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
     final current = state.requireValue;
     await saveSettings(current.copyWith(liveSceneCoachDismissed: true));
   }
+
+  Future<void> dismissCameraModeCoach() async {
+    final current = state.requireValue;
+    await saveSettings(current.copyWith(cameraModeCoachDismissed: true));
+  }
 }
 
 final liveSceneCoachDismissedProvider = Provider<bool>((ref) {

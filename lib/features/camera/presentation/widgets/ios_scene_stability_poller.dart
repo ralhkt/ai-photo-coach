@@ -9,10 +9,12 @@ import '../../../../core/performance/performance_budget.dart';
 import '../../../../core/settings/app_settings_provider.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../scene_stabilization/services/scene_change_detector.dart';
+import '../../../../models/shoot_session.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
+import '../../../session/providers/shoot_session_provider.dart';
 
 /// iOS pHash polling — image stream deadlocks with preview + takePicture.
 class IosSceneStabilityPoller extends ConsumerStatefulWidget {
@@ -48,6 +50,11 @@ class _IosSceneStabilityPollerState extends ConsumerState<IosSceneStabilityPolle
 
   Future<void> _tick() async {
     if (!mounted || _tickInFlight) {
+      return;
+    }
+
+    final session = ref.read(shootSessionProvider);
+    if (session?.mode == ShootSessionMode.guided) {
       return;
     }
 

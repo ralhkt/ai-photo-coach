@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui';
@@ -23,6 +24,7 @@ import 'exif_reader_service.dart';
 import 'photo_analysis_agent.dart';
 import 'reference_matched_analysis_agent.dart';
 import 'human_frame_shape_builder.dart';
+import 'reference_photo_pose_analyzer.dart';
 import 'subject_silhouette_service.dart';
 
 class ImageAnalyzerService {
@@ -33,12 +35,15 @@ class ImageAnalyzerService {
     ExifReaderService? exifReader,
     PhotoAnalysisAgent? agent,
     VisionAnalyzer? visionAnalyzer,
+    ReferencePhotoPoseAnalyzer? referencePoseAnalyzer,
   })  : _silhouetteService = silhouetteService ?? SubjectSilhouetteService(),
         _bodyPartGuideService = bodyPartGuideService ?? BodyPartGuideService(),
         _deepAnalysisService = deepAnalysisService ?? DeepAnalysisService(),
         _exifReader = exifReader ?? const ExifReaderService(),
         _agent = agent ?? HeuristicPhotoAnalysisAgent(),
-        _visionAnalyzer = visionAnalyzer ?? HeuristicVisionAnalyzer();
+        _visionAnalyzer = visionAnalyzer ?? HeuristicVisionAnalyzer(),
+        _referencePoseAnalyzer =
+            referencePoseAnalyzer ?? ReferencePhotoPoseAnalyzer();
 
   final SubjectSilhouetteService _silhouetteService;
   final BodyPartGuideService _bodyPartGuideService;
@@ -46,6 +51,13 @@ class ImageAnalyzerService {
   final ExifReaderService _exifReader;
   final PhotoAnalysisAgent _agent;
   final VisionAnalyzer _visionAnalyzer;
+  final ReferencePhotoPoseAnalyzer _referencePoseAnalyzer;
+
+  ReferencePoseAnalysis? _lastReferencePoseAnalysis;
+
+  /// Latest reference-pose extraction from the most recent [analyze] call.
+  ReferencePoseAnalysis? get lastReferencePoseAnalysis =>
+      _lastReferencePoseAnalysis;
 
   Future<PhotoAnalysisResult> analyze(
     Uint8List bytes, {
@@ -61,17 +73,24 @@ class ImageAnalyzerService {
 
     final width = decoded.width;
     final height = decoded.height;
-    final aspectRatio = width / height;
     final brightness = _averageBrightness(decoded);
 
-    final MlDetectionResult mlDetection = await _analyzeWithMlFallback(
-      normalizedBytes,
-      width,
-      height,
-    );
+    final mlFuture = _analyzeWithMlFallback(normalizedBytes, width, height);
+    final poseFuture = forLiveCoaching
+        ? Future.value(const ReferencePoseAnalysis.empty())
+        : _referencePoseAnalyzer.analyze(normalizedBytes);
+    final results = await Future.wait([mlFuture, poseFuture]);
+    final mlDetection = results[0] as MlDetectionResult;
+    final referencePose = results[1] as ReferencePoseAnalysis;
+    _lastReferencePoseAnalysis = referencePose;
+    final aspectRatio = referencePose.orientedAspectRatio > 0
+        ? referencePose.orientedAspectRatio
+        : width / height;
 
-    final mlFoundPerson = mlDetection.hasFaces || mlDetection.hasPose;
-    final subjectDetectionReliable = mlFoundPerson || forLiveCoaching;
+    final mlFoundPerson =
+        mlDetection.hasFaces || mlDetection.hasPose || referencePose.hasSkeleton;
+    final subjectDetectionReliable =
+        mlFoundPerson || forLiveCoaching || referencePose.hasSkeleton;
 
     final Rect subjectRect;
     if (mlFoundPerson) {
@@ -111,6 +130,7 @@ class ImageAnalyzerService {
     BodyPartGuides? bodyPartGuides = mlDetection.bodyPartGuides;
 
     List<Offset>? silhouettePoints;
+    List<List<Offset>>? poseSkeleton;
     var subjectShape = SubjectShapeKind.rectangle;
     if (prefersHuman) {
       bodyPartGuides ??= _bodyPartGuideService.derive(
@@ -118,12 +138,18 @@ class ImageAnalyzerService {
         silhouettePoints: HumanFrameShapeBuilder()
             .mapTemplateToSubject(subjectRect),
       );
-      silhouettePoints = _silhouetteService.extractPortraitSilhouette(
+      silhouettePoints = await _silhouetteService.extractPortraitSilhouetteAsync(
+        normalizedBytes,
         decoded,
         subjectRect,
         bodyPartGuides: bodyPartGuides,
       );
       subjectShape = SubjectShapeKind.humanSilhouette;
+      if (referencePose.hasSkeleton) {
+        poseSkeleton = referencePose.skeletonSegments;
+      } else if (mlDetection.poseSkeletonSegments.isNotEmpty) {
+        poseSkeleton = mlDetection.poseSkeletonSegments;
+      }
     }
 
     final guidance = _buildGuidance(
@@ -135,6 +161,7 @@ class ImageAnalyzerService {
       userSceneType: userSceneType,
       subjectShape: subjectShape,
       silhouettePoints: silhouettePoints,
+      poseSkeleton: poseSkeleton,
       bodyPartGuides: bodyPartGuides,
     );
 
@@ -176,7 +203,9 @@ class ImageAnalyzerService {
 
   Future<PhotoAnalysisResult> _safeAgentEnrich(PhotoAnalysisResult result) async {
     try {
-      return await _agent.enrich(result);
+      return await _agent
+          .enrich(result)
+          .timeout(const Duration(seconds: 6), onTimeout: () => result);
     } catch (error, stackTrace) {
       debugPrint('ImageAnalyzerService: cloud enrich skipped: $error');
       debugPrint('$stackTrace');
@@ -468,6 +497,7 @@ class ImageAnalyzerService {
     required SceneType userSceneType,
     required SubjectShapeKind subjectShape,
     required List<Offset>? silhouettePoints,
+    required List<List<Offset>>? poseSkeleton,
     required BodyPartGuides? bodyPartGuides,
   }) {
     final centerY = subjectRect.center.dy;
@@ -496,6 +526,7 @@ class ImageAnalyzerService {
       angleHintKey: _angleHintKey(angleDegrees),
       subjectShape: subjectShape,
       subjectSilhouettePoints: silhouettePoints,
+      subjectPoseSkeleton: poseSkeleton,
       bodyPartGuides: bodyPartGuides,
     );
   }

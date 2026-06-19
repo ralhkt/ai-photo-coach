@@ -29,16 +29,16 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   bool _tickInFlight = false;
   double _latestRoll = 0;
   DateTime _lastCapture = DateTime.fromMillisecondsSinceEpoch(0);
-  Duration _captureInterval = const Duration(milliseconds: 550);
+  Duration _captureInterval = const Duration(milliseconds: 900);
   PoseCoachingResult? _lastResult;
 
   Duration get _fallbackInterval {
     if (kIsWeb) {
-      return const Duration(milliseconds: 900);
+      return const Duration(milliseconds: 1100);
     }
     return Platform.isIOS
-        ? const Duration(milliseconds: 850)
-        : const Duration(milliseconds: 550);
+        ? const Duration(milliseconds: 1200)
+        : const Duration(milliseconds: 700);
   }
 
   @override
@@ -61,9 +61,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
 
     final shouldRun = ref.read(poseCoachingShouldRunProvider);
     if (shouldRun && _timer == null) {
-      _timer = Timer.periodic(const Duration(milliseconds: 120), (_) {
-        unawaited(_tick());
-      });
+      _scheduleNextTick(const Duration(milliseconds: 120));
       unawaited(_tick());
     } else if (!shouldRun && _timer != null) {
       _timer?.cancel();
@@ -74,18 +72,33 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     }
   }
 
+  void _scheduleNextTick(Duration delay) {
+    _timer?.cancel();
+    _timer = Timer(delay, () {
+      unawaited(_tick());
+    });
+  }
+
   bool _isCameraBusy() {
     return ref.read(isCapturingProvider) ||
         ref.read(isBurstingProvider) ||
         ref.read(timerCountdownProvider) != null ||
-        ref.read(liveSceneAnalyzingProvider);
+        ref.read(liveSceneAnalyzingProvider) ||
+        ref.read(cameraSwitchingProvider);
   }
 
   Future<void> _tick() async {
-    if (!mounted || _tickInFlight || !ref.read(poseCoachingShouldRunProvider)) {
+    if (!mounted) {
       return;
     }
-    if (_isCameraBusy()) {
+
+    if (!ref.read(poseCoachingShouldRunProvider)) {
+      _syncLoop();
+      return;
+    }
+
+    if (_tickInFlight || _isCameraBusy()) {
+      _scheduleNextTick(const Duration(milliseconds: 250));
       return;
     }
 
@@ -97,16 +110,26 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     );
 
     final now = DateTime.now();
-    if (!service.captureScheduler.shouldCapture(_lastCapture, _captureInterval, now: now)) {
+    if (!service.captureScheduler.shouldCapture(
+      _lastCapture,
+      _captureInterval,
+      now: now,
+    )) {
+      final wait = _captureInterval - now.difference(_lastCapture);
+      _scheduleNextTick(wait < const Duration(milliseconds: 80)
+          ? const Duration(milliseconds: 80)
+          : wait);
       return;
     }
 
     final controller = ref.read(cameraControllerProvider).value;
     if (controller == null || !controller.value.isInitialized) {
+      _scheduleNextTick(const Duration(milliseconds: 400));
       return;
     }
 
     if (!service.shouldRunInference(now: now)) {
+      _scheduleNextTick(const Duration(milliseconds: 200));
       return;
     }
 
@@ -115,6 +138,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
       final bytes =
           await ref.read(cameraControllerProvider.notifier).capturePreviewFrame();
       if (!mounted || bytes == null || bytes.isEmpty) {
+        _scheduleNextTick(_captureInterval);
         return;
       }
 
@@ -127,14 +151,19 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         now: now,
       );
 
-      if (!mounted || result == null) {
+      if (!mounted) {
         return;
       }
 
-      _lastResult = result;
-      ref.read(poseCoachingResultProvider.notifier).state = result;
+      if (result != null) {
+        _lastResult = result;
+        ref.read(poseCoachingResultProvider.notifier).state = result;
+      }
     } finally {
       _tickInFlight = false;
+      if (mounted) {
+        _scheduleNextTick(_captureInterval);
+      }
     }
   }
 
@@ -150,11 +179,6 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         _latestRoll = next.value?.rollDegrees ?? _latestRoll;
       },
     );
-
-    final attitude = ref.watch(deviceAttitudeProvider).value;
-    if (attitude != null) {
-      _latestRoll = attitude.rollDegrees;
-    }
 
     return const SizedBox.shrink();
   }

@@ -60,7 +60,7 @@ void main() {
   });
 
   group('resolvePoseCoachingMessage', () {
-    test('prefers combined guidance from live coaching', () {
+    test('prefers tilt guidance before pose alignment toast', () {
       const coaching = PoseCoachingResult(
         isLevel: false,
         poseScore: 40,
@@ -79,6 +79,29 @@ void main() {
           coaching: coaching,
         ),
         '手機請向右旋轉 3 度',
+      );
+    });
+
+    test('uses alignment toast when level and proportion are OK', () {
+      const coaching = PoseCoachingResult(
+        isLevel: true,
+        poseScore: 60,
+        proportionStatus: 'OK',
+        tiltGuidance: 'OK',
+        combinedGuidance: '手機請向右旋轉 3 度',
+        poseMatched: false,
+      );
+
+      expect(
+        resolvePoseCoachingMessage(
+          l10n: l10n,
+          stability: const SceneStabilityStatus(
+            state: SceneStabilityState.monitoring,
+            hammingDistance: 4,
+          ),
+          coaching: coaching,
+        ),
+        l10n.alignmentToastAligning,
       );
     });
   });

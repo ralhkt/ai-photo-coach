@@ -11,10 +11,12 @@ import '../../../ar/providers/ar_providers.dart';
 import '../../../ar/services/ar_platform_service.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
+import '../../providers/camera_mode_settings_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
 import 'angle_guidance_overlay.dart';
+import 'ios_camera_grid_overlay.dart';
 import 'ios_camera_preview.dart';
 import 'ios_camera_top_bar.dart';
 import 'ios_countdown_overlay.dart';
@@ -32,11 +34,13 @@ class IosCameraPreviewLayer extends ConsumerWidget {
     required this.controller,
     this.croppedOverlay,
     this.showLiveGuidanceFrame = false,
+    this.showNativeGrid = true,
   });
 
   final CameraController controller;
   final Widget? croppedOverlay;
   final bool showLiveGuidanceFrame;
+  final bool showNativeGrid;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,6 +58,7 @@ class IosCameraPreviewLayer extends ConsumerWidget {
               fit: StackFit.expand,
               children: [
                 CameraPreviewScope(controller: controller),
+                IosCameraGridOverlay(visible: showNativeGrid),
                 if (croppedOverlay != null)
                   RepaintBoundary(child: croppedOverlay!),
                 if (showLiveGuidanceFrame)
@@ -100,26 +105,10 @@ class IosCameraTopBarLayer extends ConsumerWidget {
   const IosCameraTopBarLayer({
     super.key,
     required this.onClose,
-    this.onGridTap,
-    this.onFrameTap,
-    this.gridEnabled = false,
-    this.frameEnabled = false,
-    this.showGridButton = true,
-    this.showFrameButton = false,
-    this.showAiAnalyzeButton = false,
-    this.onAiAnalyzeTap,
     this.centerLabel,
   });
 
   final VoidCallback onClose;
-  final VoidCallback? onGridTap;
-  final VoidCallback? onFrameTap;
-  final bool gridEnabled;
-  final bool frameEnabled;
-  final bool showGridButton;
-  final bool showFrameButton;
-  final bool showAiAnalyzeButton;
-  final VoidCallback? onAiAnalyzeTap;
   final String? centerLabel;
 
   @override
@@ -129,11 +118,8 @@ class IosCameraTopBarLayer extends ConsumerWidget {
     final hdrSupported = ref.watch(hdrSupportedProvider);
     final hdrEnabled = ref.watch(hdrEnabledProvider);
     final aeAfLocked = ref.watch(aeAfLockProvider);
-    final isLiveAnalyzing = ref.watch(liveSceneAnalyzingProvider);
-    final isCapturing = ref.watch(isCapturingProvider);
-    final isBursting = ref.watch(isBurstingProvider);
-    final countdown = ref.watch(timerCountdownProvider);
     final aspectRatio = ref.watch(cameraAspectRatioProvider);
+    final optionsExpanded = ref.watch(showCameraOptionsProvider);
 
     return Positioned(
       top: 0,
@@ -144,41 +130,26 @@ class IosCameraTopBarLayer extends ConsumerWidget {
         hdrEnabled: hdrSupported && hdrEnabled,
         aeAfLocked: aeAfLocked,
         aeAfLockLabel: l10n.aeAfLocked,
+        formatLabel: l10n.cameraFormatJpeg,
+        megapixelLabel: l10n.cameraFormatMegapixel,
+        nightModeEnabled: hdrSupported && hdrEnabled,
+        nightModeSupported: hdrSupported,
         onClose: onClose,
         onFlashTap: () =>
             ref.read(cameraControllerProvider.notifier).cycleFlashMode(),
-        onGridTap: onGridTap,
-        onFrameTap: onFrameTap,
-        gridEnabled: gridEnabled,
-        frameEnabled: frameEnabled,
-        showGridButton: showGridButton,
-        showFrameButton: showFrameButton,
-        showAiAnalyzeButton: showAiAnalyzeButton,
-        aiAnalyzing: isLiveAnalyzing,
-        onAiAnalyzeTap: countdown == null &&
-                !isBursting &&
-                !isCapturing &&
-                !isLiveAnalyzing
-            ? onAiAnalyzeTap
-            : null,
-        aiAnalyzeTooltip: l10n.liveSceneAnalyze,
-        centerLabel: centerLabel,
-        showAspectRatioButton: true,
-        aspectRatioLabel: _aspectRatioLabel(l10n, aspectRatio),
-        onAspectRatioTap: () {
+        onNightModeTap: () {
+          ref.read(hdrEnabledProvider.notifier).state = !hdrEnabled;
+          ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
+        },
+        onFormatTap: () {
           ref.read(cameraAspectRatioProvider.notifier).state = aspectRatio.next;
         },
+        onSettingsTap: () {
+          ref.read(showCameraOptionsProvider.notifier).state = !optionsExpanded;
+        },
+        centerLabel: centerLabel,
       ),
     );
-  }
-
-  String _aspectRatioLabel(AppLocalizations l10n, CameraAspectRatio ratio) {
-    return switch (ratio) {
-      CameraAspectRatio.ratio4x3 => l10n.aspectRatio4x3,
-      CameraAspectRatio.ratio16x9 => l10n.aspectRatio16x9,
-      CameraAspectRatio.ratio1x1 => l10n.aspectRatio1x1,
-      CameraAspectRatio.full => l10n.aspectRatioFull,
-    };
   }
 }
 

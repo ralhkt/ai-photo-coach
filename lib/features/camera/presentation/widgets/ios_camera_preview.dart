@@ -1,7 +1,13 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../platform/native_camera_preview_service.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
@@ -205,7 +211,7 @@ class _CameraPreviewScope extends InheritedWidget {
   bool updateShouldNotify(covariant _CameraPreviewScope oldWidget) => false;
 }
 
-class _CameraPreviewTexture extends StatelessWidget {
+class _CameraPreviewTexture extends StatefulWidget {
   const _CameraPreviewTexture({
     super.key,
     required this.controller,
@@ -218,27 +224,128 @@ class _CameraPreviewTexture extends StatelessWidget {
   final bool mirrorFront;
 
   @override
+  State<_CameraPreviewTexture> createState() => _CameraPreviewTextureState();
+}
+
+class _CameraPreviewTextureState extends State<_CameraPreviewTexture> {
+  bool _nativePreview = false;
+  bool _texturePreviewPaused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolvePreviewMode();
+    widget.controller.addListener(_onControllerChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _CameraPreviewTexture oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+      widget.controller.addListener(_onControllerChanged);
+      // Old controller may already be disposed during lens switch — never resume it.
+      _texturePreviewPaused = false;
+      _resolvePreviewMode();
+    } else if (oldWidget.mirrorFront != widget.mirrorFront) {
+      _syncNativePreviewSettings();
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    if (!widget.controller.value.isInitialized) {
+      return;
+    }
+    if (_nativePreview && !_texturePreviewPaused) {
+      unawaited(_pauseTexturePreview());
+    }
+  }
+
+  Future<void> _resolvePreviewMode() async {
+    final useNative =
+        !kIsWeb && Platform.isIOS && await NativeCameraPreviewService.instance.isSupported();
+    if (!mounted) {
+      return;
+    }
+    setState(() => _nativePreview = useNative);
+    if (useNative && widget.controller.value.isInitialized) {
+      await _pauseTexturePreview();
+      await _syncNativePreviewSettings();
+    }
+  }
+
+  Future<void> _pauseTexturePreview() async {
+    if (_texturePreviewPaused || !widget.controller.value.isInitialized) {
+      return;
+    }
+    try {
+      await widget.controller.pausePreview();
+      _texturePreviewPaused = true;
+    } catch (error) {
+      debugPrint('IosCameraPreview: pausePreview failed: $error');
+    }
+  }
+
+  Future<void> _resumeTexturePreview() async {
+    if (!_texturePreviewPaused || !widget.controller.value.isInitialized) {
+      return;
+    }
+    try {
+      await widget.controller.resumePreview();
+    } catch (error) {
+      debugPrint('IosCameraPreview: resumePreview failed: $error');
+    } finally {
+      _texturePreviewPaused = false;
+    }
+  }
+
+  Future<void> _syncNativePreviewSettings() async {
+    await NativeCameraPreviewService.instance.updateSettings(
+      mirrorFront: widget.mirrorFront,
+      lensDirection: widget.controller.description.lensDirection.name,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_nativePreview) {
+      return UiKitView(
+        viewType: NativeCameraPreviewService.platformViewType,
+        layoutDirection: TextDirection.ltr,
+        creationParams: {
+          'mirrorFront': widget.mirrorFront,
+          'lensDirection': widget.controller.description.lensDirection.name,
+        },
+        creationParamsCodec: const StandardMessageCodec(),
+      );
+    }
+
     final isFront =
-        controller.description.lensDirection == CameraLensDirection.front;
+        widget.controller.description.lensDirection == CameraLensDirection.front;
 
     return ClipRect(
       clipBehavior: Clip.hardEdge,
       child: FittedBox(
         fit: BoxFit.cover,
         child: SizedBox(
-          width: previewSize.height,
-          height: previewSize.width,
+          width: widget.previewSize.height,
+          height: widget.previewSize.width,
           child: Transform(
             alignment: Alignment.center,
             transform: Matrix4.identity()
               ..scaleByDouble(
-                isFront && mirrorFront ? -1.0 : 1.0,
+                isFront && widget.mirrorFront ? -1.0 : 1.0,
                 1.0,
                 1.0,
                 1.0,
               ),
-            child: CameraPreview(controller),
+            child: CameraPreview(widget.controller),
           ),
         ),
       ),

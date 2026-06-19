@@ -237,6 +237,24 @@ abstract class AppLocalizations {
   /// **'Adjust position to align your face.'**
   String get poseCoachAdjust;
 
+  /// No description provided for @alignmentToastNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Step into the center of the outline'**
+  String get alignmentToastNoMatch;
+
+  /// No description provided for @alignmentToastAligning.
+  ///
+  /// In en, this message translates to:
+  /// **'Aligning limbs… fit your body to the outline'**
+  String get alignmentToastAligning;
+
+  /// No description provided for @alignmentToastMatched.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect alignment! Ready to shoot'**
+  String get alignmentToastMatched;
+
   /// No description provided for @openCameraSkipTitle.
   ///
   /// In en, this message translates to:
@@ -669,11 +687,59 @@ abstract class AppLocalizations {
   /// **'PHOTO'**
   String get cameraModePhoto;
 
+  /// No description provided for @cameraModeVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'VIDEO'**
+  String get cameraModeVideo;
+
   /// No description provided for @cameraModeGuided.
   ///
   /// In en, this message translates to:
   /// **'GUIDED'**
   String get cameraModeGuided;
+
+  /// No description provided for @cameraModeVideoComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Video recording is coming soon'**
+  String get cameraModeVideoComingSoon;
+
+  /// No description provided for @cameraFormatJpeg.
+  ///
+  /// In en, this message translates to:
+  /// **'JPEG'**
+  String get cameraFormatJpeg;
+
+  /// No description provided for @cameraFormatMegapixel.
+  ///
+  /// In en, this message translates to:
+  /// **'24'**
+  String get cameraFormatMegapixel;
+
+  /// No description provided for @cameraModeSwitchNeedReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload and analyze a reference photo before using guided mode.'**
+  String get cameraModeSwitchNeedReference;
+
+  /// No description provided for @cameraModeUploadReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload reference'**
+  String get cameraModeUploadReference;
+
+  /// No description provided for @cameraModeSwipeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe or tap to switch between Photo and Guided mode'**
+  String get cameraModeSwipeHint;
+
+  /// No description provided for @cameraModeCoachGotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get cameraModeCoachGotIt;
 
   /// No description provided for @captureFailed.
   ///
@@ -1964,6 +2030,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No face or body pose found. Use a clearer portrait with the subject centered, then try again.'**
   String get subjectDetectionFailedBody;
+
+  /// No description provided for @skeletonStudioTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Skeleton studio'**
+  String get skeletonStudioTitle;
+
+  /// No description provided for @skeletonViewOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Overlay photo'**
+  String get skeletonViewOverlay;
+
+  /// No description provided for @skeletonViewOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Skeleton only'**
+  String get skeletonViewOnly;
+
+  /// No description provided for @skeletonStrokeWidthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Line thickness'**
+  String get skeletonStrokeWidthLabel;
+
+  /// No description provided for @skeletonExportPng.
+  ///
+  /// In en, this message translates to:
+  /// **'Export PNG to gallery'**
+  String get skeletonExportPng;
+
+  /// No description provided for @skeletonExporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Exporting…'**
+  String get skeletonExporting;
+
+  /// No description provided for @skeletonExportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Skeleton saved to gallery'**
+  String get skeletonExportSuccess;
+
+  /// No description provided for @skeletonExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Export failed — check gallery permissions and try again'**
+  String get skeletonExportFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -148,6 +148,7 @@ PhotoAnalysisResult applyGeminiVisionPayload(
       angleHintKey: payload.angleHintKey,
       subjectShape: guidance.subjectShape,
       subjectSilhouettePoints: guidance.subjectSilhouettePoints,
+      subjectPoseSkeleton: guidance.subjectPoseSkeleton,
       bodyPartGuides: guidance.bodyPartGuides,
     ),
     sceneTypeKey: base.sceneTypeKey,

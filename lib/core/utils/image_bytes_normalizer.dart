@@ -24,7 +24,8 @@ class ImageBytesNormalizer {
       throw const FormatException('Unable to decode image');
     }
 
-    return Uint8List.fromList(img.encodeJpg(decoded, quality: jpegQuality));
+    final oriented = img.bakeOrientation(decoded);
+    return Uint8List.fromList(img.encodeJpg(oriented, quality: jpegQuality));
   }
 
   static img.Image? _decode(Uint8List bytes) {

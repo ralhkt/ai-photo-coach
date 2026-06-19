@@ -21,6 +21,7 @@ class PhotoFramePainter extends CustomPainter {
     this.poseAligned = false,
     this.alignmentScore,
     this.renderHumanSilhouette = true,
+    this.skeletonStrokeWidth = PozeWireframeStyle.limbStrokeWidth,
   });
 
   final GeneratedFrameSpec frameSpec;
@@ -31,6 +32,7 @@ class PhotoFramePainter extends CustomPainter {
   final bool poseAligned;
   final int? alignmentScore;
   final bool renderHumanSilhouette;
+  final double skeletonStrokeWidth;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -106,6 +108,7 @@ class PhotoFramePainter extends CustomPainter {
     GeneratedFrameSpec spec,
     Rect subject,
   ) {
+    // spec is used for poseSkeletonSegments in minimal guide path.
     final silhouette = spec.subjectSilhouettePath ??
         HumanFrameShapeBuilder().pointsToSmoothPath(
           HumanFrameShapeBuilder().templatePoints().map(
@@ -122,6 +125,8 @@ class PhotoFramePainter extends CustomPainter {
         subject: subject,
         silhouette: silhouette,
         headOval: spec.bodyPartGuides?.headOval,
+        poseSkeletonSegments: spec.poseSkeletonSegments,
+        skeletonStrokeWidth: skeletonStrokeWidth,
       );
       return;
     }
@@ -160,6 +165,8 @@ class PhotoFramePainter extends CustomPainter {
     required Rect subject,
     required Path silhouette,
     Rect? headOval,
+    List<List<Offset>> poseSkeletonSegments = const [],
+    double skeletonStrokeWidth = PozeWireframeStyle.limbStrokeWidth,
   }) {
     final phase = alignmentScore != null
         ? AlignmentOverlayState.phaseForScore(alignmentScore!)
@@ -177,7 +184,14 @@ class PhotoFramePainter extends CustomPainter {
         ..isAntiAlias = true,
     );
 
-    _drawPozeLimbs(canvas, subject, PozeWireframeLimbs.seatedPhone, strokeColor);
+    if (poseSkeletonSegments.isNotEmpty) {
+      _drawReferencePoseSkeleton(
+        canvas,
+        poseSkeletonSegments,
+        strokeColor,
+        skeletonStrokeWidth,
+      );
+    }
 
     canvas.drawPath(
       silhouette,
@@ -256,6 +270,37 @@ class PhotoFramePainter extends CustomPainter {
       Offset(center.dx, center.dy + arm),
       paint,
     );
+  }
+
+  void _drawReferencePoseSkeleton(
+    Canvas canvas,
+    List<List<Offset>> segments,
+    Color strokeColor,
+    double strokeWidth,
+  ) {
+    final glowPaint = Paint()
+      ..color = PozeWireframeStyle.glowColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth + 1.1
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final bonePaint = Paint()
+      ..color = strokeColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    for (final segment in segments) {
+      if (segment.length < 2) {
+        continue;
+      }
+      for (var i = 1; i < segment.length; i++) {
+        canvas.drawLine(segment[i - 1], segment[i], glowPaint);
+        canvas.drawLine(segment[i - 1], segment[i], bonePaint);
+      }
+    }
   }
 
   void _drawPozeLimbs(
@@ -662,6 +707,7 @@ class PhotoFramePainter extends CustomPainter {
         oldDelegate.minimalPozeStyle != minimalPozeStyle ||
         oldDelegate.poseAligned != poseAligned ||
         oldDelegate.alignmentScore != alignmentScore ||
-        oldDelegate.renderHumanSilhouette != renderHumanSilhouette;
+        oldDelegate.renderHumanSilhouette != renderHumanSilhouette ||
+        oldDelegate.skeletonStrokeWidth != skeletonStrokeWidth;
   }
 }

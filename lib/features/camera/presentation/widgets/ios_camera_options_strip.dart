@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../models/camera_aspect_ratio.dart';
 import '../../../../models/camera_timer_duration.dart';
+import 'ios_camera_ui_kit.dart';
 
 class IosCameraOptionsStrip extends StatelessWidget {
   const IosCameraOptionsStrip({
@@ -27,6 +28,7 @@ class IosCameraOptionsStrip extends StatelessWidget {
     this.onHistogramTap,
     this.frontMirrorEnabled = true,
     this.onMirrorTap,
+    this.showExpandChevron = true,
   });
 
   final bool hdrEnabled;
@@ -49,6 +51,7 @@ class IosCameraOptionsStrip extends StatelessWidget {
   final VoidCallback? onHistogramTap;
   final bool frontMirrorEnabled;
   final VoidCallback? onMirrorTap;
+  final bool showExpandChevron;
 
   @override
   Widget build(BuildContext context) {
@@ -57,19 +60,20 @@ class IosCameraOptionsStrip extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
-          onTap: onToggleExpanded,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Icon(
-              expanded
-                  ? Icons.keyboard_arrow_down_rounded
-                  : Icons.keyboard_arrow_up_rounded,
-              color: Colors.white54,
-              size: 22,
+        if (showExpandChevron)
+          GestureDetector(
+            onTap: onToggleExpanded,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Icon(
+                expanded
+                    ? Icons.keyboard_arrow_down_rounded
+                    : Icons.keyboard_arrow_up_rounded,
+                color: IosCameraUiKit.textTertiary,
+                size: 22,
+              ),
             ),
           ),
-        ),
         if (expanded)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -133,7 +137,7 @@ class IosCameraOptionsStrip extends StatelessWidget {
             child: Text(
               l10n.burstCapturing(burstCount),
               style: const TextStyle(
-                color: Color(0xFFFFD60A),
+                color: IosCameraUiKit.accentYellow,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -178,48 +182,31 @@ class _OptionChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = enabled ? const Color(0xFFFFD60A) : Colors.white38;
+    final accent = enabled ? IosCameraUiKit.accentYellow : IosCameraUiKit.textTertiary;
     final textColor = enabled
-        ? (active ? const Color(0xFFFFD60A) : Colors.white)
-        : Colors.white38;
+        ? (active ? IosCameraUiKit.accentYellow : IosCameraUiKit.textPrimary)
+        : IosCameraUiKit.textTertiary;
 
-    return GestureDetector(
+    return IosCameraGlassPill(
+      active: active,
+      enabled: enabled,
       onTap: onTap,
-      child: Opacity(
-        opacity: enabled ? 1 : 0.55,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: active && enabled
-                ? const Color(0x33FFD60A)
-                : const Color(0x33282828),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: active && enabled ? accent : Colors.white24,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(
+              icon,
+              size: 14,
+              color: active && enabled ? accent : IosCameraUiKit.textSecondary,
             ),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            label,
+            style: IosCameraUiKit.optionChip.copyWith(color: textColor),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: 14,
-                  color: active && enabled ? accent : Colors.white70,
-                ),
-                const SizedBox(width: 4),
-              ],
-              Text(
-                label,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }

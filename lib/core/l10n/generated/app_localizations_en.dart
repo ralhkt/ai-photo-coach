@@ -79,6 +79,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poseCoachAdjust => 'Adjust position to align your face.';
 
   @override
+  String get alignmentToastNoMatch => 'Step into the center of the outline';
+
+  @override
+  String get alignmentToastAligning =>
+      'Aligning limbs… fit your body to the outline';
+
+  @override
+  String get alignmentToastMatched => 'Perfect alignment! Ready to shoot';
+
+  @override
   String get openCameraSkipTitle => 'Skip guidance';
 
   @override
@@ -302,7 +312,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraModePhoto => 'PHOTO';
 
   @override
+  String get cameraModeVideo => 'VIDEO';
+
+  @override
   String get cameraModeGuided => 'GUIDED';
+
+  @override
+  String get cameraModeVideoComingSoon => 'Video recording is coming soon';
+
+  @override
+  String get cameraFormatJpeg => 'JPEG';
+
+  @override
+  String get cameraFormatMegapixel => '24';
+
+  @override
+  String get cameraModeSwitchNeedReference =>
+      'Upload and analyze a reference photo before using guided mode.';
+
+  @override
+  String get cameraModeUploadReference => 'Upload reference';
+
+  @override
+  String get cameraModeSwipeHint =>
+      'Swipe or tap to switch between Photo and Guided mode';
+
+  @override
+  String get cameraModeCoachGotIt => 'Got it';
 
   @override
   String get captureFailed => 'Failed to capture photo.';
@@ -1038,4 +1074,29 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get subjectDetectionFailedBody =>
       'No face or body pose found. Use a clearer portrait with the subject centered, then try again.';
+
+  @override
+  String get skeletonStudioTitle => 'Skeleton studio';
+
+  @override
+  String get skeletonViewOverlay => 'Overlay photo';
+
+  @override
+  String get skeletonViewOnly => 'Skeleton only';
+
+  @override
+  String get skeletonStrokeWidthLabel => 'Line thickness';
+
+  @override
+  String get skeletonExportPng => 'Export PNG to gallery';
+
+  @override
+  String get skeletonExporting => 'Exporting…';
+
+  @override
+  String get skeletonExportSuccess => 'Skeleton saved to gallery';
+
+  @override
+  String get skeletonExportFailed =>
+      'Export failed — check gallery permissions and try again';
 }

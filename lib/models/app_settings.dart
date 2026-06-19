@@ -13,6 +13,7 @@ class AppSettings {
     this.powerSaveEnabled = false,
     this.autoLiveSceneAnalysis = false,
     this.liveSceneCoachDismissed = false,
+    this.cameraModeCoachDismissed = false,
   });
 
   final bool onboardingCompleted;
@@ -22,6 +23,7 @@ class AppSettings {
   final bool powerSaveEnabled;
   final bool autoLiveSceneAnalysis;
   final bool liveSceneCoachDismissed;
+  final bool cameraModeCoachDismissed;
 
   Locale get locale => switch (localeOption) {
         AppLocaleOption.zhTw => const Locale('zh', 'TW'),
@@ -37,6 +39,7 @@ class AppSettings {
     bool? powerSaveEnabled,
     bool? autoLiveSceneAnalysis,
     bool? liveSceneCoachDismissed,
+    bool? cameraModeCoachDismissed,
   }) {
     return AppSettings(
       onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
@@ -48,6 +51,8 @@ class AppSettings {
           autoLiveSceneAnalysis ?? this.autoLiveSceneAnalysis,
       liveSceneCoachDismissed:
           liveSceneCoachDismissed ?? this.liveSceneCoachDismissed,
+      cameraModeCoachDismissed:
+          cameraModeCoachDismissed ?? this.cameraModeCoachDismissed,
     );
   }
 }

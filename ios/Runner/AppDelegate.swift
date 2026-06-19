@@ -5,6 +5,7 @@ import UIKit
 @objc class AppDelegate: FlutterAppDelegate {
   private let arHandler = ArPlatformHandler()
   private let poseSilhouetteHandler = PoseSilhouetteHandler()
+  private let nativeCameraPreviewHandler = NativeCameraPreviewHandler()
 
   override func application(
     _ application: UIApplication,
@@ -29,6 +30,11 @@ import UIKit
       eventChannel.setStreamHandler(arHandler)
 
       poseSilhouetteHandler.registerChannels(
+        binaryMessenger: messenger,
+        registrar: registrar
+      )
+
+      nativeCameraPreviewHandler.register(
         binaryMessenger: messenger,
         registrar: registrar
       )

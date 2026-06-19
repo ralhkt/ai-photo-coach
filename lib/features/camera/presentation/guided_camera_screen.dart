@@ -19,6 +19,7 @@ import '../../pose/platform/pose_silhouette_auto_capture_listener.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/guided_frame_providers.dart';
 import '../../reference/providers/reference_providers.dart';
+
 import '../providers/camera_mode_settings_provider.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_settings_provider.dart';
@@ -100,11 +101,10 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
             );
           }
 
-          final coachingGuidance = CoachingGuidanceHelper().forPozeOverlay(
+          final coachingGuidance = CoachingGuidanceHelper().forGuidedOverlay(
             CoachingGuidanceHelper().ensureHumanSilhouette(guidance),
             stabilizer: ref.read(poseContourStabilizerProvider),
           );
-
           return PoseSilhouetteAutoCaptureListener(
             child: CameraModeScope(
                 mode: CameraUiMode.guided,

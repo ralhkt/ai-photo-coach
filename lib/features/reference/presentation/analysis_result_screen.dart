@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,6 +15,11 @@ import '../../../models/scene_type.dart';
 import '../../../models/subject_shape_kind.dart';
 import '../../camera/presentation/guided_camera_screen.dart';
 import '../providers/reference_providers.dart';
+import '../providers/reference_skeleton_providers.dart';
+import '../services/reference_skeleton_gallery_saver.dart';
+import '../services/reference_skeleton_image_exporter.dart';
+import 'reference_photo_skeleton_preview.dart';
+import 'reference_skeleton_studio_panel.dart';
 
 class AnalysisResultScreen extends ConsumerStatefulWidget {
   const AnalysisResultScreen({super.key});
@@ -23,6 +31,7 @@ class AnalysisResultScreen extends ConsumerStatefulWidget {
 
 class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
   bool _showDetails = false;
+  bool _isExportingSkeleton = false;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +47,11 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
     final guidance = analysis.guidance;
     final insights = analysis.deepInsights;
     final ml = analysis.mlDetection;
+    final skeletonSegments = guidance.subjectPoseSkeleton;
+    final hasSkeleton =
+        skeletonSegments != null && skeletonSegments.isNotEmpty;
+    final skeletonOnly = ref.watch(skeletonOnlyPreviewProvider);
+    final strokeWidth = ref.watch(skeletonStrokeWidthProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.analysisResultTitle)),
@@ -47,15 +61,38 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
             child: ListView(
               padding: const EdgeInsets.all(AppDesignTokens.screenPadding),
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDesignTokens.radiusMd),
-                  child: Image.memory(
-                    analysis.imageBytes,
-                    height: 260,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+                if (hasSkeleton)
+                  ReferencePhotoSkeletonPreview(
+                    imageBytes: analysis.imageBytes,
+                    skeletonSegments: skeletonSegments!,
+                    imageAspectRatio: analysis.sourceAspectRatio,
+                    skeletonOnly: skeletonOnly,
+                    strokeWidth: strokeWidth,
+                  )
+                else
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(AppDesignTokens.radiusMd),
+                    child: Image.memory(
+                      analysis.imageBytes,
+                      height: 260,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
+                if (hasSkeleton) ...[
+                  const SizedBox(height: AppDesignTokens.spaceMd),
+                  ReferenceSkeletonStudioPanel(
+                    hasSkeleton: hasSkeleton,
+                    isExporting: _isExportingSkeleton,
+                    onExport: () => _exportSkeletonPng(
+                      imageBytes: analysis.imageBytes,
+                      skeletonSegments: skeletonSegments!,
+                      imageAspectRatio: analysis.sourceAspectRatio,
+                      skeletonOnly: skeletonOnly,
+                      strokeWidth: strokeWidth,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: AppDesignTokens.spaceXl),
                 AppFlowStrip(
                   activeIndex: 1,
@@ -267,6 +304,44 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _exportSkeletonPng({
+    required Uint8List imageBytes,
+    required List<List<Offset>> skeletonSegments,
+    required double imageAspectRatio,
+    required bool skeletonOnly,
+    required double strokeWidth,
+  }) async {
+    final l10n = AppLocalizations.of(context)!;
+    setState(() => _isExportingSkeleton = true);
+    try {
+      final png = await ReferenceSkeletonImageExporter.renderPng(
+        imageBytes: imageBytes,
+        skeletonSegments: skeletonSegments,
+        imageAspectRatio: imageAspectRatio,
+        skeletonOnly: skeletonOnly,
+        strokeWidth: strokeWidth,
+      );
+      await ReferenceSkeletonGallerySaver.savePng(png);
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.skeletonExportSuccess)),
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.skeletonExportFailed)),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isExportingSkeleton = false);
+      }
+    }
   }
 
   String _overlayLabel(AppLocalizations l10n, CompositionOverlayType type) {
