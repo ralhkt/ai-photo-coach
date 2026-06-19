@@ -199,32 +199,40 @@ class AppCameraToolButton extends StatefulWidget {
 class _AppCameraToolButtonState extends State<AppCameraToolButton> {
   bool _pressed = false;
 
+  void _setPressed(bool pressed) {
+    if (_pressed == pressed) {
+      return;
+    }
+    setState(() => _pressed = pressed);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final button = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _pressed ? 0.9 : 1,
-        duration: const Duration(milliseconds: 60),
-        curve: Curves.easeOut,
-        child: Container(
-          width: AppDesignTokens.minTapTarget,
-          height: AppDesignTokens.minTapTarget,
-          decoration: BoxDecoration(
-            color: widget.active
-                ? AppTheme.accent.withValues(alpha: 0.22)
-                : AppDesignTokens.fillPrimary,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            widget.icon,
-            color:
-                widget.active ? AppTheme.accent : AppDesignTokens.textPrimary,
-            size: 20,
+    final button = RepaintBoundary(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => _setPressed(true),
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        onTap: widget.onTap,
+        child: Transform.scale(
+          scale: _pressed ? 0.92 : 1,
+          child: Container(
+            width: AppDesignTokens.minTapTarget,
+            height: AppDesignTokens.minTapTarget,
+            decoration: BoxDecoration(
+              color: widget.active
+                  ? AppTheme.accent.withValues(alpha: 0.22)
+                  : AppDesignTokens.fillPrimary,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              widget.icon,
+              color: widget.active
+                  ? AppTheme.accent
+                  : AppDesignTokens.textPrimary,
+              size: 20,
+            ),
           ),
         ),
       ),

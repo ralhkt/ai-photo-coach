@@ -29,11 +29,26 @@ class GuidedOptimisticToggleButton extends ConsumerStatefulWidget {
 class _GuidedOptimisticToggleButtonState
     extends ConsumerState<GuidedOptimisticToggleButton> {
   bool? _optimisticVisible;
+  bool _syncedVisible = true;
+  bool _seeded = false;
 
   @override
   Widget build(BuildContext context) {
-    final providerVisible = ref.watch(widget.visibleProvider);
-    final visible = _optimisticVisible ?? providerVisible;
+    if (!_seeded) {
+      _syncedVisible = ref.read(widget.visibleProvider);
+      _seeded = true;
+    }
+
+    ref.listen<bool>(widget.visibleProvider, (previous, next) {
+      if (_optimisticVisible == null || _optimisticVisible == next) {
+        setState(() {
+          _optimisticVisible = null;
+          _syncedVisible = next;
+        });
+      }
+    });
+
+    final visible = _optimisticVisible ?? _syncedVisible;
 
     return AppCameraToolButton(
       icon: visible ? widget.onIcon : widget.offIcon,
@@ -46,14 +61,5 @@ class _GuidedOptimisticToggleButtonState
         widget.onToggle(ref);
       },
     );
-  }
-
-  @override
-  void didUpdateWidget(covariant GuidedOptimisticToggleButton oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (_optimisticVisible != null &&
-        _optimisticVisible == ref.read(widget.visibleProvider)) {
-      _optimisticVisible = null;
-    }
   }
 }

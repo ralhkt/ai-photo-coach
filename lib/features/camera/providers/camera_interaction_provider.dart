@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Timestamp of the last heavy camera action (shutter / flip / burst).
@@ -10,7 +11,7 @@ const cameraUiInteractionPause = Duration(seconds: 2);
 /// Last guided-mode UI tap — ML yields until this cools down.
 final guidedUserActivityProvider = StateProvider<DateTime?>((ref) => null);
 
-const guidedMlIdleAfterInteraction = Duration(milliseconds: 4500);
+const guidedMlIdleAfterInteraction = Duration(milliseconds: 5500);
 
 /// Brief UI-busy gate — pauses background ML while chrome is tapped.
 final cameraChromeBusyProvider =
@@ -35,8 +36,13 @@ class CameraChromeBusyNotifier extends Notifier<bool> {
 }
 
 /// Guided chrome tap — blocks ML only, never touches the camera session.
+/// Posted to the next frame so tap handlers return before Riverpod notifies.
 void markGuidedUserActivity(WidgetRef ref) {
-  ref.read(guidedUserActivityProvider.notifier).state = DateTime.now();
+  final notifier = ref.read(guidedUserActivityProvider.notifier);
+  final stamp = DateTime.now();
+  SchedulerBinding.instance.scheduleFrameCallback((_) {
+    notifier.state = stamp;
+  });
 }
 
 bool isGuidedUserRecentlyActive(DateTime? last) {

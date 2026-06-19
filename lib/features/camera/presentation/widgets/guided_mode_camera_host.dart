@@ -84,7 +84,7 @@ class _GuidedModeCameraHostState extends ConsumerState<GuidedModeCameraHost> {
       shootSessionMode: ShootSessionMode.guided,
       modeLabel: l10n.cameraModeGuided,
       centerTopLabel: null,
-      useGuidedGridProvider: true,
+      useGuidedGridProvider: false,
       guidanceChip: const _PoseCoachingChip(),
       croppedOverlay: overlayGuidance == null
           ? null
@@ -150,57 +150,91 @@ class _GuidedToolbar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
     final top = MediaQuery.paddingOf(context).top + 56;
-    final template = ref.watch(guidedFrameTemplateProvider) ?? initialTemplate;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned(
-          top: MediaQuery.paddingOf(context).top + 8,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: _GuidedTemplateChip(label: frameTemplateLabel(l10n, template)),
+    return RepaintBoundary(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: MediaQuery.paddingOf(context).top + 8,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: _GuidedTemplateChipHost(initialTemplate: initialTemplate),
+            ),
           ),
+          Positioned(
+            right: 12,
+            top: top,
+            child: _GuidedToolbarButtons(
+              initialTemplate: initialTemplate,
+              onOpenTools: onOpenTools,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuidedTemplateChipHost extends ConsumerWidget {
+  const _GuidedTemplateChipHost({required this.initialTemplate});
+
+  final PhotoFrameTemplate initialTemplate;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final template = ref.watch(guidedFrameTemplateProvider) ?? initialTemplate;
+    return _GuidedTemplateChip(label: frameTemplateLabel(l10n, template));
+  }
+}
+
+class _GuidedToolbarButtons extends ConsumerWidget {
+  const _GuidedToolbarButtons({
+    required this.initialTemplate,
+    required this.onOpenTools,
+  });
+
+  final PhotoFrameTemplate initialTemplate;
+  final VoidCallback onOpenTools;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      children: [
+        GuidedOptimisticToggleButton(
+          visibleProvider: guidedCompositionVisibleProvider,
+          onIcon: Icons.grid_on_rounded,
+          offIcon: Icons.grid_off_rounded,
+          tooltip: l10n.toggleOverlay,
+          onToggle: toggleGuidedCompositionVisible,
         ),
-        Positioned(
-          right: 12,
-          top: top,
-          child: Column(
-            children: [
-              GuidedOptimisticToggleButton(
-                visibleProvider: guidedCompositionVisibleProvider,
-                onIcon: Icons.grid_on_rounded,
-                offIcon: Icons.grid_off_rounded,
-                tooltip: l10n.toggleOverlay,
-                onToggle: toggleGuidedCompositionVisible,
-              ),
-              const SizedBox(height: 8),
-              GuidedOptimisticToggleButton(
-                visibleProvider: guidedFrameVisibleProvider,
-                onIcon: Icons.crop_free_rounded,
-                offIcon: Icons.crop_free_outlined,
-                tooltip: l10n.toggleFrame,
-                onToggle: toggleGuidedFrameVisible,
-              ),
-              const SizedBox(height: 8),
-              AppCameraToolButton(
-                icon: Icons.layers_outlined,
-                tooltip: l10n.guidedOverlayTools,
-                onTap: onOpenTools,
-              ),
-              const SizedBox(height: 8),
-              AppCameraToolButton(
-                icon: Icons.aspect_ratio_rounded,
-                tooltip: l10n.chooseFrameTemplate,
-                onTap: () => cycleGuidedFrameTemplate(
-                  ref,
-                  current: template,
-                ),
-              ),
-            ],
+        const SizedBox(height: 8),
+        GuidedOptimisticToggleButton(
+          visibleProvider: guidedFrameVisibleProvider,
+          onIcon: Icons.crop_free_rounded,
+          offIcon: Icons.crop_free_outlined,
+          tooltip: l10n.toggleFrame,
+          onToggle: toggleGuidedFrameVisible,
+        ),
+        const SizedBox(height: 8),
+        AppCameraToolButton(
+          icon: Icons.layers_outlined,
+          tooltip: l10n.guidedOverlayTools,
+          onTap: onOpenTools,
+        ),
+        const SizedBox(height: 8),
+        AppCameraToolButton(
+          icon: Icons.aspect_ratio_rounded,
+          tooltip: l10n.chooseFrameTemplate,
+          onTap: () => cycleGuidedFrameTemplate(
+            ref,
+            current:
+                ref.read(guidedFrameTemplateProvider) ?? initialTemplate,
           ),
         ),
       ],

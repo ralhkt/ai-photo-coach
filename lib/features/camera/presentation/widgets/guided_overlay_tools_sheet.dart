@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show FontFeature;
 
 import 'package:flutter/material.dart';
@@ -61,7 +62,7 @@ class _GuidedOverlayToolsSheet extends ConsumerWidget {
             ),
             if (ghostVisible) ...[
               const SizedBox(height: AppDesignTokens.spaceSm),
-              const _GhostOpacitySlider(),
+              const RepaintBoundary(child: _GhostOpacitySlider()),
             ],
             if (guidance != null) ...[
               const SizedBox(height: AppDesignTokens.spaceMd),
@@ -86,13 +87,40 @@ class _GuidedOverlayToolsSheet extends ConsumerWidget {
   }
 }
 
-class _GhostOpacitySlider extends ConsumerWidget {
+class _GhostOpacitySlider extends ConsumerStatefulWidget {
   const _GhostOpacitySlider();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_GhostOpacitySlider> createState() =>
+      _GhostOpacitySliderState();
+}
+
+class _GhostOpacitySliderState extends ConsumerState<_GhostOpacitySlider> {
+  double? _dragOpacity;
+  Timer? _commitTimer;
+
+  @override
+  void dispose() {
+    _commitTimer?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleOpacityCommit(double value) {
+    _commitTimer?.cancel();
+    _commitTimer = Timer(const Duration(milliseconds: 48), () {
+      if (!mounted) {
+        return;
+      }
+      ref.read(referenceGhostOpacityProvider.notifier).state = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final opacity = ref.watch(referenceGhostOpacityProvider);
+    final storedOpacity = ref.watch(referenceGhostOpacityProvider);
+    final opacity = (_dragOpacity ?? storedOpacity)
+        .clamp(guidedGhostOpacityMin, guidedGhostOpacityMax);
     final percent = (opacity * 100).round();
 
     return Column(
@@ -118,14 +146,23 @@ class _GhostOpacitySlider extends ConsumerWidget {
           ],
         ),
         Slider(
-          value: opacity.clamp(guidedGhostOpacityMin, guidedGhostOpacityMax),
+          value: opacity,
           min: guidedGhostOpacityMin,
           max: guidedGhostOpacityMax,
           divisions: 32,
           activeColor: AppTheme.coach,
-          onChangeStart: (_) => markGuidedUserActivity(ref),
+          onChangeStart: (_) {
+            markGuidedUserActivity(ref);
+            _dragOpacity = storedOpacity;
+          },
           onChanged: (value) {
+            setState(() => _dragOpacity = value);
+            _scheduleOpacityCommit(value);
+          },
+          onChangeEnd: (value) {
+            _commitTimer?.cancel();
             ref.read(referenceGhostOpacityProvider.notifier).state = value;
+            setState(() => _dragOpacity = null);
           },
         ),
       ],

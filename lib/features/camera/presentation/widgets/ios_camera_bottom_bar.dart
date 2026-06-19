@@ -55,6 +55,8 @@ class IosCameraBottomBar extends StatelessWidget {
     this.selectedModeIndex = 0,
     this.onModeSelected,
     this.showZoomPresets = true,
+    this.controlRow,
+    this.burstLabel,
   });
 
   final String modeLabel;
@@ -97,6 +99,8 @@ class IosCameraBottomBar extends StatelessWidget {
   final ValueChanged<double>? onFocalPresetTap;
   final bool compactMode;
   final bool showZoomPresets;
+  final Widget? controlRow;
+  final Widget? burstLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -148,53 +152,57 @@ class IosCameraBottomBar extends StatelessWidget {
                 proModeExposure!,
                 const SizedBox(height: 6),
               ],
-              SizedBox(
-                height: IosCameraUiKit.bottomControlRowHeight,
-                child: Row(
-                  children: [
-                    IosGalleryButton(
-                      thumbnailBytes: thumbnailBytes,
-                      onTap: onGalleryTap,
-                      onLongPress: onGalleryLongPress,
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: IosShutterButton(
-                          onPressed: shutterEnabled ? onShutterTap : null,
-                          onBurstStart: shutterEnabled ? onBurstStart : null,
-                          onBurstEnd: shutterEnabled ? onBurstEnd : null,
-                          isCapturing: isCapturing,
-                          isBursting: isBursting,
-                          enabled: shutterEnabled,
+              controlRow ??
+                  SizedBox(
+                    height: IosCameraUiKit.bottomControlRowHeight,
+                    child: Row(
+                      children: [
+                        IosGalleryButton(
+                          thumbnailBytes: thumbnailBytes,
+                          onTap: onGalleryTap,
+                          onLongPress: onGalleryLongPress,
                         ),
-                      ),
+                        Expanded(
+                          child: Center(
+                            child: IosShutterButton(
+                              onPressed: shutterEnabled ? onShutterTap : null,
+                              onBurstStart:
+                                  shutterEnabled ? onBurstStart : null,
+                              onBurstEnd: shutterEnabled ? onBurstEnd : null,
+                              isCapturing: isCapturing,
+                              isBursting: isBursting,
+                              enabled: shutterEnabled,
+                            ),
+                          ),
+                        ),
+                        IosFlipCameraButton(
+                          onTap: canFlip ? onFlipCamera : null,
+                          enabled: canFlip,
+                          isFlipping: isFlipping,
+                        ),
+                      ],
                     ),
-                    _FlipCameraButton(
-                      onTap: canFlip ? onFlipCamera : null,
-                      enabled: canFlip,
-                      isFlipping: isFlipping,
-                    ),
-                  ],
-                ),
-              ),
+                  ),
               const SizedBox(height: 4),
               IosCameraModeCarousel(
                 modes: modes,
                 selectedIndex: selectedModeIndex.clamp(0, modes.length - 1),
                 onModeSelected: onModeSelected,
               ),
-              if (isBursting)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    '×$burstCount',
-                    style: const TextStyle(
-                      color: IosCameraUiKit.accentYellow,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+              burstLabel ??
+                  (isBursting
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            '×$burstCount',
+                            style: const TextStyle(
+                              color: IosCameraUiKit.accentYellow,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink()),
             ],
           ),
         ),
@@ -203,8 +211,8 @@ class IosCameraBottomBar extends StatelessWidget {
   }
 }
 
-class _FlipCameraButton extends StatelessWidget {
-  const _FlipCameraButton({
+class IosFlipCameraButton extends StatelessWidget {
+  const IosFlipCameraButton({
     required this.onTap,
     required this.enabled,
     required this.isFlipping,

@@ -14,7 +14,10 @@ import '../../providers/camera_shell_provider.dart';
 import '../camera_shell_mode.dart';
 import '../ios_camera_mode_switcher.dart';
 import 'ios_camera_bottom_bar.dart';
+import 'ios_camera_ui_kit.dart';
 import 'ios_exposure_slider.dart';
+import 'ios_gallery_button.dart';
+import 'ios_shutter_button.dart';
 
 /// Bottom chrome — guided mode watches fewer providers to avoid chrome jank.
 class IosCameraBottomBarHost extends ConsumerWidget {
@@ -88,51 +91,177 @@ class _GuidedBottomBar extends ConsumerWidget {
           ),
         );
       },
-      thumbnailBytes: ref.watch(lastCaptureThumbnailProvider),
-      isCapturing: ref.watch(isCapturingProvider),
-      isBursting: ref.watch(isBurstingProvider),
-      burstCount: ref.watch(
-        burstPhotosProvider.select((photos) => photos.length),
-      ),
+      thumbnailBytes: null,
+      isCapturing: false,
+      isBursting: false,
+      burstCount: 0,
       hdrEnabled: false,
       hdrSupported: false,
       hdrLabel: l10n.hdrLabel,
       timerDuration: CameraTimerDuration.off,
       aeAfLocked: false,
       optionsExpanded: false,
-      canFlip: ref.watch(
-        camerasProvider.select((cameras) => (cameras.value ?? []).length > 1),
-      ) &&
-          !ref.watch(cameraSwitchingProvider),
-      isFlipping: ref.watch(cameraSwitchingProvider),
-      shutterEnabled: ref.watch(timerCountdownProvider) == null,
+      canFlip: true,
+      isFlipping: false,
+      shutterEnabled: true,
       onHdrTap: () {},
       onTimerTap: () {},
       onExposureLockTap: () {},
       onToggleOptions: () {},
-      onGalleryTap: () {
-        markGuidedUserActivity(ref);
-        onGalleryTap(ref.read(lastCaptureThumbnailProvider) != null);
-      },
-      onGalleryLongPress: () {
-        markGuidedUserActivity(ref);
-        onGalleryTap(false);
-      },
+      onGalleryTap: () {},
+      onGalleryLongPress: () {},
       onShutterTap: onShutterTap,
-      onBurstStart: () {
-        markHeavyCameraInteraction(ref);
-        unawaited(ref.read(cameraControllerProvider.notifier).startBurst());
-      },
+      onBurstStart: () {},
       onBurstEnd: onBurstEnd,
-      onFlipCamera: () {
-        markHeavyCameraInteraction(ref);
-        unawaited(ref.read(cameraControllerProvider.notifier).switchCamera());
-      },
+      onFlipCamera: () {},
       proModeEnabled: false,
       aspectRatio: CameraAspectRatio.ratio4x3,
       showHistogram: false,
       frontMirrorEnabled: true,
       focalPreset: 1.0,
+      controlRow: _GuidedControlRow(
+        onGalleryTap: onGalleryTap,
+        onShutterTap: onShutterTap,
+        onBurstEnd: onBurstEnd,
+      ),
+      burstLabel: const _GuidedBurstLabel(),
+    );
+  }
+}
+
+class _GuidedBurstLabel extends ConsumerWidget {
+  const _GuidedBurstLabel();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isBursting = ref.watch(isBurstingProvider);
+    if (!isBursting) {
+      return const SizedBox.shrink();
+    }
+    final burstCount = ref.watch(
+      burstPhotosProvider.select((photos) => photos.length),
+    );
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        '×$burstCount',
+        style: const TextStyle(
+          color: IosCameraUiKit.accentYellow,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+/// Isolated shutter row — thumbnail/capture state won't rebuild the mode carousel.
+class _GuidedControlRow extends ConsumerWidget {
+  const _GuidedControlRow({
+    required this.onGalleryTap,
+    required this.onShutterTap,
+    required this.onBurstEnd,
+  });
+
+  final void Function(bool hasLastCapture) onGalleryTap;
+  final VoidCallback onShutterTap;
+  final VoidCallback onBurstEnd;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SizedBox(
+      height: IosCameraUiKit.bottomControlRowHeight,
+      child: Row(
+        children: [
+          _GuidedGalleryButton(onGalleryTap: onGalleryTap),
+          Expanded(
+            child: Center(
+              child: _GuidedShutterButton(
+                onShutterTap: onShutterTap,
+                onBurstEnd: onBurstEnd,
+              ),
+            ),
+          ),
+          const _GuidedFlipButton(),
+        ],
+      ),
+    );
+  }
+}
+
+class _GuidedGalleryButton extends ConsumerWidget {
+  const _GuidedGalleryButton({required this.onGalleryTap});
+
+  final void Function(bool hasLastCapture) onGalleryTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final thumbnail = ref.watch(lastCaptureThumbnailProvider);
+    return IosGalleryButton(
+      thumbnailBytes: thumbnail,
+      onTap: () {
+        markGuidedUserActivity(ref);
+        onGalleryTap(thumbnail != null);
+      },
+      onLongPress: () {
+        markGuidedUserActivity(ref);
+        onGalleryTap(false);
+      },
+    );
+  }
+}
+
+class _GuidedShutterButton extends ConsumerWidget {
+  const _GuidedShutterButton({
+    required this.onShutterTap,
+    required this.onBurstEnd,
+  });
+
+  final VoidCallback onShutterTap;
+  final VoidCallback onBurstEnd;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isCapturing = ref.watch(isCapturingProvider);
+    final isBursting = ref.watch(isBurstingProvider);
+    final shutterEnabled = ref.watch(timerCountdownProvider) == null;
+
+    return IosShutterButton(
+      onPressed: shutterEnabled ? onShutterTap : null,
+      onBurstStart: shutterEnabled
+          ? () {
+              markHeavyCameraInteraction(ref);
+              unawaited(ref.read(cameraControllerProvider.notifier).startBurst());
+            }
+          : null,
+      onBurstEnd: onBurstEnd,
+      isCapturing: isCapturing,
+      isBursting: isBursting,
+      enabled: shutterEnabled,
+    );
+  }
+}
+
+class _GuidedFlipButton extends ConsumerWidget {
+  const _GuidedFlipButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final canFlip = ref.watch(
+          camerasProvider.select((cameras) => (cameras.value ?? []).length > 1),
+        ) &&
+        !ref.watch(cameraSwitchingProvider);
+    final isFlipping = ref.watch(cameraSwitchingProvider);
+
+    return IosFlipCameraButton(
+      onTap: canFlip
+          ? () {
+              markHeavyCameraInteraction(ref);
+              unawaited(ref.read(cameraControllerProvider.notifier).switchCamera());
+            }
+          : null,
+      enabled: canFlip,
+      isFlipping: isFlipping,
     );
   }
 }

@@ -45,9 +45,9 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   bool get _useIosNativeSampler =>
       !kIsWeb && Platform.isIOS && NativePreviewFrameService.instance.isSupported;
 
-  static const _iosNativeMinInterval = Duration(milliseconds: 5000);
+  static const _iosNativeMinInterval = Duration(milliseconds: 5500);
   static const _guidedIdleBeforeMl = guidedMlIdleAfterInteraction;
-  static const _guidedMinPublishGap = Duration(milliseconds: 4000);
+  static const _guidedMinPublishGap = Duration(milliseconds: 4500);
 
   Duration get _fallbackInterval {
     if (_useIosNativeSampler) {

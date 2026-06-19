@@ -36,13 +36,11 @@ PhotoFrameTemplate resolveGuidedFrameTemplate({
 }
 
 void toggleGuidedCompositionVisible(WidgetRef ref) {
-  markGuidedUserActivity(ref);
   final current = ref.read(guidedCompositionVisibleProvider);
   ref.read(guidedCompositionVisibleProvider.notifier).state = !current;
 }
 
 void toggleGuidedFrameVisible(WidgetRef ref) {
-  markGuidedUserActivity(ref);
   final current = ref.read(guidedFrameVisibleProvider);
   ref.read(guidedFrameVisibleProvider.notifier).state = !current;
 }
