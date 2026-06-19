@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,9 +12,13 @@
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		74858FB11ED2DC5600515810 /* ArPlatformHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FB01ED2DC5600515810 /* ArPlatformHandler.swift */; };
+		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
+		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
+		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
+		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
+		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		B2C3D4A1ED2DC560051581A /* ContourProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D401ED2DC5600515810 /* ContourProcessor.cpp */; };
 		B2C3D4B1ED2DC560051581B /* ContourProcessorBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D411ED2DC5600515811 /* ContourProcessorBridge.mm */; };
-
 		B2C3D4D1ED2DC560051581D /* GuideContourExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D431ED2DC5600515813 /* GuideContourExtractor.swift */; };
 		B2C3D4E1ED2DC560051581E /* PoseSilhouetteHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D441ED2DC5600515814 /* PoseSilhouetteHandler.swift */; };
 		B2C3D4F1ED2DC560051581F /* PoseSilhouettePlatformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D451ED2DC5600515815 /* PoseSilhouettePlatformView.swift */; };
@@ -22,16 +26,11 @@
 		B2C3D541ED2DC5600515824 /* KalmanContourFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D551ED2DC5600515825 /* KalmanContourFilter.cpp */; };
 		B2C3D561ED2DC5600515826 /* KalmanContourFilterBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D571ED2DC5600515827 /* KalmanContourFilterBridge.mm */; };
 		B2C3D581ED2DC5600515828 /* AlignmentStateMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D591ED2DC5600515829 /* AlignmentStateMachine.swift */; };
+		B8754F7393E6BC5C8D4B0BA5 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E64A9E2EFBBA37498FE11CE9 /* Pods_Runner.framework */; };
 		C1A2B301ED2DC5600515901 /* CameraSessionBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B311ED2DC5600515901 /* CameraSessionBridge.swift */; };
 		C1A2B302ED2DC5600515902 /* NativeCameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B312ED2DC5600515902 /* NativeCameraPreviewView.swift */; };
 		C1A2B303ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B313ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift */; };
 		C1A2B304ED2DC5600515904 /* NativeCameraPreviewHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B314ED2DC5600515904 /* NativeCameraPreviewHandler.swift */; };
-		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
-		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
-		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
-		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
-		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		B8754F7393E6BC5C8D4B0BA5 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E64A9E2EFBBA37498FE11CE9 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,24 +66,6 @@
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		74858FB01ED2DC5600515810 /* ArPlatformHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArPlatformHandler.swift; sourceTree = "<group>"; };
-		B2C3D401ED2DC5600515810 /* ContourProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ContourProcessor.cpp; sourceTree = "<group>"; };
-		B2C3D411ED2DC5600515811 /* ContourProcessorBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ContourProcessorBridge.mm; sourceTree = "<group>"; };
-		B2C3D421ED2DC5600515812 /* SilhouetteShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SilhouetteShaders.metal; sourceTree = "<group>"; };
-		B2C3D431ED2DC5600515813 /* GuideContourExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideContourExtractor.swift; sourceTree = "<group>"; };
-		B2C3D441ED2DC5600515814 /* PoseSilhouetteHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseSilhouetteHandler.swift; sourceTree = "<group>"; };
-		B2C3D451ED2DC5600515815 /* PoseSilhouettePlatformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseSilhouettePlatformView.swift; sourceTree = "<group>"; };
-		B2C3D531ED2DC5600515823 /* SilhouetteOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilhouetteOverlayView.swift; sourceTree = "<group>"; };
-		B2C3D551ED2DC5600515825 /* KalmanContourFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = KalmanContourFilter.cpp; sourceTree = "<group>"; };
-		B2C3D571ED2DC5600515827 /* KalmanContourFilterBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KalmanContourFilterBridge.mm; sourceTree = "<group>"; };
-		B2C3D591ED2DC5600515829 /* AlignmentStateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlignmentStateMachine.swift; sourceTree = "<group>"; };
-		C1A2B311ED2DC5600515901 /* CameraSessionBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraSessionBridge.swift; sourceTree = "<group>"; };
-		C1A2B312ED2DC5600515902 /* NativeCameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewView.swift; sourceTree = "<group>"; };
-		C1A2B313ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewPlatformView.swift; sourceTree = "<group>"; };
-		C1A2B314ED2DC5600515904 /* NativeCameraPreviewHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewHandler.swift; sourceTree = "<group>"; };
-		B2C3D5A1ED2DC560051582A /* KalmanContourFilter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = KalmanContourFilter.hpp; sourceTree = "<group>"; };
-		B2C3D5B1ED2DC560051582B /* KalmanContourFilterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KalmanContourFilterBridge.h; sourceTree = "<group>"; };
-		B2C3D471ED2DC5600515817 /* ContourProcessor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ContourProcessor.hpp; sourceTree = "<group>"; };
-		B2C3D481ED2DC5600515818 /* ContourProcessorBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContourProcessorBridge.h; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -96,6 +77,24 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A19D4440CE7D9688BDFF2C4D /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		B2C3D401ED2DC5600515810 /* ContourProcessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ContourProcessor.cpp; sourceTree = "<group>"; };
+		B2C3D411ED2DC5600515811 /* ContourProcessorBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ContourProcessorBridge.mm; sourceTree = "<group>"; };
+		B2C3D421ED2DC5600515812 /* SilhouetteShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = SilhouetteShaders.metal; sourceTree = "<group>"; };
+		B2C3D431ED2DC5600515813 /* GuideContourExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuideContourExtractor.swift; sourceTree = "<group>"; };
+		B2C3D441ED2DC5600515814 /* PoseSilhouetteHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseSilhouetteHandler.swift; sourceTree = "<group>"; };
+		B2C3D451ED2DC5600515815 /* PoseSilhouettePlatformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseSilhouettePlatformView.swift; sourceTree = "<group>"; };
+		B2C3D471ED2DC5600515817 /* ContourProcessor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ContourProcessor.hpp; sourceTree = "<group>"; };
+		B2C3D481ED2DC5600515818 /* ContourProcessorBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContourProcessorBridge.h; sourceTree = "<group>"; };
+		B2C3D531ED2DC5600515823 /* SilhouetteOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SilhouetteOverlayView.swift; sourceTree = "<group>"; };
+		B2C3D551ED2DC5600515825 /* KalmanContourFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = KalmanContourFilter.cpp; sourceTree = "<group>"; };
+		B2C3D571ED2DC5600515827 /* KalmanContourFilterBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = KalmanContourFilterBridge.mm; sourceTree = "<group>"; };
+		B2C3D591ED2DC5600515829 /* AlignmentStateMachine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlignmentStateMachine.swift; sourceTree = "<group>"; };
+		B2C3D5A1ED2DC560051582A /* KalmanContourFilter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = KalmanContourFilter.hpp; sourceTree = "<group>"; };
+		B2C3D5B1ED2DC560051582B /* KalmanContourFilterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KalmanContourFilterBridge.h; sourceTree = "<group>"; };
+		C1A2B311ED2DC5600515901 /* CameraSessionBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraSessionBridge.swift; sourceTree = "<group>"; };
+		C1A2B312ED2DC5600515902 /* NativeCameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewView.swift; sourceTree = "<group>"; };
+		C1A2B313ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewPlatformView.swift; sourceTree = "<group>"; };
+		C1A2B314ED2DC5600515904 /* NativeCameraPreviewHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewHandler.swift; sourceTree = "<group>"; };
 		E5DC37B16CE6C134B89B3395 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		E64A9E2EFBBA37498FE11CE9 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -120,7 +119,6 @@
 				5282008786E3343A7B475315 /* Pods-Runner.release.xcconfig */,
 				A19D4440CE7D9688BDFF2C4D /* Pods-Runner.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -173,15 +171,23 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C1A2B321ED2DC5600515910 /* CameraPreview */ = {
+		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				C1A2B311ED2DC5600515901 /* CameraSessionBridge.swift */,
-				C1A2B312ED2DC5600515902 /* NativeCameraPreviewView.swift */,
-				C1A2B313ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift */,
-				C1A2B314ED2DC5600515904 /* NativeCameraPreviewHandler.swift */,
+				97C146FA1CF9000F007C117D /* Main.storyboard */,
+				97C146FD1CF9000F007C117D /* Assets.xcassets */,
+				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
+				97C147021CF9000F007C117D /* Info.plist */,
+				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
+				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
+				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
+				74858FB01ED2DC5600515810 /* ArPlatformHandler.swift */,
+				C1A2B321ED2DC5600515910 /* CameraPreview */,
+				B2C3D491ED2DC5600515819 /* PoseSilhouette */,
+				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
+				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
-			path = CameraPreview;
+			path = Runner;
 			sourceTree = "<group>";
 		};
 		B2C3D491ED2DC5600515819 /* PoseSilhouette */ = {
@@ -213,23 +219,15 @@
 			path = Shaders;
 			sourceTree = "<group>";
 		};
-		97C146F01CF9000F007C117D /* Runner */ = {
+		C1A2B321ED2DC5600515910 /* CameraPreview */ = {
 			isa = PBXGroup;
 			children = (
-				97C146FA1CF9000F007C117D /* Main.storyboard */,
-				97C146FD1CF9000F007C117D /* Assets.xcassets */,
-				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
-				97C147021CF9000F007C117D /* Info.plist */,
-				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
-				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
-				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
-				74858FB01ED2DC5600515810 /* ArPlatformHandler.swift */,
-				C1A2B321ED2DC5600515910 /* CameraPreview */,
-				B2C3D491ED2DC5600515819 /* PoseSilhouette */,
-				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
-				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				C1A2B311ED2DC5600515901 /* CameraSessionBridge.swift */,
+				C1A2B312ED2DC5600515902 /* NativeCameraPreviewView.swift */,
+				C1A2B313ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift */,
+				C1A2B314ED2DC5600515904 /* NativeCameraPreviewHandler.swift */,
 			);
-			path = Runner;
+			path = CameraPreview;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -285,7 +283,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1510;
+				LastUpgradeCheck = 2650;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					331C8080294A63A400263BE5 = {
@@ -308,7 +306,7 @@
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
 			packageReferences = (
-				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */,
+				781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */,
 			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
@@ -366,9 +364,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -420,9 +422,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -448,7 +454,6 @@
 				74858FB11ED2DC5600515810 /* ArPlatformHandler.swift in Sources */,
 				B2C3D4A1ED2DC560051581A /* ContourProcessor.cpp in Sources */,
 				B2C3D4B1ED2DC560051581B /* ContourProcessorBridge.mm in Sources */,
-
 				B2C3D4D1ED2DC560051581D /* GuideContourExtractor.swift in Sources */,
 				B2C3D4E1ED2DC560051581E /* PoseSilhouetteHandler.swift in Sources */,
 				B2C3D4F1ED2DC560051581F /* PoseSilhouettePlatformView.swift in Sources */,
@@ -519,6 +524,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -541,6 +547,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -641,6 +648,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -670,6 +678,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -698,6 +707,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -720,6 +730,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -811,7 +822,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "FlutterGeneratedPluginSwiftPackage" */ = {
+		781AD8BC2B33823900A9FFBB /* XCLocalSwiftPackageReference "Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage;
 		};

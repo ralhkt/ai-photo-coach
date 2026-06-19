@@ -285,7 +285,8 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
           left: 0,
           right: 0,
           bottom: 0,
-          child: _IosCameraBottomBarLayer(
+          child: RepaintBoundary(
+            child: _IosCameraBottomBarLayer(
             shellMode: CameraShellMode.fromShootSession(widget.shootSessionMode),
             modeLabel: widget.modeLabel ?? l10n.cameraModePhoto,
             onHdrTap: (supported, enabled) =>
@@ -293,6 +294,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
             onGalleryTap: (hasLast) => _openGallery(context, hasLast),
             onShutterTap: () => _capture(context),
             onBurstEnd: () => _finishBurst(context),
+            ),
           ),
         ),
       ],
@@ -486,7 +488,7 @@ class _IosCameraBottomBarLayer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final lastCapture = ref.watch(lastCaptureProvider);
+    final thumbnailBytes = ref.watch(lastCaptureThumbnailProvider);
     final isCapturing = ref.watch(isCapturingProvider);
     final isBursting = ref.watch(isBurstingProvider);
     final burstPhotos = ref.watch(burstPhotosProvider);
@@ -527,7 +529,7 @@ class _IosCameraBottomBarLayer extends ConsumerWidget {
           ),
         );
       },
-      thumbnailBytes: lastCapture?.bytes,
+      thumbnailBytes: thumbnailBytes,
       isCapturing: isCapturing,
       isBursting: isBursting,
       burstCount: burstPhotos.length,
@@ -549,7 +551,7 @@ class _IosCameraBottomBarLayer extends ConsumerWidget {
       onToggleOptions: () {
         ref.read(showCameraOptionsProvider.notifier).state = !optionsExpanded;
       },
-      onGalleryTap: () => onGalleryTap(lastCapture != null),
+      onGalleryTap: () => onGalleryTap(thumbnailBytes != null),
       onGalleryLongPress: () => onGalleryTap(false),
       onShutterTap: onShutterTap,
       onBurstStart: () {

@@ -34,7 +34,14 @@ class IosGalleryButton extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: thumbnailBytes != null
-            ? Image.memory(thumbnailBytes!, fit: BoxFit.cover)
+            ? Image.memory(
+                thumbnailBytes!,
+                fit: BoxFit.cover,
+                gaplessPlayback: true,
+                cacheWidth: 132,
+                cacheHeight: 132,
+                filterQuality: FilterQuality.low,
+              )
             : Icon(
                 Icons.photo_outlined,
                 color: IosCameraUiKit.textSecondary,

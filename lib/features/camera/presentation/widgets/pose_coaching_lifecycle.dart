@@ -84,7 +84,8 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         ref.read(isBurstingProvider) ||
         ref.read(timerCountdownProvider) != null ||
         ref.read(liveSceneAnalyzingProvider) ||
-        ref.read(cameraSwitchingProvider);
+        ref.read(cameraSwitchingProvider) ||
+        ref.read(isPreviewSamplingProvider);
   }
 
   Future<void> _tick() async {

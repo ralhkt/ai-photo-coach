@@ -109,7 +109,7 @@ class CameraModeSettingsNotifier extends Notifier<CameraUiMode> {
         .setZoom(settings.focalPreset);
     await ref
         .read(cameraControllerProvider.notifier)
-        .setManualExposure(settings.manualExposureOffset);
+        .applyManualExposureNow(settings.manualExposureOffset);
   }
 
   Future<void> activateMode(

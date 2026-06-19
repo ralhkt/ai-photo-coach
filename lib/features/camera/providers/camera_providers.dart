@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/image_downscaler.dart';
 import '../../../models/camera_guidance.dart';
 import '../../../models/camera_timer_duration.dart';
 import '../../../models/captured_photo.dart';
@@ -32,6 +33,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
   Timer? _burstTimer;
   Timer? _focusHideTimer;
   Timer? _countdownTimer;
+  Timer? _exposureDebounce;
 
   @override
   Future<CameraController?> build() async {
@@ -39,6 +41,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       _burstTimer?.cancel();
       _focusHideTimer?.cancel();
       _countdownTimer?.cancel();
+      _exposureDebounce?.cancel();
       await ref.read(cameraServiceProvider).dispose();
     });
 
@@ -294,7 +297,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
         await controller.setFlashMode(FlashMode.off);
 
         if (!kIsWeb && Platform.isIOS) {
-          await Future<void>.delayed(const Duration(milliseconds: 80));
+          await Future<void>.delayed(const Duration(milliseconds: 40));
         }
 
         try {
@@ -302,7 +305,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
           await controller.setExposureMode(ExposureMode.auto);
         } catch (_) {}
 
-        const maxAttempts = 4;
+        const maxAttempts = 2;
         for (var attempt = 0; attempt < maxAttempts; attempt++) {
           try {
             final file = await controller
@@ -315,7 +318,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
                   await File(file.path).delete();
                 } catch (_) {}
               }
-              return bytes;
+              return ImageDownscaler.downscale(bytes, maxSide: 720, jpegQuality: 78);
             }
           } catch (error) {
             debugPrint(
@@ -360,6 +363,8 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
           capturedAt: DateTime.now(),
         );
         ref.read(lastCaptureProvider.notifier).state = capture;
+        ref.read(lastCaptureThumbnailProvider.notifier).state =
+            ImageDownscaler.downscale(bytes, maxSide: 128, jpegQuality: 72);
         if (!silent) {
           ref.read(captureFlashProvider.notifier).state = true;
           Future<void>.delayed(const Duration(milliseconds: 120), () {
@@ -486,19 +491,36 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       return;
     }
 
+    ref.read(focalPresetProvider.notifier).state = zoom;
+
     try {
       final maxZoom = await controller.getMaxZoomLevel();
       final minZoom = await controller.getMinZoomLevel();
       final clamped = zoom.clamp(minZoom, maxZoom);
       await controller.setZoomLevel(clamped);
-      ref.read(focalPresetProvider.notifier).state = clamped;
-      ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
+      if (clamped != zoom) {
+        ref.read(focalPresetProvider.notifier).state = clamped;
+      }
     } catch (error) {
       debugPrint('setZoom failed: $error');
     }
   }
 
-  Future<void> setManualExposure(double ev) async {
+  void setManualExposure(double ev) {
+    ref.read(manualExposureOffsetProvider.notifier).state = ev;
+    _exposureDebounce?.cancel();
+    _exposureDebounce = Timer(const Duration(milliseconds: 140), () {
+      unawaited(_applyManualExposure(ev));
+    });
+  }
+
+  Future<void> applyManualExposureNow(double ev) async {
+    _exposureDebounce?.cancel();
+    ref.read(manualExposureOffsetProvider.notifier).state = ev;
+    await _applyManualExposure(ev);
+  }
+
+  Future<void> _applyManualExposure(double ev) async {
     final controller = state.value;
     if (controller == null || !controller.value.isInitialized) {
       return;
@@ -509,8 +531,9 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       final maxEv = await controller.getMaxExposureOffset();
       final clamped = ev.clamp(minEv, maxEv);
       await controller.setExposureOffset(clamped);
-      ref.read(manualExposureOffsetProvider.notifier).state = clamped;
-      ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
+      if (clamped != ev) {
+        ref.read(manualExposureOffsetProvider.notifier).state = clamped;
+      }
     } catch (_) {}
   }
 }

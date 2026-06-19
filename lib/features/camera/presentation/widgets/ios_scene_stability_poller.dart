@@ -14,6 +14,7 @@ import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
+import '../../../pose/providers/pose_coaching_provider.dart';
 import '../../../session/providers/shoot_session_provider.dart';
 
 /// iOS pHash polling — image stream deadlocks with preview + takePicture.
@@ -35,10 +36,9 @@ class _IosSceneStabilityPollerState extends ConsumerState<IosSceneStabilityPolle
   void initState() {
     super.initState();
     if (!kIsWeb && Platform.isIOS) {
-      _timer = Timer.periodic(const Duration(milliseconds: 1600), (_) {
+      _timer = Timer.periodic(const Duration(milliseconds: 3200), (_) {
         unawaited(_tick());
       });
-      Future.microtask(_tick);
     }
   }
 
@@ -58,6 +58,19 @@ class _IosSceneStabilityPollerState extends ConsumerState<IosSceneStabilityPolle
       return;
     }
 
+    if (!ref.read(autoLiveSceneAnalysisProvider)) {
+      return;
+    }
+
+    if (ref.read(poseCoachingShouldRunProvider)) {
+      return;
+    }
+
+    if (ref.read(isPreviewSamplingProvider) ||
+        ref.read(cameraSwitchingProvider)) {
+      return;
+    }
+
     final powerSave = ref.read(powerSaveEnabledProvider);
     final intervalMs = powerSave
         ? PerformanceBudget.phashFrameIntervalPowerSaveMs
@@ -69,7 +82,8 @@ class _IosSceneStabilityPollerState extends ConsumerState<IosSceneStabilityPolle
 
     if (ref.read(isCapturingProvider) ||
         ref.read(isBurstingProvider) ||
-        ref.read(liveSceneAnalyzingProvider)) {
+        ref.read(liveSceneAnalyzingProvider) ||
+        ref.read(timerCountdownProvider) != null) {
       return;
     }
 

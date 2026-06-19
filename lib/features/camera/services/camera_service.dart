@@ -69,7 +69,7 @@ class CameraService {
     }
 
     if (!kIsWeb && Platform.isIOS) {
-      await Future<void>.delayed(const Duration(milliseconds: 250));
+      await Future<void>.delayed(const Duration(milliseconds: 120));
     }
   }
 

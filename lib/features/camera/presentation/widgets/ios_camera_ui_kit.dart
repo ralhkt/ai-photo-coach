@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_design_tokens.dart';
@@ -147,14 +145,10 @@ class IosCameraChromeBar extends StatelessWidget {
         ? IosCameraUiKit.topScrim()
         : IosCameraUiKit.bottomScrim();
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: DecoratedBox(
-          decoration: BoxDecoration(gradient: gradient),
-          child: child,
-        ),
-      ),
+    // Gradient only — BackdropFilter over live camera preview tanks UI FPS.
+    return DecoratedBox(
+      decoration: BoxDecoration(gradient: gradient),
+      child: child,
     );
   }
 }
@@ -190,19 +184,13 @@ class IosCameraGlassPill extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       child: Opacity(
         opacity: enabled ? 1 : 0.55,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: fillColor,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: borderColor),
-              ),
-              child: Padding(padding: padding, child: child),
-            ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: fillColor,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: borderColor),
           ),
+          child: Padding(padding: padding, child: child),
         ),
       ),
     );
