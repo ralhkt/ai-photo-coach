@@ -163,20 +163,20 @@ class IosCameraTopBarLayer extends ConsumerWidget {
         nightModeSupported: hdrSupported,
         onClose: onClose,
         onFlashTap: () {
-          markCameraUiInteraction(ref);
+          markCameraChromeTap(ref);
           ref.read(cameraControllerProvider.notifier).cycleFlashMode();
         },
         onNightModeTap: () {
-          markCameraUiInteraction(ref);
+          markCameraChromeTap(ref);
           ref.read(hdrEnabledProvider.notifier).state = !hdrEnabled;
           ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
         },
         onFormatTap: () {
-          markCameraUiInteraction(ref);
+          markCameraChromeTap(ref);
           ref.read(cameraAspectRatioProvider.notifier).state = aspectRatio.next;
         },
         onSettingsTap: () {
-          markCameraUiInteraction(ref);
+          markCameraChromeTap(ref);
           ref.read(showCameraOptionsProvider.notifier).state = !optionsExpanded;
         },
         centerLabel: centerLabel,

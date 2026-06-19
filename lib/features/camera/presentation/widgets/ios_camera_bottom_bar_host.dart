@@ -16,7 +16,7 @@ import '../ios_camera_mode_switcher.dart';
 import 'ios_camera_bottom_bar.dart';
 import 'ios_exposure_slider.dart';
 
-/// Bottom chrome with interaction pause markers on every control tap.
+/// Bottom chrome — heavy actions pause ML longer; toggles use a brief gate only.
 class IosCameraBottomBarHost extends ConsumerWidget {
   const IosCameraBottomBarHost({
     super.key,
@@ -48,7 +48,7 @@ class IosCameraBottomBarHost extends ConsumerWidget {
       modeLabels: modeLabels,
       selectedModeIndex: shellMode.carouselIndex,
       onModeSelected: (index) {
-        markCameraUiInteraction(ref);
+        markHeavyCameraInteraction(ref);
         unawaited(
           switchIosCameraShellMode(
             context: context,
@@ -77,67 +77,67 @@ class IosCameraBottomBarHost extends ConsumerWidget {
       isFlipping: ref.watch(cameraSwitchingProvider),
       shutterEnabled: ref.watch(timerCountdownProvider) == null,
       onHdrTap: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         onHdrTap(
           ref.read(hdrSupportedProvider),
           ref.read(hdrEnabledProvider),
         );
       },
       onTimerTap: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         ref.read(timerDurationProvider.notifier).state =
             ref.read(timerDurationProvider).next;
       },
       onExposureLockTap: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         unawaited(
           ref.read(cameraControllerProvider.notifier).toggleAeAfLock(),
         );
       },
       onToggleOptions: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         ref.read(showCameraOptionsProvider.notifier).state =
             !ref.read(showCameraOptionsProvider);
       },
       onGalleryTap: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         onGalleryTap(ref.read(lastCaptureThumbnailProvider) != null);
       },
       onGalleryLongPress: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         onGalleryTap(false);
       },
       onShutterTap: onShutterTap,
       onBurstStart: () {
-        markCameraUiInteraction(ref);
+        markHeavyCameraInteraction(ref);
         unawaited(ref.read(cameraControllerProvider.notifier).startBurst());
       },
       onBurstEnd: onBurstEnd,
       onFlipCamera: () {
-        markCameraUiInteraction(ref);
+        markHeavyCameraInteraction(ref);
         unawaited(ref.read(cameraControllerProvider.notifier).switchCamera());
       },
       proModeEnabled: ref.watch(proModeEnabledProvider),
       onProModeTap: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         ref.read(proModeEnabledProvider.notifier).state =
             !ref.read(proModeEnabledProvider);
       },
       aspectRatio: ref.watch(cameraAspectRatioProvider),
       onAspectRatioTap: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         ref.read(cameraAspectRatioProvider.notifier).state =
             ref.read(cameraAspectRatioProvider).next;
       },
       showHistogram: ref.watch(showHistogramProvider),
       onHistogramTap: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         ref.read(showHistogramProvider.notifier).state =
             !ref.read(showHistogramProvider);
       },
       frontMirrorEnabled: ref.watch(frontMirrorEnabledProvider),
       onMirrorTap: () {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         ref.read(frontMirrorEnabledProvider.notifier).state =
             !ref.read(frontMirrorEnabledProvider);
       },
@@ -146,7 +146,7 @@ class IosCameraBottomBarHost extends ConsumerWidget {
           : null,
       focalPreset: ref.watch(focalPresetProvider),
       onFocalPresetTap: (preset) {
-        markCameraUiInteraction(ref);
+        markCameraChromeTap(ref);
         unawaited(ref.read(cameraControllerProvider.notifier).setZoom(preset));
       },
     );
@@ -169,8 +169,8 @@ class _ProModeExposureSlider extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return IosExposureSlider(
       value: ref.watch(manualExposureOffsetProvider),
+      onChangeStart: () => markCameraChromeTap(ref),
       onChanged: (value) {
-        markCameraUiInteraction(ref);
         ref.read(cameraControllerProvider.notifier).setManualExposure(value);
       },
     );

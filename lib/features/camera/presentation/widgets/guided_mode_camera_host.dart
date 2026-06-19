@@ -9,7 +9,6 @@ import '../../../../core/utils/coaching_guidance_helper.dart';
 import '../../../../core/utils/guidance_text.dart';
 import '../../../../core/utils/pose_coaching_hint.dart';
 import '../../../../core/widgets/app_glass_widgets.dart';
-import '../../../../models/body_part_labels.dart';
 import '../../../../models/camera_guidance.dart';
 import '../../../../models/photo_analysis_result.dart';
 import '../../../../models/photo_frame_template.dart';
@@ -77,7 +76,6 @@ class _GuidedModeCameraHostState extends ConsumerState<GuidedModeCameraHost> {
     final l10n = AppLocalizations.of(context)!;
     final guidance = widget.analysis.guidance;
     final overlayGuidance = _overlayGuidance;
-    final partLabels = bodyPartLabels(l10n);
 
     final scaffold = IosCameraScaffold(
       controller: widget.controller,
@@ -86,16 +84,6 @@ class _GuidedModeCameraHostState extends ConsumerState<GuidedModeCameraHost> {
       modeLabel: l10n.cameraModeGuided,
       centerTopLabel: frameTemplateLabel(l10n, guidance.frameTemplate),
       useGuidedGridProvider: true,
-      showGridButton: true,
-      showFrameButton: true,
-      onGridTap: () {
-        markCameraUiInteraction(ref);
-        toggleGuidedCompositionVisible(ref);
-      },
-      onFrameTap: () {
-        markCameraUiInteraction(ref);
-        toggleGuidedFrameVisible(ref);
-      },
       guidanceChip: const _PoseCoachingChip(),
       croppedOverlay: overlayGuidance == null
           ? null
@@ -103,18 +91,17 @@ class _GuidedModeCameraHostState extends ConsumerState<GuidedModeCameraHost> {
               guidance: overlayGuidance,
               imageBytes: widget.analysis.imageBytes,
               sourceAspectRatio: widget.analysis.sourceAspectRatio,
-              partLabels: partLabels,
             ),
       overlay: _GuidedToolbar(
         frameTemplate: guidance.frameTemplate,
         onChooseFrameTemplate: () {
-          markCameraUiInteraction(ref);
+          markCameraChromeTap(ref);
           ref
               .read(referenceAnalysisProvider.notifier)
               .setFrameTemplate(guidance.frameTemplate.next);
         },
         onOpenTools: () {
-          markCameraUiInteraction(ref);
+          markCameraChromeTap(ref);
           showGuidedOverlayToolsSheet(context);
         },
       ),
@@ -139,13 +126,11 @@ class _GuidedOverlayHost extends ConsumerWidget {
     required this.guidance,
     required this.imageBytes,
     required this.sourceAspectRatio,
-    required this.partLabels,
   });
 
   final CameraGuidance guidance;
   final Uint8List imageBytes;
   final double sourceAspectRatio;
-  final BodyPartLabels partLabels;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -155,7 +140,6 @@ class _GuidedOverlayHost extends ConsumerWidget {
       imageBytes: imageBytes,
       sourceAspectRatio: sourceAspectRatio,
       cameraAspectRatio: cameraAspectRatio,
-      partLabels: partLabels,
     );
   }
 }
@@ -192,7 +176,7 @@ class _GuidedToolbar extends ConsumerWidget {
                     : Icons.grid_off_rounded,
                 tooltip: l10n.toggleOverlay,
                 onTap: () {
-                  markCameraUiInteraction(ref);
+                  markCameraChromeTap(ref);
                   toggleGuidedCompositionVisible(ref);
                 },
               ),
@@ -203,7 +187,7 @@ class _GuidedToolbar extends ConsumerWidget {
                     : Icons.crop_free_outlined,
                 tooltip: l10n.toggleFrame,
                 onTap: () {
-                  markCameraUiInteraction(ref);
+                  markCameraChromeTap(ref);
                   toggleGuidedFrameVisible(ref);
                 },
               ),

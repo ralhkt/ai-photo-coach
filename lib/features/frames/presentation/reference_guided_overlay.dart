@@ -24,8 +24,7 @@ class ReferenceGuidedOverlay extends StatefulWidget {
     this.showGhost = true,
     this.showOutline = true,
     this.ghostOpacity = PozeWireframeStyle.ghostOpacity,
-    this.poseAligned = false,
-    this.alignmentScore,
+    this.alignmentPhase = AlignmentOverlayPhase.noMatch,
   });
 
   final Uint8List imageBytes;
@@ -35,8 +34,7 @@ class ReferenceGuidedOverlay extends StatefulWidget {
   final bool showGhost;
   final bool showOutline;
   final double ghostOpacity;
-  final bool poseAligned;
-  final int? alignmentScore;
+  final AlignmentOverlayPhase alignmentPhase;
 
   @override
   State<ReferenceGuidedOverlay> createState() => _ReferenceGuidedOverlayState();
@@ -81,8 +79,7 @@ class _ReferenceGuidedOverlayState extends State<ReferenceGuidedOverlay> {
           showGhost: widget.showGhost,
           showOutline: widget.showOutline,
           ghostOpacity: widget.ghostOpacity,
-          poseAligned: widget.poseAligned,
-          alignmentScore: widget.alignmentScore,
+          alignmentPhase: widget.alignmentPhase,
         ),
         child: const SizedBox.expand(),
       ),
@@ -98,8 +95,7 @@ class _ReferenceGuidedOverlayPainter extends CustomPainter {
     required this.showGhost,
     required this.showOutline,
     required this.ghostOpacity,
-    required this.poseAligned,
-    required this.alignmentScore,
+    required this.alignmentPhase,
   });
 
   final ui.Image image;
@@ -108,8 +104,7 @@ class _ReferenceGuidedOverlayPainter extends CustomPainter {
   final bool showGhost;
   final bool showOutline;
   final double ghostOpacity;
-  final bool poseAligned;
-  final int? alignmentScore;
+  final AlignmentOverlayPhase alignmentPhase;
 
   static final _shapeBuilder = HumanFrameShapeBuilder();
 
@@ -158,13 +153,10 @@ class _ReferenceGuidedOverlayPainter extends CustomPainter {
     final mapped = ReferenceCoverFitMapper.mapContour(selectionContour, dest);
     final path = _shapeBuilder.pointsToSmoothPath(mapped);
 
-    final phase = alignmentScore != null
-        ? AlignmentOverlayState.phaseForScore(alignmentScore!)
-        : (poseAligned
-            ? AlignmentOverlayPhase.matched
-            : AlignmentOverlayPhase.noMatch);
-    final strokeColor = AlignmentOverlayState.strokeColorForPhase(phase);
-    final glowColor = AlignmentOverlayState.glowColorForPhase(phase);
+    final strokeColor =
+        AlignmentOverlayState.strokeColorForPhase(alignmentPhase);
+    final glowColor =
+        AlignmentOverlayState.glowColorForPhase(alignmentPhase);
 
     canvas.drawPath(
       path,
@@ -190,7 +182,7 @@ class _ReferenceGuidedOverlayPainter extends CustomPainter {
       Paint()
         ..color = strokeColor
         ..style = PaintingStyle.stroke
-        ..strokeWidth = phase == AlignmentOverlayPhase.matched
+        ..strokeWidth = alignmentPhase == AlignmentOverlayPhase.matched
             ? PozeWireframeStyle.bodyStrokeWidth
             : PozeWireframeStyle.minimalBodyStrokeWidth
         ..strokeJoin = StrokeJoin.round
@@ -207,7 +199,6 @@ class _ReferenceGuidedOverlayPainter extends CustomPainter {
         oldDelegate.showGhost != showGhost ||
         oldDelegate.showOutline != showOutline ||
         oldDelegate.ghostOpacity != ghostOpacity ||
-        oldDelegate.poseAligned != poseAligned ||
-        oldDelegate.alignmentScore != alignmentScore;
+        oldDelegate.alignmentPhase != alignmentPhase;
   }
 }

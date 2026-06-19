@@ -8,10 +8,12 @@ class IosExposureSlider extends StatelessWidget {
     super.key,
     required this.value,
     required this.onChanged,
+    this.onChangeStart,
   });
 
   final double value;
   final ValueChanged<double> onChanged;
+  final VoidCallback? onChangeStart;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,9 @@ class IosExposureSlider extends StatelessWidget {
               max: 2,
               divisions: 16,
               activeColor: IosCameraUiKit.accentYellow,
+              onChangeStart: onChangeStart == null
+                  ? null
+                  : (_) => onChangeStart!(),
               onChanged: onChanged,
             ),
           ),

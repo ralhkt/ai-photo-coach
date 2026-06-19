@@ -350,7 +350,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   }
 
   Future<void> _capture(BuildContext context) async {
-    markCameraUiInteraction(ref);
+    markHeavyCameraInteraction(ref);
     final l10n = AppLocalizations.of(context)!;
     try {
       final photo = await ref

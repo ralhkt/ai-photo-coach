@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,14 +13,15 @@ import '../../pose/providers/pose_coaching_provider.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
 
 import '../../../models/camera_aspect_ratio.dart';
+import '../../../models/camera_guidance.dart';
 import '../../../models/shoot_session.dart';
 import '../../../models/photo_frame_template.dart';
-import '../../../models/subject_shape_kind.dart';
 import '../../frames/presentation/guided_camera_overlay_stack.dart';
 import '../../pose/platform/pose_silhouette_auto_capture_listener.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/guided_frame_providers.dart';
 import '../../reference/providers/reference_providers.dart';
+import '../providers/camera_interaction_provider.dart';
 import '../providers/camera_mode_settings_provider.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_settings_provider.dart';
@@ -57,7 +60,6 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
     final l10n = AppLocalizations.of(context)!;
     final analysis = ref.watch(referenceAnalysisProvider).value;
     final cameraState = ref.watch(cameraControllerProvider);
-    final cameraAspectRatio = ref.watch(cameraAspectRatioProvider);
 
     if (analysis == null) {
       return Scaffold(
@@ -67,7 +69,6 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
     }
 
     final guidance = analysis.guidance;
-    final partLabels = bodyPartLabels(l10n);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -116,46 +117,24 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                   centerTopLabel:
                       frameTemplateLabel(l10n, guidance.frameTemplate),
                   useGuidedGridProvider: true,
-                  showGridButton: true,
-                  showFrameButton: true,
-                  onGridTap: () => toggleGuidedCompositionVisible(ref),
-                  onFrameTap: () => toggleGuidedFrameVisible(ref),
                   guidanceChip: const _PoseCoachingChip(),
-                  croppedOverlay: GuidedCameraOverlayStack(
+                  croppedOverlay: _GuidedOverlayHost(
                     guidance: coachingGuidance,
                     imageBytes: analysis.imageBytes,
                     sourceAspectRatio: analysis.sourceAspectRatio,
-                    cameraAspectRatio: cameraAspectRatio,
-                    partLabels: partLabels,
                   ),
-                  overlay: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Positioned(
-                        right: 12,
-                        top: MediaQuery.paddingOf(context).top + 56,
-                        child: Column(
-                          children: [
-                            AppCameraToolButton(
-                              icon: Icons.layers_outlined,
-                              tooltip: l10n.guidedOverlayTools,
-                              onTap: () => showGuidedOverlayToolsSheet(context),
-                            ),
-                            const SizedBox(height: 8),
-                            AppCameraToolButton(
-                              icon: Icons.aspect_ratio_rounded,
-                              tooltip: l10n.chooseFrameTemplate,
-                              onTap: () {
-                                ref
-                                    .read(referenceAnalysisProvider.notifier)
-                                    .setFrameTemplate(
-                                        guidance.frameTemplate.next);
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  overlay: _GuidedToolbar(
+                    frameTemplate: guidance.frameTemplate,
+                    onChooseFrameTemplate: () {
+                      markCameraChromeTap(ref);
+                      ref
+                          .read(referenceAnalysisProvider.notifier)
+                          .setFrameTemplate(guidance.frameTemplate.next);
+                    },
+                    onOpenTools: () {
+                      markCameraChromeTap(ref);
+                      showGuidedOverlayToolsSheet(context);
+                    },
                   ),
                 ),
               ),
@@ -167,24 +146,129 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
   }
 }
 
+class _GuidedOverlayHost extends ConsumerWidget {
+  const _GuidedOverlayHost({
+    required this.guidance,
+    required this.imageBytes,
+    required this.sourceAspectRatio,
+  });
+
+  final CameraGuidance guidance;
+  final Uint8List imageBytes;
+  final double sourceAspectRatio;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cameraAspectRatio = ref.watch(cameraAspectRatioProvider);
+    return GuidedCameraOverlayStack(
+      guidance: guidance,
+      imageBytes: imageBytes,
+      sourceAspectRatio: sourceAspectRatio,
+      cameraAspectRatio: cameraAspectRatio,
+    );
+  }
+}
+
+class _GuidedToolbar extends ConsumerWidget {
+  const _GuidedToolbar({
+    required this.frameTemplate,
+    required this.onChooseFrameTemplate,
+    required this.onOpenTools,
+  });
+
+  final PhotoFrameTemplate frameTemplate;
+  final VoidCallback onChooseFrameTemplate;
+  final VoidCallback onOpenTools;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final compositionVisible = ref.watch(guidedCompositionVisibleProvider);
+    final frameVisible = ref.watch(guidedFrameVisibleProvider);
+    final top = MediaQuery.paddingOf(context).top + 56;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned(
+          right: 12,
+          top: top,
+          child: Column(
+            children: [
+              AppCameraToolButton(
+                icon: compositionVisible
+                    ? Icons.grid_on_rounded
+                    : Icons.grid_off_rounded,
+                tooltip: l10n.toggleOverlay,
+                onTap: () {
+                  markCameraChromeTap(ref);
+                  toggleGuidedCompositionVisible(ref);
+                },
+              ),
+              const SizedBox(height: 8),
+              AppCameraToolButton(
+                icon: frameVisible
+                    ? Icons.crop_free_rounded
+                    : Icons.crop_free_outlined,
+                tooltip: l10n.toggleFrame,
+                onTap: () {
+                  markCameraChromeTap(ref);
+                  toggleGuidedFrameVisible(ref);
+                },
+              ),
+              const SizedBox(height: 8),
+              AppCameraToolButton(
+                icon: Icons.layers_outlined,
+                tooltip: l10n.guidedOverlayTools,
+                onTap: onOpenTools,
+              ),
+              const SizedBox(height: 8),
+              AppCameraToolButton(
+                icon: Icons.aspect_ratio_rounded,
+                tooltip: l10n.chooseFrameTemplate,
+                onTap: onChooseFrameTemplate,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _PoseCoachingChip extends ConsumerWidget {
   const _PoseCoachingChip();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final stability = ref.watch(sceneStabilityProvider);
-    final coaching = ref.watch(poseCoachingResultProvider);
+    ref.watch(
+      poseCoachingResultProvider.select(
+        (result) => (
+          result?.poseScore,
+          result?.combinedGuidance,
+          result?.isLevel,
+          result?.poseMatched,
+        ),
+      ),
+    );
+    final stabilityState =
+        ref.watch(sceneStabilityProvider.select((status) => status.state));
+    final stability = SceneStabilityStatus(
+      state: stabilityState,
+      hammingDistance: 0,
+    );
+    final fullCoaching = ref.read(poseCoachingResultProvider);
     final aligned = isPoseCoachingAligned(
       stability: stability,
-      coaching: coaching,
+      coaching: fullCoaching,
     );
 
     return AppCoachPill(
       message: resolvePoseCoachingMessage(
         l10n: l10n,
         stability: stability,
-        coaching: coaching,
+        coaching: fullCoaching,
       ),
       icon: aligned
           ? Icons.check_circle_outline_rounded
@@ -193,4 +277,3 @@ class _PoseCoachingChip extends ConsumerWidget {
     );
   }
 }
-

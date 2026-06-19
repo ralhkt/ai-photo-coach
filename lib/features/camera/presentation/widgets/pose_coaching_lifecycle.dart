@@ -147,7 +147,20 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         ref.read(liveSceneAnalyzingProvider) ||
         ref.read(cameraSwitchingProvider) ||
         ref.read(isPreviewSamplingProvider) ||
-        ref.read(isCameraUiInteractionPausedProvider);
+        ref.read(isCameraUiInteractionPausedProvider) ||
+        ref.read(cameraChromeBusyProvider);
+  }
+
+  Duration _busyRetryDelay() {
+    if (ref.read(isCameraUiInteractionPausedProvider) ||
+        ref.read(isCapturingProvider) ||
+        ref.read(cameraSwitchingProvider)) {
+      return const Duration(milliseconds: 350);
+    }
+    if (ref.read(cameraChromeBusyProvider)) {
+      return const Duration(milliseconds: 750);
+    }
+    return const Duration(milliseconds: 350);
   }
 
   bool _shouldPublishResult(PoseCoachingResult result) {
@@ -195,7 +208,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     await _syncSamplerForBusyState();
 
     if (_tickInFlight || _isCameraBusy()) {
-      _scheduleNextTick(const Duration(milliseconds: 350));
+      _scheduleNextTick(_busyRetryDelay());
       return;
     }
 

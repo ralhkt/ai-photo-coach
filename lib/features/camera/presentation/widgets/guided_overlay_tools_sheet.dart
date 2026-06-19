@@ -5,9 +5,9 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/theme/app_design_tokens.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/guidance_text.dart';
-import '../../../frames/presentation/body_part_alignment_chip.dart';
 import '../../../reference/providers/guided_frame_providers.dart';
 import '../../../reference/providers/reference_providers.dart';
+import '../../providers/camera_interaction_provider.dart';
 
 Future<void> showGuidedOverlayToolsSheet(BuildContext context) {
   return showModalBottomSheet<void>(
@@ -28,10 +28,8 @@ class _GuidedOverlayToolsSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final ghostVisible = ref.watch(referenceGhostVisibleProvider);
-    final bodyPartsVisible = ref.watch(bodyPartGuidesVisibleProvider);
     final analysis = ref.watch(referenceAnalysisProvider).value;
     final guidance = analysis?.guidance;
-    final hasBodyParts = guidance?.bodyPartGuides != null;
 
     return SafeArea(
       child: Padding(
@@ -55,15 +53,8 @@ class _GuidedOverlayToolsSheet extends ConsumerWidget {
               title: l10n.toggleGhostOverlay,
               value: ghostVisible,
               onChanged: (value) {
+                markCameraChromeTap(ref);
                 ref.read(referenceGhostVisibleProvider.notifier).state = value;
-              },
-            ),
-            _OverlayToggleTile(
-              icon: Icons.accessibility_new_rounded,
-              title: l10n.toggleBodyPartGuides,
-              value: bodyPartsVisible,
-              onChanged: (value) {
-                ref.read(bodyPartGuidesVisibleProvider.notifier).state = value;
               },
             ),
             if (guidance != null) ...[
@@ -81,14 +72,6 @@ class _GuidedOverlayToolsSheet extends ConsumerWidget {
                       ),
                 ),
               ],
-            ],
-            if (hasBodyParts) ...[
-              const SizedBox(height: AppDesignTokens.spaceLg),
-              BodyPartAlignmentChip(
-                labels: bodyPartLabels(l10n),
-                title: l10n.alignmentGuideTitle,
-                hasBodyParts: true,
-              ),
             ],
           ],
         ),
