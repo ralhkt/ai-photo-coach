@@ -72,7 +72,9 @@ class IosCameraBottomBarHost extends ConsumerWidget {
       optionsExpanded: ref.watch(showCameraOptionsProvider),
       canFlip: ref.watch(
         camerasProvider.select((cameras) => (cameras.value ?? []).length > 1),
-      ),
+      ) &&
+          !ref.watch(cameraSwitchingProvider),
+      isFlipping: ref.watch(cameraSwitchingProvider),
       shutterEnabled: ref.watch(timerCountdownProvider) == null,
       onHdrTap: () {
         markCameraUiInteraction(ref);

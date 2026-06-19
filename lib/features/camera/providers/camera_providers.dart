@@ -16,6 +16,7 @@ import '../../../models/captured_photo.dart';
 import '../../../models/focus_indicator_state.dart';
 import '../../scene_stabilization/services/camera_frame_monitor.dart';
 import '../models/preview_capture_request.dart';
+import '../platform/native_preview_frame_service.dart';
 import '../services/camera_service.dart';
 import 'camera_capture_provider.dart';
 import 'camera_interaction_provider.dart';
@@ -89,9 +90,18 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     }
 
     ref.read(cameraSwitchingProvider.notifier).state = true;
-    await _unlockAeAf();
-    await ref.read(cameraFrameMonitorProvider).stop();
     ref.read(focusIndicatorProvider.notifier).state = null;
+
+    final cleanup = <Future<void>>[
+      ref.read(cameraFrameMonitorProvider).stop(),
+      _detachIosPreviewSampler(),
+    ];
+    if (ref.read(aeAfLockProvider)) {
+      cleanup.add(_unlockAeAf());
+    } else {
+      ref.read(aeAfLockProvider.notifier).state = false;
+    }
+    await Future.wait(cleanup);
 
     _cameraIndex = oppositeCameraIndex(
       cameras: cameras,
@@ -111,16 +121,32 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
             flashMode: flashMode,
           );
       state = AsyncData(controller);
-      ref.read(focalPresetProvider.notifier).state = 1.0;
-      try {
-        await controller.setZoomLevel(1.0);
-      } catch (_) {}
-      await ref.read(cameraFrameMonitorProvider).start(controller);
+      ref.read(cameraSwitchingProvider.notifier).state = false;
+      unawaited(_applyPostSwitchSetup(controller, flashMode));
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
-    } finally {
       ref.read(cameraSwitchingProvider.notifier).state = false;
     }
+  }
+
+  Future<void> _detachIosPreviewSampler() async {
+    if (!kIsWeb && Platform.isIOS) {
+      await NativePreviewFrameService.instance.detach();
+    }
+  }
+
+  Future<void> _applyPostSwitchSetup(
+    CameraController controller,
+    FlashMode flashMode,
+  ) async {
+    ref.read(focalPresetProvider.notifier).state = 1.0;
+    try {
+      await controller.setZoomLevel(1.0);
+    } catch (_) {}
+    try {
+      await controller.setFlashMode(flashMode);
+    } catch (_) {}
+    await ref.read(cameraFrameMonitorProvider).start(controller);
   }
 
   void cycleFlashMode() {

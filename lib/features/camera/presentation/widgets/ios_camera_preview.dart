@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../platform/native_camera_preview_service.dart';
-import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import 'camera_zoom_gesture_state.dart';
@@ -20,12 +19,10 @@ class IosCameraPreview extends StatefulWidget {
   const IosCameraPreview({
     super.key,
     required this.controller,
-    required this.isSwitching,
     required this.mirrorFront,
   });
 
   final CameraController controller;
-  final bool isSwitching;
   final bool mirrorFront;
 
   @override
@@ -74,7 +71,7 @@ class _IosCameraPreviewState extends State<IosCameraPreview> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.isSwitching || !_previewReady) {
+    if (!_previewReady) {
       return const ColoredBox(color: Colors.black);
     }
 
@@ -176,13 +173,11 @@ class _CameraPreviewVisualLayer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isSwitching = ref.watch(cameraSwitchingProvider);
     final mirrorFront = ref.watch(frontMirrorEnabledProvider);
 
     return IosCameraPreview(
       key: ValueKey(controller.description.name),
       controller: controller,
-      isSwitching: isSwitching,
       mirrorFront: mirrorFront,
     );
   }
@@ -275,8 +270,8 @@ class _CameraPreviewTextureState extends State<_CameraPreviewTexture> {
     }
     setState(() => _nativePreview = useNative);
     if (useNative && widget.controller.value.isInitialized) {
-      await _pauseTexturePreview();
-      await _syncNativePreviewSettings();
+      unawaited(_pauseTexturePreview());
+      unawaited(_syncNativePreviewSettings());
     }
   }
 

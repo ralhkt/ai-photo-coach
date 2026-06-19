@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:camera/camera.dart';
@@ -24,6 +25,13 @@ class CameraService {
     return Permission.camera.isGranted;
   }
 
+  static ResolutionPreset resolutionFor(CameraDescription camera) {
+    if (camera.lensDirection == CameraLensDirection.front) {
+      return CameraConstants.frontPreviewResolution;
+    }
+    return CameraConstants.previewResolution;
+  }
+
   Future<CameraController> initialize(
     CameraDescription camera, {
     FlashMode flashMode = FlashMode.auto,
@@ -46,7 +54,11 @@ class CameraService {
     FlashMode flashMode = FlashMode.auto,
   }) async {
     await _releasePreviousController();
-    return _createController(camera, flashMode: flashMode);
+    return _createController(
+      camera,
+      flashMode: flashMode,
+      deferFlash: true,
+    );
   }
 
   Future<void> _releasePreviousController() async {
@@ -63,23 +75,30 @@ class CameraService {
     } catch (_) {}
 
     try {
+      if (previous.value.isInitialized) {
+        await previous.pausePreview();
+      }
+    } catch (_) {}
+
+    try {
       await previous.dispose();
     } catch (error) {
       debugPrint('CameraService: dispose failed: $error');
     }
 
     if (!kIsWeb && Platform.isIOS) {
-      await Future<void>.delayed(const Duration(milliseconds: 120));
+      await Future<void>.delayed(CameraConstants.iosSessionReleaseDelay);
     }
   }
 
   Future<CameraController> _createController(
     CameraDescription camera, {
     required FlashMode flashMode,
+    bool deferFlash = false,
   }) async {
     final controller = CameraController(
       camera,
-      CameraConstants.previewResolution,
+      resolutionFor(camera),
       enableAudio: false,
       imageFormatGroup: _preferredImageFormat(),
     );
@@ -87,15 +106,28 @@ class CameraService {
     await controller.initialize();
 
     if (controller.value.isInitialized) {
-      try {
-        await controller.setFlashMode(flashMode);
-      } catch (_) {
-        await controller.setFlashMode(FlashMode.off);
+      if (deferFlash) {
+        unawaited(_safeSetFlashMode(controller, flashMode));
+      } else {
+        await _safeSetFlashMode(controller, flashMode);
       }
     }
 
     _controller = controller;
     return controller;
+  }
+
+  Future<void> _safeSetFlashMode(
+    CameraController controller,
+    FlashMode flashMode,
+  ) async {
+    try {
+      await controller.setFlashMode(flashMode);
+    } catch (_) {
+      try {
+        await controller.setFlashMode(FlashMode.off);
+      } catch (_) {}
+    }
   }
 
   static ImageFormatGroup _preferredImageFormat() {

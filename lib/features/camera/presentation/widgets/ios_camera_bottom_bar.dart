@@ -37,6 +37,7 @@ class IosCameraBottomBar extends StatelessWidget {
     required this.onToggleOptions,
     this.isCapturing = false,
     this.canFlip = true,
+    this.isFlipping = false,
     this.shutterEnabled = true,
     this.proModeEnabled = false,
     this.onProModeTap,
@@ -81,6 +82,7 @@ class IosCameraBottomBar extends StatelessWidget {
   final VoidCallback onToggleOptions;
   final bool isCapturing;
   final bool canFlip;
+  final bool isFlipping;
   final bool shutterEnabled;
   final bool proModeEnabled;
   final VoidCallback? onProModeTap;
@@ -170,6 +172,7 @@ class IosCameraBottomBar extends StatelessWidget {
                     _FlipCameraButton(
                       onTap: canFlip ? onFlipCamera : null,
                       enabled: canFlip,
+                      isFlipping: isFlipping,
                     ),
                   ],
                 ),
@@ -201,10 +204,15 @@ class IosCameraBottomBar extends StatelessWidget {
 }
 
 class _FlipCameraButton extends StatelessWidget {
-  const _FlipCameraButton({required this.onTap, required this.enabled});
+  const _FlipCameraButton({
+    required this.onTap,
+    required this.enabled,
+    required this.isFlipping,
+  });
 
   final VoidCallback? onTap;
   final bool enabled;
+  final bool isFlipping;
 
   @override
   Widget build(BuildContext context) {
@@ -220,11 +228,19 @@ class _FlipCameraButton extends StatelessWidget {
             color: Colors.white.withValues(alpha: 0.18),
           ),
         ),
-        child: Icon(
-          Icons.cameraswitch_rounded,
-          color: Colors.white.withValues(alpha: enabled ? 0.95 : 0.35),
-          size: 24,
-        ),
+        child: isFlipping
+            ? Padding(
+                padding: const EdgeInsets.all(10),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white.withValues(alpha: 0.9),
+                ),
+              )
+            : Icon(
+                Icons.cameraswitch_rounded,
+                color: Colors.white.withValues(alpha: enabled ? 0.95 : 0.35),
+                size: 24,
+              ),
       ),
     );
   }
