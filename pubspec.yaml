@@ -1,7 +1,7 @@
 name: ai_photo_coach
 description: 攝影師 — on-device AI photography coach for iOS and Android.
 publish_to: "none"
-version: 0.1.5+15
+version: 0.1.5+16
 
 environment:
   sdk: ">=3.5.0 <4.0.0"

@@ -145,6 +145,9 @@ class ImageAnalyzerService {
         decoded,
         subjectRect,
         bodyPartGuides: bodyPartGuides,
+        poseLandmarks: referencePose.hasTemplateLandmarks
+            ? referencePose.templateLandmarks
+            : null,
       );
       subjectShape = SubjectShapeKind.humanSilhouette;
     }

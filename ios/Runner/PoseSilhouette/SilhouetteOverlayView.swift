@@ -97,10 +97,31 @@ final class SilhouetteOverlayView: UIView {
   }
 
   private func contourPath(_ points: [CGPoint], viewport: CGSize) -> UIBezierPath {
+    let mapped = points.map { mapPoint($0, viewport: viewport) }
+    guard mapped.count >= 3 else {
+      let path = UIBezierPath()
+      if let first = mapped.first {
+        path.move(to: first)
+        for point in mapped.dropFirst() {
+          path.addLine(to: point)
+        }
+      }
+      path.close()
+      return path
+    }
+
     let path = UIBezierPath()
-    path.move(to: mapPoint(points[0], viewport: viewport))
-    for index in 1..<points.count {
-      path.addLine(to: mapPoint(points[index], viewport: viewport))
+    path.move(to: mapped[0])
+    let count = mapped.count
+    for index in 0..<count {
+      let current = mapped[index]
+      let next = mapped[(index + 1) % count]
+      let mid = CGPoint(x: (current.x + next.x) * 0.5, y: (current.y + next.y) * 0.5)
+      if index == 0 {
+        path.addLine(to: mid)
+      } else {
+        path.addQuadCurve(to: mid, controlPoint: current)
+      }
     }
     path.close()
     return path

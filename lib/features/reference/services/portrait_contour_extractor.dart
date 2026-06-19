@@ -12,10 +12,10 @@ import '../../../core/utils/contour_smoother.dart';
 class PortraitContourExtractor {
   const PortraitContourExtractor({
     this.foregroundThreshold = 42,
-    this.rdpEpsilon = 0.008,
-    this.minBoundaryPoints = 12,
-    this.outputPointCount = 16,
-    this.maxBoundaryPoints = 256,
+    this.rdpEpsilon = 0.004,
+    this.minBoundaryPoints = 16,
+    this.outputPointCount = 56,
+    this.maxBoundaryPoints = 512,
   });
 
   final double foregroundThreshold;
@@ -44,19 +44,43 @@ class PortraitContourExtractor {
       return null;
     }
 
-    final refColor = _estimateForegroundColor(image, left, top, roiW, roiH);
-    final mask = List.generate(roiH, (_) => List<bool>.filled(roiW, false));
+    final bgColor = _estimateBackgroundColor(image, left, top, roiW, roiH);
+    final fgColor = _estimateForegroundColor(image, left, top, roiW, roiH);
+    final thresholds = <double>[
+      foregroundThreshold,
+      foregroundThreshold * 0.75,
+      foregroundThreshold * 1.25,
+      foregroundThreshold * 1.6,
+    ];
 
-    for (var y = 0; y < roiH; y++) {
-      for (var x = 0; x < roiW; x++) {
-        final pixel = image.getPixel(left + x, top + y);
-        final dist = _colorDistance(pixel, refColor);
-        mask[y][x] = dist < foregroundThreshold;
+    List<Offset>? bestBoundary;
+    var bestScore = -1.0;
+
+    for (final threshold in thresholds) {
+      final mask = List.generate(roiH, (_) => List<bool>.filled(roiW, false));
+      for (var y = 0; y < roiH; y++) {
+        for (var x = 0; x < roiW; x++) {
+          final pixel = image.getPixel(left + x, top + y);
+          final distBg = _colorDistance(pixel, bgColor);
+          final distFg = _colorDistance(pixel, fgColor);
+          mask[y][x] = distBg > threshold && distFg < threshold * 1.35;
+        }
+      }
+
+      _fillSmallHoles(mask, roiW, roiH);
+      final boundary = _traceBoundary(mask, roiW, roiH);
+      if (boundary.length < minBoundaryPoints) {
+        continue;
+      }
+
+      final score = _scoreBoundary(boundary, roiW, roiH);
+      if (score > bestScore) {
+        bestScore = score;
+        bestBoundary = boundary;
       }
     }
 
-    _fillSmallHoles(mask, roiW, roiH);
-    var boundary = _traceBoundary(mask, roiW, roiH);
+    var boundary = bestBoundary ?? const <Offset>[];
     if (boundary.length < minBoundaryPoints) {
       return null;
     }
@@ -91,6 +115,80 @@ class PortraitContourExtractor {
       );
     }
     return simplified;
+  }
+
+  double _scoreBoundary(List<Offset> boundary, int roiW, int roiH) {
+    if (boundary.isEmpty) {
+      return 0;
+    }
+
+    var minX = boundary.first.dx;
+    var maxX = boundary.first.dx;
+    var minY = boundary.first.dy;
+    var maxY = boundary.first.dy;
+    for (final point in boundary) {
+      minX = math.min(minX, point.dx);
+      maxX = math.max(maxX, point.dx);
+      minY = math.min(minY, point.dy);
+      maxY = math.max(maxY, point.dy);
+    }
+
+    final width = (maxX - minX).clamp(1.0, roiW.toDouble());
+    final height = (maxY - minY).clamp(1.0, roiH.toDouble());
+    final areaRatio = (width * height) / (roiW * roiH);
+    final aspect = height / width;
+
+    var score = boundary.length.clamp(0, 400).toDouble();
+    if (areaRatio >= 0.22 && areaRatio <= 0.82) {
+      score += 80;
+    }
+    if (aspect >= 1.15 && aspect <= 3.8) {
+      score += 60;
+    }
+    return score;
+  }
+
+  img.ColorRgb8 _estimateBackgroundColor(
+    img.Image image,
+    int left,
+    int top,
+    int roiW,
+    int roiH,
+  ) {
+    var r = 0.0;
+    var g = 0.0;
+    var b = 0.0;
+    var count = 0;
+
+    void sample(int x, int y) {
+      if (x < 0 || y < 0 || x >= image.width || y >= image.height) {
+        return;
+      }
+      final pixel = image.getPixel(x, y);
+      r += pixel.r;
+      g += pixel.g;
+      b += pixel.b;
+      count++;
+    }
+
+    for (var x = left; x < left + roiW; x++) {
+      sample(x, top);
+      sample(x, top + roiH - 1);
+    }
+    for (var y = top; y < top + roiH; y++) {
+      sample(left, y);
+      sample(left + roiW - 1, y);
+    }
+
+    if (count == 0) {
+      return img.ColorRgb8(32, 36, 44);
+    }
+
+    return img.ColorRgb8(
+      (r / count).round(),
+      (g / count).round(),
+      (b / count).round(),
+    );
   }
 
   img.ColorRgb8 _estimateForegroundColor(

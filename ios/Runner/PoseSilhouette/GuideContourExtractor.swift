@@ -12,8 +12,8 @@ enum GuideContourExtractor {
 
   static func extractNormalizedContour(
     from imageData: Data,
-    rdpEpsilon: Float = 0.008,
-    outputPoints: Int = 16
+    rdpEpsilon: Float = 0.004,
+    outputPoints: Int = 56
   ) -> [[String: Double]]? {
     guard #available(iOS 15.0, *) else {
       return nil
@@ -32,8 +32,8 @@ enum GuideContourExtractor {
   @available(iOS 15.0, *)
   static func extractNormalizedContour(
     from cgImage: CGImage,
-    rdpEpsilon: Float = 0.008,
-    outputPoints: Int = 16
+    rdpEpsilon: Float = 0.004,
+    outputPoints: Int = 56
   ) -> [[String: Double]]? {
     let request = VNGeneratePersonSegmentationRequest()
     request.qualityLevel = .accurate
