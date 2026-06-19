@@ -10,6 +10,7 @@ import '../../../ar/presentation/ar_status_chip.dart';
 import '../../../ar/providers/ar_providers.dart';
 import '../../../ar/services/ar_platform_service.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
+import '../../../reference/providers/guided_frame_providers.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_mode_settings_provider.dart';
@@ -36,12 +37,14 @@ class IosCameraPreviewLayer extends ConsumerWidget {
     this.croppedOverlay,
     this.showLiveGuidanceFrame = false,
     this.showNativeGrid = true,
+    this.useGuidedGridProvider = false,
   });
 
   final CameraController controller;
   final Widget? croppedOverlay;
   final bool showLiveGuidanceFrame;
   final bool showNativeGrid;
+  final bool useGuidedGridProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,7 +62,10 @@ class IosCameraPreviewLayer extends ConsumerWidget {
               fit: StackFit.expand,
               children: [
                 CameraPreviewScope(controller: controller),
-                IosCameraGridOverlay(visible: showNativeGrid),
+                _PreviewGridOverlay(
+                  fallbackVisible: showNativeGrid,
+                  useGuidedProvider: useGuidedGridProvider,
+                ),
                 if (croppedOverlay != null)
                   RepaintBoundary(child: croppedOverlay!),
                 if (showLiveGuidanceFrame)
@@ -70,6 +76,25 @@ class IosCameraPreviewLayer extends ConsumerWidget {
         );
       },
     );
+  }
+}
+
+/// Grid toggle rebuilds only this layer — not the camera preview texture.
+class _PreviewGridOverlay extends ConsumerWidget {
+  const _PreviewGridOverlay({
+    required this.fallbackVisible,
+    required this.useGuidedProvider,
+  });
+
+  final bool fallbackVisible;
+  final bool useGuidedProvider;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final visible = useGuidedProvider
+        ? ref.watch(guidedCompositionVisibleProvider)
+        : fallbackVisible;
+    return IosCameraGridOverlay(visible: visible);
   }
 }
 

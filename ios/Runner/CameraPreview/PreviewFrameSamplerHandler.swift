@@ -13,8 +13,8 @@ final class PreviewFrameSamplerHandler: NSObject, AVCaptureVideoDataOutputSample
   private weak var attachedSession: AVCaptureSession?
   private var latestJpeg: Data?
   private var lastSampleTime: CFAbsoluteTime = 0
-  private let minSampleInterval: CFAbsoluteTime = 2.0
-  private let maxJpegSide: CGFloat = 480
+  private let minSampleInterval: CFAbsoluteTime = 5.0
+  private let maxJpegSide: CGFloat = 360
 
   private var sessionReadyObserver: NSObjectProtocol?
   private var sessionClosedObserver: NSObjectProtocol?
@@ -89,6 +89,10 @@ final class PreviewFrameSamplerHandler: NSObject, AVCaptureVideoDataOutputSample
     }
 
     session.addOutput(output)
+    if let connection = output.connection(with: .video) {
+      connection.videoMinFrameDuration = CMTime(value: 1, timescale: 1)
+      connection.videoMaxFrameDuration = CMTime(value: 1, timescale: 1)
+    }
     videoOutput = output
     attachedSession = session
   }

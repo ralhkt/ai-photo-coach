@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/guidance_text.dart';
-import '../../../core/utils/pose_coaching_hint.dart';
 import '../../pose/platform/pose_silhouette_bridge.dart';
 import '../../pose/platform/pose_silhouette_native_overlay.dart';
 import '../../pose/platform/pose_silhouette_native_toast.dart';
@@ -13,7 +12,6 @@ import '../../pose/presentation/pose_alignment_coach_toast.dart';
 import '../../pose/presentation/pose_skeleton_overlay.dart';
 import '../../pose/providers/pose_coaching_provider.dart';
 import '../../pose/providers/pose_silhouette_provider.dart';
-import '../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../models/body_part_labels.dart';
 import '../../../models/composition_overlay_type.dart';
 import '../../../models/camera_guidance.dart';
@@ -38,8 +36,6 @@ class GuidedCameraOverlayStack extends ConsumerStatefulWidget {
     required this.imageBytes,
     required this.sourceAspectRatio,
     required this.cameraAspectRatio,
-    required this.compositionVisible,
-    required this.frameVisible,
     required this.partLabels,
   });
 
@@ -47,8 +43,6 @@ class GuidedCameraOverlayStack extends ConsumerStatefulWidget {
   final Uint8List imageBytes;
   final double sourceAspectRatio;
   final CameraAspectRatio cameraAspectRatio;
-  final bool compositionVisible;
-  final bool frameVisible;
   final BodyPartLabels partLabels;
 
   @override
@@ -96,26 +90,24 @@ class _GuidedCameraOverlayStackState
           child: Stack(
             fit: StackFit.expand,
             children: [
-              _CompositionOverlayLayer(visible: widget.compositionVisible),
+              const _CompositionOverlayLayer(),
               _GhostOverlayLayer(
                 imageBytes: widget.imageBytes,
                 frameSpec: frameSpec,
-                frameVisible: widget.frameVisible,
               ),
               _FrameOverlayLayer(
                 frameSpec: frameSpec,
                 template: widget.guidance.frameTemplate,
-                frameVisible: widget.frameVisible,
                 partLabels: widget.partLabels,
               ),
-              PoseSilhouetteNativeOverlay(visible: widget.frameVisible),
-              PoseSkeletonOverlay(
-                visible: widget.frameVisible &&
-                    (widget.guidance.subjectPoseSkeleton?.length ?? 0) < 4,
+              const _GuidedNativeSilhouetteLayer(),
+              _LiveSkeletonOverlay(
+                fallbackSkeletonCount:
+                    widget.guidance.subjectPoseSkeleton?.length ?? 0,
               ),
               const PoseSilhouetteBridge(),
               const PoseSilhouetteNativeToast(),
-              PoseAlignmentCoachToast(visible: widget.frameVisible),
+              const _GuidedCoachToastLayer(),
             ],
           ),
         );
@@ -124,18 +116,37 @@ class _GuidedCameraOverlayStackState
   }
 }
 
-class _CompositionOverlayLayer extends ConsumerWidget {
-  const _CompositionOverlayLayer({required this.visible});
-
-  final bool visible;
+class _GuidedNativeSilhouetteLayer extends ConsumerWidget {
+  const _GuidedNativeSilhouetteLayer();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final frameVisible = ref.watch(guidedFrameVisibleProvider);
+    return PoseSilhouetteNativeOverlay(visible: frameVisible);
+  }
+}
+
+class _GuidedCoachToastLayer extends ConsumerWidget {
+  const _GuidedCoachToastLayer();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final frameVisible = ref.watch(guidedFrameVisibleProvider);
+    return PoseAlignmentCoachToast(visible: frameVisible);
+  }
+}
+
+class _CompositionOverlayLayer extends ConsumerWidget {
+  const _CompositionOverlayLayer();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final compositionVisible = ref.watch(guidedCompositionVisibleProvider);
     final overlayType = ref.watch(overlayTypeProvider);
-    if (visible && overlayType == CompositionOverlayType.ruleOfThirds) {
+    if (compositionVisible && overlayType == CompositionOverlayType.ruleOfThirds) {
       return const IosCameraGridOverlay();
     }
-    return CompositionOverlay(type: overlayType, visible: visible);
+    return CompositionOverlay(type: overlayType, visible: compositionVisible);
   }
 }
 
@@ -143,16 +154,15 @@ class _GhostOverlayLayer extends ConsumerWidget {
   const _GhostOverlayLayer({
     required this.imageBytes,
     required this.frameSpec,
-    required this.frameVisible,
   });
 
   final Uint8List imageBytes;
   final GeneratedFrameSpec frameSpec;
-  final bool frameVisible;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ghostVisible = ref.watch(referenceGhostVisibleProvider);
+    final frameVisible = ref.watch(guidedFrameVisibleProvider);
     return ReferenceGhostOverlay(
       imageBytes: imageBytes,
       frameSpec: frameSpec,
@@ -166,20 +176,20 @@ class _FrameOverlayLayer extends ConsumerWidget {
   const _FrameOverlayLayer({
     required this.frameSpec,
     required this.template,
-    required this.frameVisible,
     required this.partLabels,
   });
 
   final GeneratedFrameSpec frameSpec;
   final PhotoFrameTemplate template;
-  final bool frameVisible;
   final BodyPartLabels partLabels;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final frameVisible = ref.watch(guidedFrameVisibleProvider);
     final bodyPartsVisible = ref.watch(bodyPartGuidesVisibleProvider);
-    final stability = ref.watch(sceneStabilityProvider);
-    final coaching = ref.watch(poseCoachingResultProvider);
+    final coachingScore =
+        ref.watch(poseCoachingResultProvider.select((r) => r?.poseScore));
+    final coaching = ref.read(poseCoachingResultProvider);
     final nativeSilhouette =
         ref.watch(poseSilhouetteNativeSupportedProvider).valueOrNull ?? false;
     final skeletonStrokeWidth = ref.watch(skeletonStrokeWidthProvider);
@@ -192,13 +202,27 @@ class _FrameOverlayLayer extends ConsumerWidget {
       bodyPartLabels: partLabels,
       showBodyParts: bodyPartsVisible,
       minimalPozeStyle: !bodyPartsVisible,
-      poseAligned: isPoseCoachingAligned(
-        stability: stability,
-        coaching: coaching,
-      ),
-      alignmentScore: coaching?.poseScore,
+      poseAligned: coaching?.poseMatched ?? false,
+      alignmentScore: coachingScore,
       renderHumanSilhouette: !nativeSilhouette,
       skeletonStrokeWidth: skeletonStrokeWidth,
     );
+  }
+}
+
+class _LiveSkeletonOverlay extends ConsumerWidget {
+  const _LiveSkeletonOverlay({required this.fallbackSkeletonCount});
+
+  final int fallbackSkeletonCount;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final frameVisible = ref.watch(guidedFrameVisibleProvider);
+    final nativeSilhouette =
+        ref.watch(poseSilhouetteNativeSupportedProvider).valueOrNull ?? false;
+    if (nativeSilhouette || fallbackSkeletonCount >= 4) {
+      return const SizedBox.shrink();
+    }
+    return PoseSkeletonOverlay(visible: frameVisible);
   }
 }

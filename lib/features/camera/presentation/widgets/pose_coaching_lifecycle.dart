@@ -40,6 +40,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   final PosePreviewFrameSource _androidFrameSource = PosePreviewFrameSource();
   bool _androidStreamAttempted = false;
   bool _iosSamplerAttached = false;
+  bool _iosSamplerDetachedForBusy = false;
 
   bool get _useIosNativeSampler =>
       !kIsWeb && Platform.isIOS && NativePreviewFrameService.instance.isSupported;
@@ -82,11 +83,29 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     if (active && !_iosSamplerAttached) {
       await NativePreviewFrameService.instance.attach();
       _iosSamplerAttached = true;
+      _iosSamplerDetachedForBusy = false;
       return;
     }
     if (!active && _iosSamplerAttached) {
       await NativePreviewFrameService.instance.detach();
       _iosSamplerAttached = false;
+    }
+  }
+
+  Future<void> _syncSamplerForBusyState() async {
+    if (!_useIosNativeSampler) {
+      return;
+    }
+    final busy = _isCameraBusy();
+    if (busy && _iosSamplerAttached && !_iosSamplerDetachedForBusy) {
+      await NativePreviewFrameService.instance.detach();
+      _iosSamplerAttached = false;
+      _iosSamplerDetachedForBusy = true;
+      return;
+    }
+    if (!busy && _iosSamplerDetachedForBusy) {
+      _iosSamplerDetachedForBusy = false;
+      await _setSamplerActive(true);
     }
   }
 
@@ -172,6 +191,8 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
       _syncLoop();
       return;
     }
+
+    await _syncSamplerForBusyState();
 
     if (_tickInFlight || _isCameraBusy()) {
       _scheduleNextTick(const Duration(milliseconds: 350));

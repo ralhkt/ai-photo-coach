@@ -129,6 +129,11 @@ class CameraModeSettingsNotifier extends Notifier<CameraUiMode> {
     }
   }
 
+  /// Applies zoom/exposure for the active mode without blocking UI transitions.
+  Future<void> applyActiveHardwareInBackground() {
+    return applyHardwareSettings(settingsFor(state));
+  }
+
   void updateActiveSettings(CameraModeSettings settings) {
     _settings[state] = settings;
     _restoreToProviders(settings);

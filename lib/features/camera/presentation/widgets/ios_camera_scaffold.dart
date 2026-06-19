@@ -44,6 +44,7 @@ class IosCameraScaffold extends ConsumerStatefulWidget {
     this.centerTopLabel,
     this.showGridButton = true,
     this.showFrameButton = false,
+    this.useGuidedGridProvider = false,
     this.gridEnabled = false,
     this.frameEnabled = false,
     this.onGridTap,
@@ -62,6 +63,7 @@ class IosCameraScaffold extends ConsumerStatefulWidget {
   final String? centerTopLabel;
   final bool showGridButton;
   final bool showFrameButton;
+  final bool useGuidedGridProvider;
   final bool gridEnabled;
   final bool frameEnabled;
   final VoidCallback? onGridTap;
@@ -236,6 +238,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
               croppedOverlay: widget.croppedOverlay,
               showLiveGuidanceFrame: _isFreeShootMode,
               showNativeGrid: widget.gridEnabled,
+              useGuidedGridProvider: widget.useGuidedGridProvider,
             ),
             widget.overlay,
             IosCameraPhase2Layer(enabled: widget.enablePhase2),

@@ -40,7 +40,6 @@ class IosCameraBottomBarHost extends ConsumerWidget {
       l10n.cameraModePhoto,
       l10n.cameraModeGuided,
     ];
-    final proModeEnabled = ref.watch(proModeEnabledProvider);
 
     return IosCameraBottomBar(
       compactMode: shellMode == CameraShellMode.guided,
@@ -62,7 +61,9 @@ class IosCameraBottomBarHost extends ConsumerWidget {
       thumbnailBytes: ref.watch(lastCaptureThumbnailProvider),
       isCapturing: ref.watch(isCapturingProvider),
       isBursting: ref.watch(isBurstingProvider),
-      burstCount: ref.watch(burstPhotosProvider.select((photos) => photos.length)),
+      burstCount: ref.watch(
+        burstPhotosProvider.select((photos) => photos.length),
+      ),
       hdrEnabled: ref.watch(hdrEnabledProvider),
       hdrSupported: ref.watch(hdrSupportedProvider),
       hdrLabel: l10n.hdrLabel,
@@ -114,7 +115,7 @@ class IosCameraBottomBarHost extends ConsumerWidget {
         markCameraUiInteraction(ref);
         unawaited(ref.read(cameraControllerProvider.notifier).switchCamera());
       },
-      proModeEnabled: proModeEnabled,
+      proModeEnabled: ref.watch(proModeEnabledProvider),
       onProModeTap: () {
         markCameraUiInteraction(ref);
         ref.read(proModeEnabledProvider.notifier).state =
@@ -138,7 +139,9 @@ class IosCameraBottomBarHost extends ConsumerWidget {
         ref.read(frontMirrorEnabledProvider.notifier).state =
             !ref.read(frontMirrorEnabledProvider);
       },
-      proModeExposure: proModeEnabled ? const _ProModeExposureSlider() : null,
+      proModeExposure: ref.watch(proModeEnabledProvider)
+          ? const _ProModeExposureSlider()
+          : null,
       focalPreset: ref.watch(focalPresetProvider),
       onFocalPresetTap: (preset) {
         markCameraUiInteraction(ref);

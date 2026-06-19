@@ -19,7 +19,6 @@ import '../../pose/platform/pose_silhouette_auto_capture_listener.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/guided_frame_providers.dart';
 import '../../reference/providers/reference_providers.dart';
-
 import '../providers/camera_mode_settings_provider.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_settings_provider.dart';
@@ -39,8 +38,6 @@ class GuidedCameraScreen extends ConsumerStatefulWidget {
 }
 
 class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
-  bool _frameVisible = true;
-  bool _compositionVisible = true;
   bool _guidanceApplied = false;
 
   Future<void> _applyAnalysisGuidance() async {
@@ -120,21 +117,17 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
                   modeLabel: l10n.cameraModeGuided,
                   centerTopLabel:
                       frameTemplateLabel(l10n, guidance.frameTemplate),
-                  gridEnabled: _compositionVisible,
-                  frameEnabled: _frameVisible,
+                  useGuidedGridProvider: true,
                   showGridButton: true,
                   showFrameButton: true,
-                  onGridTap: () =>
-                      setState(() => _compositionVisible = !_compositionVisible),
-                  onFrameTap: () => setState(() => _frameVisible = !_frameVisible),
+                  onGridTap: () => toggleGuidedCompositionVisible(ref),
+                  onFrameTap: () => toggleGuidedFrameVisible(ref),
                   guidanceChip: const _PoseCoachingChip(),
                   croppedOverlay: GuidedCameraOverlayStack(
                     guidance: coachingGuidance,
                     imageBytes: analysis.imageBytes,
                     sourceAspectRatio: analysis.sourceAspectRatio,
                     cameraAspectRatio: cameraAspectRatio,
-                    compositionVisible: _compositionVisible,
-                    frameVisible: _frameVisible,
                     partLabels: partLabels,
                   ),
                   overlay: Stack(

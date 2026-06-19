@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -58,9 +60,10 @@ Future<void> switchIosCameraShellMode({
   }
 
   ref.read(cameraShellModeProvider.notifier).state = target;
-  await ref.read(cameraModeSettingsProvider.notifier).activateMode(
-        target == CameraShellMode.guided
-            ? CameraUiMode.guided
-            : CameraUiMode.free,
-      );
+  final settingsNotifier = ref.read(cameraModeSettingsProvider.notifier);
+  final uiMode = target == CameraShellMode.guided
+      ? CameraUiMode.guided
+      : CameraUiMode.free;
+  await settingsNotifier.activateMode(uiMode, applyHardware: false);
+  unawaited(settingsNotifier.applyActiveHardwareInBackground());
 }

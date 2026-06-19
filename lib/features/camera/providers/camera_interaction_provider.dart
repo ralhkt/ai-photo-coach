@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Timestamp of the last camera chrome tap — pauses background [takePicture] polling.
 final cameraUiInteractionProvider = StateProvider<DateTime?>((ref) => null);
 
-const cameraUiInteractionPause = Duration(seconds: 4);
+const cameraUiInteractionPause = Duration(seconds: 6);
 
 void markCameraUiInteraction(WidgetRef ref) {
   ref.read(cameraUiInteractionProvider.notifier).state = DateTime.now();
