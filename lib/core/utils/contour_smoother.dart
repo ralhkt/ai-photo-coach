@@ -95,6 +95,54 @@ abstract final class ContourSmoother {
     return [start, finish];
   }
 
+  /// Evenly resamples a closed polyline to [targetCount] arc-length points.
+  static List<Offset> resampleClosedContour(
+    List<Offset> points, {
+    required int targetCount,
+  }) {
+    if (points.length < 2 || targetCount < 3) {
+      return List<Offset>.from(points);
+    }
+    if (points.length == targetCount) {
+      return List<Offset>.from(points);
+    }
+
+    final count = points.length;
+    final segLens = <double>[];
+    var total = 0.0;
+    for (var i = 0; i < count; i++) {
+      final len = (points[(i + 1) % count] - points[i]).distance;
+      segLens.add(len);
+      total += len;
+    }
+    if (total <= 0) {
+      return List<Offset>.from(points);
+    }
+
+    final result = <Offset>[];
+    var seg = 0;
+    var segStart = 0.0;
+    for (var i = 0; i < targetCount; i++) {
+      final target = total * i / targetCount;
+      while (seg < count - 1 && segStart + segLens[seg] < target) {
+        segStart += segLens[seg];
+        seg++;
+      }
+
+      final segLen = segLens[seg];
+      final frac = segLen > 0 ? (target - segStart) / segLen : 0.0;
+      final p0 = points[seg];
+      final p1 = points[(seg + 1) % count];
+      result.add(
+        Offset(
+          p0.dx + (p1.dx - p0.dx) * frac,
+          p0.dy + (p1.dy - p0.dy) * frac,
+        ),
+      );
+    }
+    return result;
+  }
+
   /// Exponential moving average for control points (same cardinality).
   static List<Offset> temporalEma(
     List<Offset> current, {

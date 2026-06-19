@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../models/body_part_labels.dart';
 import '../../../models/subject_shape_kind.dart';
 import '../../reference/services/frame_generator_service.dart';
+import '../../pose/services/alignment_overlay_state.dart';
 import '../../reference/services/human_frame_shape_builder.dart';
 import 'poze_wireframe_style.dart';
 
@@ -18,6 +19,7 @@ class PhotoFramePainter extends CustomPainter {
     this.showBodyParts = true,
     this.minimalPozeStyle = true,
     this.poseAligned = false,
+    this.alignmentScore,
   });
 
   final GeneratedFrameSpec frameSpec;
@@ -26,6 +28,7 @@ class PhotoFramePainter extends CustomPainter {
   final bool showBodyParts;
   final bool minimalPozeStyle;
   final bool poseAligned;
+  final int? alignmentScore;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -156,8 +159,13 @@ class PhotoFramePainter extends CustomPainter {
     required Path silhouette,
     Rect? headOval,
   }) {
-    final strokeColor =
-        poseAligned ? PozeWireframeStyle.alignedColor : PozeWireframeStyle.lineColor;
+    final phase = alignmentScore != null
+        ? AlignmentOverlayState.phaseForScore(alignmentScore!)
+        : (poseAligned
+            ? AlignmentOverlayPhase.matched
+            : AlignmentOverlayPhase.noMatch);
+    final strokeColor = AlignmentOverlayState.strokeColorForPhase(phase);
+    final glowColor = AlignmentOverlayState.glowColorForPhase(phase);
 
     canvas.drawPath(
       silhouette,
@@ -172,7 +180,7 @@ class PhotoFramePainter extends CustomPainter {
     canvas.drawPath(
       silhouette,
       Paint()
-        ..color = PozeWireframeStyle.glowColor
+        ..color = glowColor
         ..style = PaintingStyle.stroke
         ..strokeWidth = PozeWireframeStyle.glowStrokeWidth
         ..strokeJoin = StrokeJoin.round
@@ -185,7 +193,9 @@ class PhotoFramePainter extends CustomPainter {
       Paint()
         ..color = strokeColor
         ..style = PaintingStyle.stroke
-        ..strokeWidth = PozeWireframeStyle.minimalBodyStrokeWidth
+        ..strokeWidth = phase == AlignmentOverlayPhase.matched
+            ? PozeWireframeStyle.bodyStrokeWidth
+            : PozeWireframeStyle.minimalBodyStrokeWidth
         ..strokeJoin = StrokeJoin.round
         ..strokeCap = StrokeCap.round
         ..isAntiAlias = true,
@@ -648,6 +658,7 @@ class PhotoFramePainter extends CustomPainter {
         oldDelegate.templateLabel != templateLabel ||
         oldDelegate.showBodyParts != showBodyParts ||
         oldDelegate.minimalPozeStyle != minimalPozeStyle ||
-        oldDelegate.poseAligned != poseAligned;
+        oldDelegate.poseAligned != poseAligned ||
+        oldDelegate.alignmentScore != alignmentScore;
   }
 }

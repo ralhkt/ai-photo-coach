@@ -5,7 +5,8 @@
 **最後更新：** 2026-06-19  
 **Repo：** https://github.com/ralhkt/ai-photo-coach  
 **本地路徑：** `/Users/Personal/Documents/Photographer`  
-**最新 commit：** `66a5e08`（`main` 已 push）
+**最新 commit：** （見 `git log -1`）  
+**測試：** 121 項全過
 
 ---
 
@@ -25,7 +26,7 @@
 - [x] Cloudflare Gemini Proxy Worker + `deploy_iphone_with_proxy.sh`
 
 ### 姿態教練 / 效能（`66a5e08`）
-- [x] `SubjectPoseTracker` — 多人 IoU 主角鎖定（取代 `poses.first`）
+- [x] `SubjectPoseTracker` — 多人 IoU 主角鎖定
 - [x] `PoseJointSmoother` — 關節 EMA 抗抖
 - [x] `PoseAligner` — Kabsch 旋轉不變比對
 - [x] 關節補償（手腕/臀部遮擋）
@@ -33,12 +34,32 @@
 - [x] `AdaptiveCoachingScheduler` 動態降頻
 - [x] iOS `IosSceneStabilityPoller`（JPEG pHash）
 - [x] BGRA buffer pool
-- [x] **116 項測試全過**
+
+### PR-1 動態輪廓 MVP（Dart 層，最新）
+- [x] `PortraitContourExtractor` — 對比度 mask、Moore 邊界追蹤、RDP、弧長重採樣
+- [x] `SubjectSilhouetteService` — 優先真實輪廓，失敗 fallback 模板
+- [x] `AlignmentOverlayState` — 三態著色（白 &lt;50 / 黃 50–84 / 綠 ≥85）
+- [x] `PhotoFramePainter` — 依 `alignmentScore` 動態 stroke/glow
+- [x] 引導相機 overlay 傳入 `coaching?.poseScore`
+- [x] `ContourSmoother.resampleClosedContour` — RDP 後補點至平滑曲線
 
 ### 部署
 - [x] iPhone release 安裝（裝置 `00008130-001A01610AA0001C`）
 - [x] Proxy URL：`https://photo-coach-gemini-proxy.marsh-year.workers.dev/gemini`
 - [ ] **GEMINI_API_KEY 未設定** → 雲端分析目前走本機
+
+---
+
+## Poze 級路線圖（尚未實作）
+
+| PR | 內容 | 狀態 |
+|----|------|------|
+| PR-1 | Dart 離線範例輪廓 + 三態 overlay | **完成** |
+| PR-2 | Native `VNGeneratePersonSegmentationRequest` | 待做 |
+| PR-3 | C++ RDP + Metal 60fps 渲染 | 待做 |
+| PR-4 | 狀態機 A/B/C + Haptic + 自動快門 | 待做 |
+| PR-5 | Kalman 輪廓穩定 + 低光骨架降級 | 待做 |
+| PR-6 | 獨立 `AVCaptureSession` 預覽管線 | 待做 |
 
 ---
 
@@ -61,14 +82,31 @@
 3. [ ] 姿態教練 + 路人入鏡 → 框鎖定主角
 4. [ ] 侧身/微轉 → 姿態分數合理
 5. [ ] 姿勢到位後 → 更新變慢、發熱改善
-6. [ ] 啟用 Gemini 後 → 分析來源顯示 proxy/gemini
+6. [ ] **輪廓三態** — 分數 &lt;50 白、50–84 黃、≥85 綠
+7. [ ] **真實輪廓** — 上傳高對比人像 → 輪廓貼合主體（非模板）
+8. [ ] 啟用 Gemini 後 → 分析來源顯示 proxy/gemini
 
-### P2 — 待規劃（CTO 審查建議）
+### P2 — 待規劃
 - [ ] 合照「點選主角」UI
 - [ ] Android `CameraImage` → `InputImage` 直通
 - [ ] 共用單一 `PoseDetector` 實例
 - [ ] 爬蟲 pipeline + 遠端 trendy catalog
 - [ ] 陀螺儀 + 加速度計融合（Madgwick）
+- [ ] `AlignmentOverlayState.toastForPhase` 接入 live coaching UI
+
+---
+
+## 關鍵檔案
+
+| 用途 | 路徑 |
+|------|------|
+| 交接 | `tool/SESSION_HANDOFF.md` |
+| 部署 | `tool/deploy_iphone_with_proxy.sh` |
+| 輪廓提取 | `lib/features/reference/services/portrait_contour_extractor.dart` |
+| 輪廓服務 | `lib/features/reference/services/subject_silhouette_service.dart` |
+| 三態著色 | `lib/features/pose/services/alignment_overlay_state.dart` |
+| 疊加繪製 | `lib/features/frames/presentation/photo_frame_painter.dart` |
+| 弧長重採樣 | `lib/core/utils/contour_smoother.dart` |
 
 ---
 

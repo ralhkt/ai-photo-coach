@@ -173,6 +173,7 @@ class _FrameOverlayLayer extends ConsumerWidget {
         stability: stability,
         coaching: coaching,
       ),
+      alignmentScore: coaching?.poseScore,
     );
   }
 }

@@ -16,6 +16,7 @@ class PhotoFrameOverlay extends StatefulWidget {
     this.minimalPozeStyle = true,
     this.animateEntry = true,
     this.poseAligned = false,
+    this.alignmentScore,
   });
 
   final GeneratedFrameSpec frameSpec;
@@ -26,6 +27,7 @@ class PhotoFrameOverlay extends StatefulWidget {
   final bool minimalPozeStyle;
   final bool animateEntry;
   final bool poseAligned;
+  final int? alignmentScore;
 
   @override
   State<PhotoFrameOverlay> createState() => _PhotoFrameOverlayState();
@@ -97,6 +99,7 @@ class _PhotoFrameOverlayState extends State<PhotoFrameOverlay>
               showBodyParts: widget.showBodyParts,
               minimalPozeStyle: widget.minimalPozeStyle,
               poseAligned: widget.poseAligned,
+              alignmentScore: widget.alignmentScore,
             ),
             child: const SizedBox.expand(),
           ),

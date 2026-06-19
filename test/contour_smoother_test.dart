@@ -40,6 +40,26 @@ void main() {
     expect(simplified.last, const Offset(1, 1));
   });
 
+  test('resampleClosedContour upsamples sparse corners', () {
+    final corners = <Offset>[
+      const Offset(0.3, 0.1),
+      const Offset(0.7, 0.1),
+      const Offset(0.7, 0.9),
+      const Offset(0.3, 0.9),
+    ];
+
+    final resampled = ContourSmoother.resampleClosedContour(
+      corners,
+      targetCount: 12,
+    );
+
+    expect(resampled.length, 12);
+    for (final point in resampled) {
+      expect(point.dx, inInclusiveRange(0.3, 0.7));
+      expect(point.dy, inInclusiveRange(0.1, 0.9));
+    }
+  });
+
   test('temporalEma damps sudden jumps', () {
     const previous = [
       Offset(0.5, 0.5),

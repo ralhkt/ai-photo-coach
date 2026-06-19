@@ -64,6 +64,7 @@ class LiveSceneGuidanceFrameOverlay extends ConsumerWidget {
                 showBodyParts: false,
                 minimalPozeStyle: true,
                 poseAligned: poseAligned,
+                alignmentScore: coaching?.poseScore,
               ),
             ],
           ),
