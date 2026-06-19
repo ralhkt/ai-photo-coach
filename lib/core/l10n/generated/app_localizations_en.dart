@@ -353,6 +353,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get keepShooting => 'Keep Shooting';
 
   @override
+  String get saveToGallery => 'Save to Photos';
+
+  @override
+  String get photoSavedToGallery => 'Saved to Photos';
+
+  @override
+  String get photoSaveFailed =>
+      'Could not save — allow Photos access in Settings and try again';
+
+  @override
+  String get savingPhoto => 'Saving…';
+
+  @override
   String get openGallery => 'Open Gallery';
 
   @override

@@ -27,9 +27,9 @@
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required to provide real-time photography coaching.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photo library access is required to analyze reference images.</string>
+	<string>需要存取相簿以選擇參考照片，並將你拍攝的相片儲存到 iPhone 相簿。</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>需要寫入相簿權限，才能儲存匯出的骨架練習圖。</string>
+	<string>需要寫入相簿權限，才能將拍攝的相片與匯出圖片儲存到 iPhone 相簿。</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

@@ -765,6 +765,30 @@ abstract class AppLocalizations {
   /// **'Keep Shooting'**
   String get keepShooting;
 
+  /// No description provided for @saveToGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to Photos'**
+  String get saveToGallery;
+
+  /// No description provided for @photoSavedToGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to Photos'**
+  String get photoSavedToGallery;
+
+  /// No description provided for @photoSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save — allow Photos access in Settings and try again'**
+  String get photoSaveFailed;
+
+  /// No description provided for @savingPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get savingPhoto;
+
   /// No description provided for @openGallery.
   ///
   /// In en, this message translates to:

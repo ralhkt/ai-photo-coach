@@ -344,6 +344,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String get keepShooting => '继续拍摄';
 
   @override
+  String get saveToGallery => '保存到相册';
+
+  @override
+  String get photoSavedToGallery => '已保存到相册';
+
+  @override
+  String get photoSaveFailed => '无法保存，请在设置中允许相册权限后再试';
+
+  @override
+  String get savingPhoto => '保存中…';
+
+  @override
   String get openGallery => '开启相册';
 
   @override
@@ -1380,6 +1392,18 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get keepShooting => '繼續拍攝';
+
+  @override
+  String get saveToGallery => '儲存到相簿';
+
+  @override
+  String get photoSavedToGallery => '已儲存到相簿';
+
+  @override
+  String get photoSaveFailed => '無法儲存，請在設定中允許相簿權限後再試';
+
+  @override
+  String get savingPhoto => '儲存中…';
 
   @override
   String get openGallery => '開啟相簿';

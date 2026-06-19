@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/services/photo_gallery_saver.dart';
 import '../../../core/utils/image_downscaler.dart';
 import '../../../models/camera_guidance.dart';
 import '../../../models/camera_timer_duration.dart';
@@ -366,6 +367,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
         ref.read(lastCaptureThumbnailProvider.notifier).state =
             ImageDownscaler.downscale(bytes, maxSide: 128, jpegQuality: 72);
         if (!silent) {
+          unawaited(_saveCaptureToGallery(capture));
           ref.read(captureFlashProvider.notifier).state = true;
           Future<void>.delayed(const Duration(milliseconds: 120), () {
             ref.read(captureFlashProvider.notifier).state = false;
@@ -512,6 +514,15 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     _exposureDebounce = Timer(const Duration(milliseconds: 140), () {
       unawaited(_applyManualExposure(ev));
     });
+  }
+
+  Future<void> _saveCaptureToGallery(CapturedPhoto capture) async {
+    try {
+      await PhotoGallerySaver.saveCapturedPhoto(capture);
+    } catch (error, stackTrace) {
+      debugPrint('Auto-save to gallery failed: $error');
+      debugPrint('$stackTrace');
+    }
   }
 
   Future<void> applyManualExposureNow(double ev) async {
