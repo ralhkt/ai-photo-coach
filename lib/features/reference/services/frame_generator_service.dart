@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import '../../../core/utils/silhouette_anchor.dart';
 import '../../../core/utils/viewport_letterbox.dart';
 import '../../../models/body_part_guides.dart';
 import '../../../models/camera_guidance.dart';
@@ -93,7 +94,10 @@ class FrameGeneratorService {
       final points = guidance.subjectSilhouettePoints;
       final List<Offset> sourcePoints;
       if (points != null && points.length >= 8) {
-        sourcePoints = points;
+        sourcePoints = SilhouetteAnchor.alignToSubject(
+          points,
+          guidance.subjectTargetRect,
+        );
       } else {
         sourcePoints = _shapeBuilder.mapTemplateToSubject(
           guidance.subjectTargetRect,

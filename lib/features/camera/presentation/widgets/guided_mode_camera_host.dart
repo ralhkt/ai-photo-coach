@@ -23,7 +23,6 @@ import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_mode_settings_provider.dart';
 import '../../providers/camera_settings_provider.dart';
-import '../../providers/pose_contour_stabilizer_provider.dart';
 import '../camera_shell_mode.dart';
 import 'camera_mode_scope.dart';
 import 'camera_session_lifecycle.dart';
@@ -70,7 +69,6 @@ class _GuidedModeCameraHostState extends ConsumerState<GuidedModeCameraHost> {
   CameraGuidance _buildOverlayGuidance(CameraGuidance guidance) {
     return CoachingGuidanceHelper().forGuidedOverlay(
       CoachingGuidanceHelper().ensureHumanSilhouette(guidance),
-      stabilizer: ref.read(poseContourStabilizerProvider),
     );
   }
 

@@ -8,6 +8,7 @@ final class PoseSilhouettePlatformView: NSObject, FlutterPlatformView {
   init(frame: CGRect) {
     super.init()
     overlayView.frame = frame
+    overlayView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
   }
 
   func view() -> UIView {

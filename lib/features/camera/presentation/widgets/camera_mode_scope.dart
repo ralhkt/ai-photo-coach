@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../pose/providers/pose_silhouette_provider.dart';
 import '../../providers/camera_mode_settings_provider.dart';
+import '../../providers/pose_contour_stabilizer_provider.dart';
 
 /// Activates isolated camera UI settings for free vs guided shooting.
 class CameraModeScope extends ConsumerStatefulWidget {
@@ -32,6 +36,12 @@ class _CameraModeScopeState extends ConsumerState<CameraModeScope> {
     if (!mounted) {
       return;
     }
+
+    if (widget.mode == CameraUiMode.guided) {
+      ref.read(poseContourStabilizerProvider).reset();
+      unawaited(ref.read(poseSilhouetteServiceProvider).setEnabled(false));
+    }
+
     await widget.onActivated?.call();
   }
 
