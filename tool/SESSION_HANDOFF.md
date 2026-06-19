@@ -5,7 +5,7 @@
 **最後更新：** 2026-06-19  
 **Repo：** https://github.com/ralhkt/ai-photo-coach  
 **本地路徑：** `/Users/Personal/Documents/Photographer`  
-**最新 commit：** （見 `git log -1`）  
+**最新 commit：** `eec267e`（`main` 已 push）  
 **測試：** 121 項全過
 
 ---
