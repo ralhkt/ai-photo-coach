@@ -3,7 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('preview uses max resolution for native-like sharpness', () {
-    expect(CameraConstants.previewResolution, ResolutionPreset.max);
+  test('preview uses veryHigh resolution for sharp preview and lighter ML sampling', () {
+    expect(CameraConstants.previewResolution, ResolutionPreset.veryHigh);
   });
 }

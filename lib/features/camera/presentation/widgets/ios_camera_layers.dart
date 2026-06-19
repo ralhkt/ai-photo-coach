@@ -11,6 +11,7 @@ import '../../../ar/providers/ar_providers.dart';
 import '../../../ar/services/ar_platform_service.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
+import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_mode_settings_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
@@ -135,16 +136,21 @@ class IosCameraTopBarLayer extends ConsumerWidget {
         nightModeEnabled: hdrSupported && hdrEnabled,
         nightModeSupported: hdrSupported,
         onClose: onClose,
-        onFlashTap: () =>
-            ref.read(cameraControllerProvider.notifier).cycleFlashMode(),
+        onFlashTap: () {
+          markCameraUiInteraction(ref);
+          ref.read(cameraControllerProvider.notifier).cycleFlashMode();
+        },
         onNightModeTap: () {
+          markCameraUiInteraction(ref);
           ref.read(hdrEnabledProvider.notifier).state = !hdrEnabled;
           ref.read(cameraModeSettingsProvider.notifier).persistActiveFromProviders();
         },
         onFormatTap: () {
+          markCameraUiInteraction(ref);
           ref.read(cameraAspectRatioProvider.notifier).state = aspectRatio.next;
         },
         onSettingsTap: () {
+          markCameraUiInteraction(ref);
           ref.read(showCameraOptionsProvider.notifier).state = !optionsExpanded;
         },
         centerLabel: centerLabel,

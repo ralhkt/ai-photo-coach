@@ -7,7 +7,7 @@ import '../../../../models/camera_timer_duration.dart';
 import 'ios_camera_mode_carousel.dart';
 import 'ios_camera_options_strip.dart';
 import 'ios_camera_ui_kit.dart';
-import 'ios_exposure_slider.dart';
+
 import 'ios_focal_presets.dart';
 import 'ios_gallery_button.dart';
 import 'ios_shutter_button.dart';
@@ -46,8 +46,7 @@ class IosCameraBottomBar extends StatelessWidget {
     this.onHistogramTap,
     this.frontMirrorEnabled = true,
     this.onMirrorTap,
-    this.manualExposure = 0,
-    this.onManualExposureChanged,
+    this.proModeExposure,
     this.focalPreset = 1.0,
     this.onFocalPresetTap,
     this.compactMode = false,
@@ -91,8 +90,7 @@ class IosCameraBottomBar extends StatelessWidget {
   final VoidCallback? onHistogramTap;
   final bool frontMirrorEnabled;
   final VoidCallback? onMirrorTap;
-  final double manualExposure;
-  final ValueChanged<double>? onManualExposureChanged;
+  final Widget? proModeExposure;
   final double focalPreset;
   final ValueChanged<double>? onFocalPresetTap;
   final bool compactMode;
@@ -144,11 +142,8 @@ class IosCameraBottomBar extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
               ],
-              if (proModeEnabled && onManualExposureChanged != null) ...[
-                IosExposureSlider(
-                  value: manualExposure,
-                  onChanged: onManualExposureChanged!,
-                ),
+              if (proModeEnabled && proModeExposure != null) ...[
+                proModeExposure!,
                 const SizedBox(height: 6),
               ],
               SizedBox(

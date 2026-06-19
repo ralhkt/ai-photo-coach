@@ -19,6 +19,7 @@ import '../../../../models/shoot_session.dart';
 import '../../../session/presentation/session_flow.dart';
 import '../../../session/providers/shoot_session_provider.dart';
 import '../../providers/camera_capture_provider.dart';
+import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_mode_settings_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
@@ -28,7 +29,7 @@ import '../burst_review_screen.dart';
 import '../camera_shell_mode.dart';
 import '../ios_camera_mode_switcher.dart';
 import '../photo_review_screen.dart';
-import 'ios_camera_bottom_bar.dart';
+import 'ios_camera_bottom_bar_host.dart';
 import 'ios_camera_layers.dart';
 import 'ios_camera_ui_kit.dart';
 
@@ -286,14 +287,12 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
           right: 0,
           bottom: 0,
           child: RepaintBoundary(
-            child: _IosCameraBottomBarLayer(
-            shellMode: CameraShellMode.fromShootSession(widget.shootSessionMode),
-            modeLabel: widget.modeLabel ?? l10n.cameraModePhoto,
-            onHdrTap: (supported, enabled) =>
-                _handleHdrTap(context, l10n, supported, enabled),
-            onGalleryTap: (hasLast) => _openGallery(context, hasLast),
-            onShutterTap: () => _capture(context),
-            onBurstEnd: () => _finishBurst(context),
+            child: IosCameraBottomBarHost(
+              onHdrTap: (supported, enabled) =>
+                  _handleHdrTap(context, l10n, supported, enabled),
+              onGalleryTap: (hasLast) => _openGallery(context, hasLast),
+              onShutterTap: () => _capture(context),
+              onBurstEnd: () => _finishBurst(context),
             ),
           ),
         ),
@@ -344,6 +343,7 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   }
 
   Future<void> _capture(BuildContext context) async {
+    markCameraUiInteraction(ref);
     final l10n = AppLocalizations.of(context)!;
     try {
       final photo = await ref
@@ -468,122 +468,3 @@ class _LivePoseCoachingChip extends ConsumerWidget {
   }
 }
 
-class _IosCameraBottomBarLayer extends ConsumerWidget {
-  const _IosCameraBottomBarLayer({
-    required this.shellMode,
-    required this.modeLabel,
-    required this.onHdrTap,
-    required this.onGalleryTap,
-    required this.onShutterTap,
-    required this.onBurstEnd,
-  });
-
-  final CameraShellMode shellMode;
-  final String modeLabel;
-  final void Function(bool supported, bool enabled) onHdrTap;
-  final void Function(bool hasLastCapture) onGalleryTap;
-  final VoidCallback onShutterTap;
-  final VoidCallback onBurstEnd;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    final thumbnailBytes = ref.watch(lastCaptureThumbnailProvider);
-    final isCapturing = ref.watch(isCapturingProvider);
-    final isBursting = ref.watch(isBurstingProvider);
-    final burstPhotos = ref.watch(burstPhotosProvider);
-    final hdrSupported = ref.watch(hdrSupportedProvider);
-    final hdrEnabled = ref.watch(hdrEnabledProvider);
-    final timerDuration = ref.watch(timerDurationProvider);
-    final countdown = ref.watch(timerCountdownProvider);
-    final aeAfLocked = ref.watch(aeAfLockProvider);
-    final optionsExpanded = ref.watch(showCameraOptionsProvider);
-    final cameras = ref.watch(camerasProvider).value ?? [];
-    final proMode = ref.watch(proModeEnabledProvider);
-    final manualEv = ref.watch(manualExposureOffsetProvider);
-    final focalPreset = ref.watch(focalPresetProvider);
-    final showHistogram = ref.watch(showHistogramProvider);
-    final frontMirror = ref.watch(frontMirrorEnabledProvider);
-
-    final modeLabels = [
-      l10n.cameraModeVideo,
-      l10n.cameraModePhoto,
-      l10n.cameraModeGuided,
-    ];
-    final aspectRatio = ref.watch(cameraAspectRatioProvider);
-
-    return IosCameraBottomBar(
-      compactMode: shellMode == CameraShellMode.guided,
-      showZoomPresets: true,
-      modeLabel: modeLabel,
-      modeLabels: modeLabels,
-      selectedModeIndex: shellMode.carouselIndex,
-      onModeSelected: (index) {
-        final target = CameraShellMode.fromCarouselIndex(index);
-        unawaited(
-          switchIosCameraShellMode(
-            context: context,
-            ref: ref,
-            current: shellMode,
-            target: target,
-          ),
-        );
-      },
-      thumbnailBytes: thumbnailBytes,
-      isCapturing: isCapturing,
-      isBursting: isBursting,
-      burstCount: burstPhotos.length,
-      hdrEnabled: hdrEnabled,
-      hdrSupported: hdrSupported,
-      hdrLabel: l10n.hdrLabel,
-      timerDuration: timerDuration,
-      aeAfLocked: aeAfLocked,
-      optionsExpanded: optionsExpanded,
-      canFlip: cameras.length > 1,
-      shutterEnabled: countdown == null,
-      onHdrTap: () => onHdrTap(hdrSupported, hdrEnabled),
-      onTimerTap: () {
-        ref.read(timerDurationProvider.notifier).state = timerDuration.next;
-      },
-      onExposureLockTap: () {
-        ref.read(cameraControllerProvider.notifier).toggleAeAfLock();
-      },
-      onToggleOptions: () {
-        ref.read(showCameraOptionsProvider.notifier).state = !optionsExpanded;
-      },
-      onGalleryTap: () => onGalleryTap(thumbnailBytes != null),
-      onGalleryLongPress: () => onGalleryTap(false),
-      onShutterTap: onShutterTap,
-      onBurstStart: () {
-        ref.read(cameraControllerProvider.notifier).startBurst();
-      },
-      onBurstEnd: onBurstEnd,
-      onFlipCamera: () =>
-          ref.read(cameraControllerProvider.notifier).switchCamera(),
-      proModeEnabled: proMode,
-      onProModeTap: () {
-        ref.read(proModeEnabledProvider.notifier).state = !proMode;
-      },
-      aspectRatio: aspectRatio,
-      onAspectRatioTap: () {
-        ref.read(cameraAspectRatioProvider.notifier).state = aspectRatio.next;
-      },
-      showHistogram: showHistogram,
-      onHistogramTap: () {
-        ref.read(showHistogramProvider.notifier).state = !showHistogram;
-      },
-      frontMirrorEnabled: frontMirror,
-      onMirrorTap: () {
-        ref.read(frontMirrorEnabledProvider.notifier).state = !frontMirror;
-      },
-      manualExposure: manualEv,
-      onManualExposureChanged: (value) {
-        ref.read(cameraControllerProvider.notifier).setManualExposure(value);
-      },
-      focalPreset: focalPreset,
-      onFocalPresetTap: (preset) {
-        ref.read(cameraControllerProvider.notifier).setZoom(preset);
-      },
-    );
-  }
-}

@@ -17,6 +17,7 @@ import '../../../models/focus_indicator_state.dart';
 import '../../scene_stabilization/services/camera_frame_monitor.dart';
 import '../services/camera_service.dart';
 import 'camera_capture_provider.dart';
+import 'camera_interaction_provider.dart';
 import 'camera_mode_settings_provider.dart';
 import 'camera_settings_provider.dart';
 
@@ -121,7 +122,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     }
   }
 
-  Future<void> cycleFlashMode() async {
+  void cycleFlashMode() {
     final controller = state.value;
     if (controller == null || !controller.value.isInitialized) {
       return;
@@ -133,11 +134,22 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     final next = _nextFlashMode(current, isFront: isFront);
 
     ref.read(flashModeProvider.notifier).state = next;
+    unawaited(_applyFlashMode(next));
+  }
+
+  Future<void> _applyFlashMode(FlashMode next) async {
+    final controller = state.value;
+    if (controller == null || !controller.value.isInitialized) {
+      return;
+    }
+
     try {
       await controller.setFlashMode(next);
     } catch (_) {
       ref.read(flashModeProvider.notifier).state = FlashMode.off;
-      await controller.setFlashMode(FlashMode.off);
+      try {
+        await controller.setFlashMode(FlashMode.off);
+      } catch (_) {}
     }
   }
 
@@ -284,10 +296,15 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
 
   /// Captures the current preview frame for on-device analysis (no gallery save).
   Future<Uint8List?> capturePreviewFrame() async {
+    if (ref.read(isCameraUiInteractionPausedProvider)) {
+      return null;
+    }
+
     final controller = state.value;
     if (controller == null ||
         !controller.value.isInitialized ||
-        controller.value.isTakingPicture) {
+        controller.value.isTakingPicture ||
+        ref.read(cameraSwitchingProvider)) {
       return null;
     }
 

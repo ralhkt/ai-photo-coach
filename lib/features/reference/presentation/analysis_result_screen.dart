@@ -13,7 +13,9 @@ import '../../../models/composition_overlay_type.dart';
 import '../../../models/photo_frame_template.dart';
 import '../../../models/scene_type.dart';
 import '../../../models/subject_shape_kind.dart';
-import '../../camera/presentation/guided_camera_screen.dart';
+import '../../camera/presentation/camera_shell_mode.dart';
+import '../../camera/presentation/ios_camera_shell_screen.dart';
+import '../../camera/providers/camera_shell_provider.dart';
 import '../providers/reference_providers.dart';
 import '../providers/reference_skeleton_providers.dart';
 import '../services/reference_skeleton_gallery_saver.dart';
@@ -293,9 +295,13 @@ class _AnalysisResultScreenState extends ConsumerState<AnalysisResultScreen> {
             icon: Icons.camera_alt_outlined,
             onPressed: analysis.subjectDetectionReliable
                 ? () {
+                    ref.read(cameraShellModeProvider.notifier).state =
+                        CameraShellMode.guided;
                     Navigator.of(context).push(
                       MaterialPageRoute<void>(
-                        builder: (_) => const GuidedCameraScreen(),
+                        builder: (_) => const IosCameraShellScreen(
+                          initialMode: CameraShellMode.guided,
+                        ),
                       ),
                     );
                   }

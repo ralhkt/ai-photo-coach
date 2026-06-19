@@ -11,6 +11,7 @@ import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../scene_stabilization/services/scene_change_detector.dart';
 import '../../../../models/shoot_session.dart';
 import '../../providers/camera_capture_provider.dart';
+import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
@@ -67,7 +68,8 @@ class _IosSceneStabilityPollerState extends ConsumerState<IosSceneStabilityPolle
     }
 
     if (ref.read(isPreviewSamplingProvider) ||
-        ref.read(cameraSwitchingProvider)) {
+        ref.read(cameraSwitchingProvider) ||
+        ref.read(isCameraUiInteractionPausedProvider)) {
       return;
     }
 

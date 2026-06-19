@@ -12,6 +12,7 @@ import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/reference_providers.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
 import 'camera_capture_provider.dart';
+import 'camera_interaction_provider.dart';
 import 'camera_providers.dart';
 import 'camera_settings_provider.dart';
 import 'pose_contour_stabilizer_provider.dart';
@@ -61,7 +62,8 @@ class LiveSceneAnalysisNotifier
     return ref.read(isBurstingProvider) ||
         ref.read(timerCountdownProvider) != null ||
         ref.read(isCapturingProvider) ||
-        ref.read(cameraSwitchingProvider);
+        ref.read(cameraSwitchingProvider) ||
+        ref.read(isCameraUiInteractionPausedProvider);
   }
 
   void _setAnalyzing(bool value) {

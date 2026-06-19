@@ -1,32 +1,48 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../camera/providers/camera_interaction_provider.dart';
 import '../../reference/providers/reference_providers.dart';
 import '../providers/pose_coaching_provider.dart';
 import '../providers/pose_silhouette_provider.dart';
 import 'pose_silhouette_skeleton_builder.dart';
 
-/// Async bridge that syncs coaching state to the native overlay without spamming channels.
-class PoseSilhouetteBridge extends ConsumerWidget {
+/// Syncs coaching state to the native overlay only when inputs change.
+class PoseSilhouetteBridge extends ConsumerStatefulWidget {
   const PoseSilhouetteBridge({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final supported =
-        ref.watch(poseSilhouetteNativeSupportedProvider).valueOrNull;
-    if (supported != true) {
-      return const SizedBox.shrink();
+  ConsumerState<PoseSilhouetteBridge> createState() =>
+      _PoseSilhouetteBridgeState();
+}
+
+class _PoseSilhouetteBridgeState extends ConsumerState<PoseSilhouetteBridge> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
+  }
+
+  void _sync() {
+    if (ref.read(isCameraUiInteractionPausedProvider)) {
+      return;
     }
 
-    final analysis = ref.watch(referenceAnalysisProvider).value;
-    final coaching = ref.watch(poseCoachingResultProvider);
+    final supported =
+        ref.read(poseSilhouetteNativeSupportedProvider).valueOrNull;
+    if (supported != true) {
+      return;
+    }
+
+    final analysis = ref.read(referenceAnalysisProvider).value;
+    final coaching = ref.read(poseCoachingResultProvider);
     final points = analysis?.guidance.subjectSilhouettePoints;
     final guides = analysis?.guidance.bodyPartGuides;
     final score = coaching?.poseScore ?? 0;
     final enabled = points != null && points.length >= 4;
-    // Keep human silhouette whenever a reference contour exists.
     final renderMode = enabled ? 'silhouette' : 'skeleton';
     final referenceSkeleton = analysis?.guidance.subjectPoseSkeleton;
     final skeletonSegments = referenceSkeleton != null &&
@@ -39,7 +55,7 @@ class PoseSilhouetteBridge extends ConsumerWidget {
                 subjectRect: analysis?.guidance.subjectTargetRect,
               );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(
       ref.read(poseSilhouetteSyncControllerProvider).sync(
             service: ref.read(poseSilhouetteServiceProvider),
             supported: true,
@@ -48,7 +64,18 @@ class PoseSilhouetteBridge extends ConsumerWidget {
             enabled: enabled,
             renderMode: renderMode,
             skeletonSegments: skeletonSegments,
-          );
+          ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(poseCoachingResultProvider, (_, __) => _sync());
+    ref.listen(referenceAnalysisProvider, (_, __) => _sync());
+    ref.listen(poseSilhouetteNativeSupportedProvider, (previous, next) {
+      if (previous?.valueOrNull != true && next.valueOrNull == true) {
+        _sync();
+      }
     });
 
     return const SizedBox.shrink();

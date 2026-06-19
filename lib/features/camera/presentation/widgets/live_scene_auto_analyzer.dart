@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../providers/camera_capture_provider.dart';
+import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
 
@@ -42,7 +43,8 @@ class _LiveSceneAutoAnalyzerState extends ConsumerState<LiveSceneAutoAnalyzer> {
 
       if (ref.read(liveSceneAnalyzingProvider) ||
           ref.read(isCapturingProvider) ||
-          ref.read(isBurstingProvider)) {
+          ref.read(isBurstingProvider) ||
+          ref.read(isCameraUiInteractionPausedProvider)) {
         return;
       }
 

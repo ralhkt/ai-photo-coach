@@ -4,8 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/theme/app_design_tokens.dart';
 import '../../../core/widgets/app_surface_widgets.dart';
-import '../../camera/presentation/camera_screen.dart';
-import '../../camera/presentation/guided_camera_screen.dart';
+import '../../camera/presentation/camera_shell_mode.dart';
+import '../../camera/presentation/ios_camera_shell_screen.dart';
+import '../../camera/providers/camera_shell_provider.dart';
 import '../../reference/presentation/reference_upload_screen.dart';
 import '../../reference/providers/reference_providers.dart';
 import '../../settings/presentation/settings_screen.dart';
@@ -21,18 +22,24 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  void _openCamera(BuildContext context) {
+  void _openCamera(BuildContext context, WidgetRef ref) {
+    ref.read(cameraShellModeProvider.notifier).state = CameraShellMode.photo;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => const CameraScreen(),
+        builder: (_) => const IosCameraShellScreen(
+          initialMode: CameraShellMode.photo,
+        ),
       ),
     );
   }
 
-  void _openGuidedCamera(BuildContext context) {
+  void _openGuidedCamera(BuildContext context, WidgetRef ref) {
+    ref.read(cameraShellModeProvider.notifier).state = CameraShellMode.guided;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => const GuidedCameraScreen(),
+        builder: (_) => const IosCameraShellScreen(
+          initialMode: CameraShellMode.guided,
+        ),
       ),
     );
   }
@@ -100,7 +107,7 @@ class HomeScreen extends ConsumerWidget {
                     title: l10n.homeContinueGuided,
                     subtitle: l10n.homeContinueGuidedSubtitle,
                     actionLabel: l10n.homeEnterGuidedCamera,
-                    onPressed: () => _openGuidedCamera(context),
+                    onPressed: () => _openGuidedCamera(context, ref),
                   ),
                   const SizedBox(height: AppDesignTokens.space2xl),
                   AppGroupedSection(
@@ -117,7 +124,7 @@ class HomeScreen extends ConsumerWidget {
                         title: l10n.openCameraSkipTitle,
                         subtitle: l10n.openCameraSkipSubtitle,
                         tertiary: true,
-                        onTap: () => _openCamera(context),
+                        onTap: () => _openCamera(context, ref),
                       ),
                     ],
                   ),
@@ -135,7 +142,7 @@ class HomeScreen extends ConsumerWidget {
                         icon: Icons.photo_camera_outlined,
                         title: l10n.openCameraTitle,
                         subtitle: l10n.openCameraSubtitle,
-                        onTap: () => _openCamera(context),
+                        onTap: () => _openCamera(context, ref),
                       ),
                     ],
                   ),

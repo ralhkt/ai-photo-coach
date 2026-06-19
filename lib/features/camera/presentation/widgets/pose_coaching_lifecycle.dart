@@ -9,6 +9,7 @@ import '../../../ar/providers/ar_providers.dart';
 import '../../../ar/services/device_attitude_service.dart';
 import '../../../../core/settings/app_settings_provider.dart';
 import '../../providers/camera_capture_provider.dart';
+import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
@@ -85,7 +86,8 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         ref.read(timerCountdownProvider) != null ||
         ref.read(liveSceneAnalyzingProvider) ||
         ref.read(cameraSwitchingProvider) ||
-        ref.read(isPreviewSamplingProvider);
+        ref.read(isPreviewSamplingProvider) ||
+        ref.read(isCameraUiInteractionPausedProvider);
   }
 
   Future<void> _tick() async {

@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../reference/presentation/reference_upload_screen.dart';
 import '../../reference/providers/reference_providers.dart';
-import 'camera_screen.dart';
+import '../providers/camera_mode_settings_provider.dart';
+import '../providers/camera_shell_provider.dart';
 import 'camera_shell_mode.dart';
-import 'guided_camera_screen.dart';
 
-/// Cross-fades between free [CameraScreen] and [GuidedCameraScreen].
+/// Updates shell mode in-place — no [Navigator] replacement (avoids camera re-init lag).
 Future<void> switchIosCameraShellMode({
   required BuildContext context,
   required WidgetRef ref,
@@ -57,20 +57,10 @@ Future<void> switchIosCameraShellMode({
     }
   }
 
-  final next = switch (target) {
-    CameraShellMode.photo => const CameraScreen(),
-    CameraShellMode.guided => const GuidedCameraScreen(),
-    CameraShellMode.video => const CameraScreen(),
-  };
-
-  await Navigator.of(context).pushReplacement(
-    PageRouteBuilder<void>(
-      pageBuilder: (context, animation, secondaryAnimation) => next,
-      transitionDuration: const Duration(milliseconds: 220),
-      reverseTransitionDuration: const Duration(milliseconds: 220),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(opacity: animation, child: child);
-      },
-    ),
-  );
+  ref.read(cameraShellModeProvider.notifier).state = target;
+  await ref.read(cameraModeSettingsProvider.notifier).activateMode(
+        target == CameraShellMode.guided
+            ? CameraUiMode.guided
+            : CameraUiMode.free,
+      );
 }
