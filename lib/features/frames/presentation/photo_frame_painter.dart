@@ -163,10 +163,22 @@ class PhotoFramePainter extends CustomPainter {
       silhouette,
       Paint()
         ..color = PozeWireframeStyle.silhouetteFillColor
-        ..style = PaintingStyle.fill,
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = true,
     );
 
     _drawPozeLimbs(canvas, subject, PozeWireframeLimbs.seatedPhone, strokeColor);
+
+    canvas.drawPath(
+      silhouette,
+      Paint()
+        ..color = PozeWireframeStyle.glowColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = PozeWireframeStyle.glowStrokeWidth
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round
+        ..isAntiAlias = true,
+    );
 
     canvas.drawPath(
       silhouette,
@@ -175,7 +187,8 @@ class PhotoFramePainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = PozeWireframeStyle.minimalBodyStrokeWidth
         ..strokeJoin = StrokeJoin.round
-        ..strokeCap = StrokeCap.round,
+        ..strokeCap = StrokeCap.round
+        ..isAntiAlias = true,
     );
 
     if (headOval != null) {

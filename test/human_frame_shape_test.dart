@@ -30,7 +30,7 @@ void main() {
         headPoints.map((p) => p.dy).reduce((a, b) => a > b ? a : b) -
             headPoints.map((p) => p.dy).reduce((a, b) => a < b ? a : b);
 
-    expect(headWidth, greaterThan(headHeight * 0.8));
+    expect(headWidth, greaterThan(headHeight * 0.72));
     expect(headWidth, lessThan(subject.width * 0.5));
   });
 

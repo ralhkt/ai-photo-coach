@@ -9,6 +9,7 @@ import '../../../frames/presentation/poze_wireframe_style.dart';
 import '../../../frames/presentation/reference_ghost_overlay.dart';
 import '../../../reference/providers/reference_providers.dart';
 import '../../providers/live_scene_analysis_provider.dart';
+import '../../providers/pose_contour_stabilizer_provider.dart';
 
 /// Poze-style centered wireframe + matched influencer ghost for free-shoot AI.
 class LiveSceneGuidanceFrameOverlay extends ConsumerWidget {
@@ -21,8 +22,10 @@ class LiveSceneGuidanceFrameOverlay extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    final stabilizer = ref.read(poseContourStabilizerProvider);
     final guidance = CoachingGuidanceHelper().forPozeOverlay(
       CoachingGuidanceHelper().ensureHumanSilhouette(analysis.guidance),
+      stabilizer: stabilizer,
     );
     final ghostBytes = analysis.matchedReferenceImageBytes;
     final stability = ref.watch(sceneStabilityProvider);

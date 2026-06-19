@@ -20,6 +20,7 @@ import '../../reference/providers/reference_providers.dart';
 import '../providers/camera_mode_settings_provider.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_settings_provider.dart';
+import '../providers/pose_contour_stabilizer_provider.dart';
 import 'widgets/guided_overlay_tools_sheet.dart';
 import 'widgets/camera_error_view.dart';
 import 'widgets/camera_mode_scope.dart';
@@ -99,6 +100,7 @@ class _GuidedCameraScreenState extends ConsumerState<GuidedCameraScreen> {
 
           final coachingGuidance = CoachingGuidanceHelper().forPozeOverlay(
             CoachingGuidanceHelper().ensureHumanSilhouette(guidance),
+            stabilizer: ref.read(poseContourStabilizerProvider),
           );
 
           return CameraModeScope(

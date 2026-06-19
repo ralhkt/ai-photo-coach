@@ -14,6 +14,7 @@ import '../../scene_stabilization/providers/scene_stability_provider.dart';
 import 'camera_capture_provider.dart';
 import 'camera_providers.dart';
 import 'camera_settings_provider.dart';
+import 'pose_contour_stabilizer_provider.dart';
 
 enum LiveSceneAnalysisFailure {
   cameraNotReady,
@@ -165,6 +166,7 @@ class LiveSceneAnalysisNotifier
   }
 
   void clear() {
+    ref.read(poseContourStabilizerProvider).reset();
     _setError(null);
     _setAnalyzing(false);
     state = const AsyncData(null);

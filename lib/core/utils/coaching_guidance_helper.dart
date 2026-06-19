@@ -5,6 +5,7 @@ import '../../features/reference/services/body_part_guide_service.dart';
 import '../../features/reference/services/human_frame_shape_builder.dart';
 import '../../models/camera_guidance.dart';
 import '../../models/subject_shape_kind.dart';
+import 'pose_contour_stabilizer.dart';
 
 /// Ensures live-coaching overlays always receive a clean human-silhouette frame.
 class CoachingGuidanceHelper {
@@ -41,9 +42,13 @@ class CoachingGuidanceHelper {
   }
 
   /// Poze overlay: seated phone pose, centered in the viewfinder.
-  CameraGuidance forPozeOverlay(CameraGuidance guidance) {
+  CameraGuidance forPozeOverlay(
+    CameraGuidance guidance, {
+    PoseContourStabilizer? stabilizer,
+  }) {
+    final smoothed = stabilizer?.stabilize(guidance) ?? guidance;
     final stabilized = PozeFrameLayout.seatedOverlayRect(
-      guidance.subjectTargetRect,
+      smoothed.subjectTargetRect,
     );
     final templatePoints = _shapeBuilder
         .seatedPhonePosePoints()
@@ -59,7 +64,7 @@ class CoachingGuidanceHelper {
       silhouettePoints: templatePoints,
     );
 
-    return guidance.copyWith(
+    return smoothed.copyWith(
       subjectShape: SubjectShapeKind.humanSilhouette,
       subjectTargetRect: stabilized,
       subjectSilhouettePoints: templatePoints,

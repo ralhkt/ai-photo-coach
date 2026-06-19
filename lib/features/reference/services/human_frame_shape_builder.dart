@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
+import '../../../core/utils/contour_smoother.dart';
 import '../../../models/body_part_guides.dart';
 
 /// Builds smooth, anatomical human outline points and paths for guided framing.
@@ -20,7 +21,7 @@ class HumanFrameShapeBuilder {
         ry: headRy,
         startAngle: -math.pi / 2,
         sweepAngle: math.pi,
-        steps: 10,
+        steps: 12,
       ),
       const Offset(0.52, 0.22),
       const Offset(0.48, 0.30),
@@ -44,7 +45,7 @@ class HumanFrameShapeBuilder {
         ry: headRy,
         startAngle: math.pi / 2,
         sweepAngle: math.pi,
-        steps: 10,
+        steps: 12,
       ),
     ];
   }
@@ -64,7 +65,7 @@ class HumanFrameShapeBuilder {
         ry: headRy,
         startAngle: -math.pi / 2,
         sweepAngle: math.pi,
-        steps: 12,
+        steps: 14,
       ),
       const Offset(0.40, 0.24),
       const Offset(0.36, 0.30),
@@ -89,7 +90,7 @@ class HumanFrameShapeBuilder {
         ry: headRy,
         startAngle: math.pi / 2,
         sweepAngle: math.pi,
-        steps: 12,
+        steps: 14,
       ),
     ];
   }
@@ -131,33 +132,16 @@ class HumanFrameShapeBuilder {
     );
   }
 
-  Path pointsToSmoothPath(List<Offset> points) {
-    final path = Path();
+  Path pointsToSmoothPath(List<Offset> points, {double tension = 0.5}) {
     if (points.isEmpty) {
-      return path;
+      return Path();
     }
-    if (points.length < 4) {
-      path.moveTo(points.first.dx, points.first.dy);
-      for (var i = 1; i < points.length; i++) {
-        path.lineTo(points[i].dx, points[i].dy);
-      }
-      path.close();
-      return path;
-    }
-
-    path.moveTo(points.first.dx, points.first.dy);
-    for (var i = 1; i < points.length - 1; i++) {
-      final current = points[i];
-      final next = points[i + 1];
-      final mid = Offset(
-        (current.dx + next.dx) / 2,
-        (current.dy + next.dy) / 2,
-      );
-      path.quadraticBezierTo(current.dx, current.dy, mid.dx, mid.dy);
-    }
-    path.lineTo(points.last.dx, points.last.dy);
-    path.close();
-    return path;
+    final cleaned = _dedupe(points);
+    return ContourSmoother.catmullRomPath(
+      cleaned,
+      tension: tension,
+      closed: true,
+    );
   }
 
   List<Offset> _ellipseArc({
