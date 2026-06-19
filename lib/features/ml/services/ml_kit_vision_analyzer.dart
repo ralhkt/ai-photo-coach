@@ -11,6 +11,7 @@ import '../../../models/body_part_guides.dart';
 import '../../../models/ml_detection_result.dart';
 import 'ml_aesthetic_scorer.dart';
 import 'ml_input_image_helper.dart';
+import '../../pose/services/subject_pose_tracker.dart';
 import 'pose_body_guide_mapper.dart';
 import 'vision_analyzer.dart';
 
@@ -23,6 +24,7 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
     ImageLabeler? imageLabeler,
     PoseBodyGuideMapper? poseMapper,
     MlAestheticScorer? aestheticScorer,
+    SubjectPoseTracker? subjectTracker,
   })  : _faceDetector = faceDetector ??
             FaceDetector(
               options: FaceDetectorOptions(
@@ -41,13 +43,15 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
               options: ImageLabelerOptions(confidenceThreshold: 0.42),
             ),
         _poseMapper = poseMapper ?? PoseBodyGuideMapper(),
-        _aestheticScorer = aestheticScorer ?? MlAestheticScorer();
+        _aestheticScorer = aestheticScorer ?? MlAestheticScorer(),
+        _subjectTracker = subjectTracker ?? SubjectPoseTracker();
 
   final FaceDetector _faceDetector;
   final PoseDetector _poseDetector;
   final ImageLabeler _imageLabeler;
   final PoseBodyGuideMapper _poseMapper;
   final MlAestheticScorer _aestheticScorer;
+  final SubjectPoseTracker _subjectTracker;
 
   @override
   Future<MlDetectionResult> analyze({
@@ -95,8 +99,13 @@ class MlKitVisionAnalyzer implements VisionAnalyzer {
     Rect? poseSubject;
     var hasPose = false;
 
-    if (poses.isNotEmpty) {
-      final primaryPose = poses.first;
+    final primaryPose = _subjectTracker.selectPrimary(
+      poses,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
+    );
+
+    if (primaryPose != null) {
       bodyGuides = _poseMapper.fromPose(
         primaryPose,
         imageWidth: imageWidth,

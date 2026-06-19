@@ -70,6 +70,11 @@ class PoseCoachingCoordinator {
 
   PoseCoachingResult? get latestResult => _latestResult;
 
+  /// True when the next evaluation would be dropped by [minInterval].
+  bool isThrottled(DateTime now) {
+    return now.difference(_lastEvaluated) < minInterval;
+  }
+
   /// Returns null when throttled so callers can skip UI churn.
   Future<PoseCoachingResult?> evaluateFromPose({
     required Pose? pose,
@@ -105,6 +110,41 @@ class PoseCoachingCoordinator {
         pose: pose,
         imageWidth: imageWidth,
         imageHeight: imageHeight,
+        rollAngle: rollAngle,
+        templatePose: templatePose,
+      );
+    }
+
+    _latestResult = result;
+    return result;
+  }
+
+  /// Uses temporally smoothed landmarks (subject tracker + joint EMA upstream).
+  Future<PoseCoachingResult?> evaluateFromLandmarks({
+    required Map<PoseLandmarkType, PosePoint3D> landmarks,
+    required int imageWidth,
+    required int imageHeight,
+    required double rollAngle,
+    TrendyPhotoTemplate? trendyTemplate,
+    DateTime? now,
+  }) async {
+    final timestamp = now ?? DateTime.now();
+    if (timestamp.difference(_lastEvaluated) < minInterval) {
+      return null;
+    }
+    _lastEvaluated = timestamp;
+
+    final imputed = PoseLandmarkUtils.imputeMissingLandmarks(landmarks);
+
+    final PoseCoachingResult result;
+    if (trendyTemplate != null && trendyTemplate.hasPoseTemplate) {
+      result = TrendyPhotoAnalyzer(template: trendyTemplate).evaluateFromLandmarks(
+        landmarks: imputed,
+        rollAngle: rollAngle,
+      );
+    } else {
+      result = PoseAestheticAnalyzer.evaluateFromLandmarks(
+        landmarks: imputed,
         rollAngle: rollAngle,
         templatePose: templatePose,
       );

@@ -7,16 +7,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ar/providers/ar_providers.dart';
 import '../../../ar/services/device_attitude_service.dart';
+import '../../../../core/settings/app_settings_provider.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
+import '../../../pose/models/pose_coaching_result.dart';
 import '../../../pose/providers/pose_coaching_provider.dart';
 
-/// Polls preview frames + gyro attitude for live pose coaching (iOS-safe).
-///
-/// Uses [capturePreviewFrame] instead of [CameraController.startImageStream] so
-/// guided mode works on iOS where preview + image stream deadlocks.
+/// Polls preview frames + attitude for live pose coaching (iOS-safe).
 class PoseCoachingLifecycle extends ConsumerStatefulWidget {
   const PoseCoachingLifecycle({super.key});
 
@@ -29,8 +28,11 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   Timer? _timer;
   bool _tickInFlight = false;
   double _latestRoll = 0;
+  DateTime _lastCapture = DateTime.fromMillisecondsSinceEpoch(0);
+  Duration _captureInterval = const Duration(milliseconds: 550);
+  PoseCoachingResult? _lastResult;
 
-  Duration get _frameInterval {
+  Duration get _fallbackInterval {
     if (kIsWeb) {
       return const Duration(milliseconds: 900);
     }
@@ -42,6 +44,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   @override
   void initState() {
     super.initState();
+    _captureInterval = _fallbackInterval;
     Future.microtask(_syncLoop);
   }
 
@@ -58,11 +61,14 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
 
     final shouldRun = ref.read(poseCoachingShouldRunProvider);
     if (shouldRun && _timer == null) {
-      _timer = Timer.periodic(_frameInterval, (_) => unawaited(_tick()));
+      _timer = Timer.periodic(const Duration(milliseconds: 120), (_) {
+        unawaited(_tick());
+      });
       unawaited(_tick());
     } else if (!shouldRun && _timer != null) {
       _timer?.cancel();
       _timer = null;
+      _lastResult = null;
       ref.read(poseCoachingResultProvider.notifier).state = null;
       ref.read(poseCoachingServiceProvider).reset();
     }
@@ -83,8 +89,24 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
       return;
     }
 
+    final service = ref.read(poseCoachingServiceProvider);
+    final powerSave = ref.read(powerSaveEnabledProvider);
+    _captureInterval = service.captureScheduler.nextInterval(
+      lastResult: _lastResult,
+      powerSave: powerSave,
+    );
+
+    final now = DateTime.now();
+    if (!service.captureScheduler.shouldCapture(_lastCapture, _captureInterval, now: now)) {
+      return;
+    }
+
     final controller = ref.read(cameraControllerProvider).value;
     if (controller == null || !controller.value.isInitialized) {
+      return;
+    }
+
+    if (!service.shouldRunInference(now: now)) {
       return;
     }
 
@@ -96,17 +118,20 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         return;
       }
 
+      _lastCapture = now;
       final trendyTemplate = ref.read(activeTrendyTemplateProvider);
-      final result = await ref.read(poseCoachingServiceProvider).evaluatePreviewFrame(
-            bytes: bytes,
-            rollAngle: _latestRoll,
-            trendyTemplate: trendyTemplate,
-          );
+      final result = await service.evaluatePreviewFrame(
+        bytes: bytes,
+        rollAngle: _latestRoll,
+        trendyTemplate: trendyTemplate,
+        now: now,
+      );
 
       if (!mounted || result == null) {
         return;
       }
 
+      _lastResult = result;
       ref.read(poseCoachingResultProvider.notifier).state = result;
     } finally {
       _tickInFlight = false;

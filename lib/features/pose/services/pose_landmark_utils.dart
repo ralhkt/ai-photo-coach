@@ -167,6 +167,86 @@ abstract final class PoseLandmarkUtils {
     return 0.25;
   }
 
+  /// Fills common missing joints using visible neighbors (occlusion tolerance).
+  static Map<PoseLandmarkType, PosePoint3D> imputeMissingLandmarks(
+    Map<PoseLandmarkType, PosePoint3D> points,
+  ) {
+    final result = Map<PoseLandmarkType, PosePoint3D>.from(points);
+
+    void imputeWrist(PoseLandmarkType wrist, PoseLandmarkType elbow, PoseLandmarkType shoulder) {
+      if (result.containsKey(wrist)) {
+        return;
+      }
+      final elbowPoint = result[elbow];
+      final shoulderPoint = result[shoulder];
+      if (elbowPoint == null || shoulderPoint == null) {
+        return;
+      }
+      final dir = Offset(
+        elbowPoint.x - shoulderPoint.x,
+        elbowPoint.y - shoulderPoint.y,
+      );
+      result[wrist] = PosePoint3D(
+        x: (elbowPoint.x + dir.dx * 0.85).clamp(0.0, 1.0),
+        y: (elbowPoint.y + dir.dy * 0.85).clamp(0.0, 1.0),
+        z: elbowPoint.z,
+        type: wrist,
+        likelihood: math.min(elbowPoint.likelihood, 0.55),
+      );
+    }
+
+    imputeWrist(
+      PoseLandmarkType.leftWrist,
+      PoseLandmarkType.leftElbow,
+      PoseLandmarkType.leftShoulder,
+    );
+    imputeWrist(
+      PoseLandmarkType.rightWrist,
+      PoseLandmarkType.rightElbow,
+      PoseLandmarkType.rightShoulder,
+    );
+
+    void imputeHip(PoseLandmarkType hip, PoseLandmarkType shoulder, PoseLandmarkType knee) {
+      if (result.containsKey(hip)) {
+        return;
+      }
+      final shoulderPoint = result[shoulder];
+      final kneePoint = result[knee];
+      if (shoulderPoint != null && kneePoint != null) {
+        result[hip] = PosePoint3D(
+          x: ((shoulderPoint.x + kneePoint.x) / 2).clamp(0.0, 1.0),
+          y: ((shoulderPoint.y + kneePoint.y) / 2).clamp(0.0, 1.0),
+          z: (shoulderPoint.z + kneePoint.z) / 2,
+          type: hip,
+          likelihood: math.min(shoulderPoint.likelihood, kneePoint.likelihood) * 0.7,
+        );
+        return;
+      }
+      if (shoulderPoint != null) {
+        result[hip] = PosePoint3D(
+          x: shoulderPoint.x.clamp(0.0, 1.0),
+          y: (shoulderPoint.y + 0.18).clamp(0.0, 1.0),
+          z: shoulderPoint.z,
+          type: hip,
+          likelihood: shoulderPoint.likelihood * 0.5,
+        );
+      }
+    }
+
+    imputeHip(
+      PoseLandmarkType.leftHip,
+      PoseLandmarkType.leftShoulder,
+      PoseLandmarkType.leftKnee,
+    );
+    imputeHip(
+      PoseLandmarkType.rightHip,
+      PoseLandmarkType.rightShoulder,
+      PoseLandmarkType.rightKnee,
+    );
+
+    return result;
+  }
+
   static double cosineSimilarity(List<double> a, List<double> b) {
     if (a.isEmpty || b.isEmpty || a.length != b.length) {
       return 0;

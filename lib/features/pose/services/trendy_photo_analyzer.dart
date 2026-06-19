@@ -6,6 +6,7 @@ import '../models/pose_coaching_result.dart';
 import '../models/pose_point3d.dart';
 import '../models/trendy_photo_template.dart';
 import 'pose_aesthetic_analyzer.dart';
+import 'pose_aligner.dart';
 import 'pose_landmark_utils.dart';
 
 /// Regional body grouping for partial pose coaching hints.
@@ -72,12 +73,97 @@ class TrendyPhotoAnalyzer {
       return 0;
     }
 
-    return PoseAestheticAnalyzer.calculatePoseSimilarity(
-      userPose,
-      poses,
-      imageWidth: imageWidth,
-      imageHeight: imageHeight,
+    final userMap = PoseLandmarkUtils.imputeMissingLandmarks(
+      PoseLandmarkUtils.poseToNormalizedMap(
+        userPose,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+      ),
     );
+    final templateMap = PoseLandmarkUtils.templateToMap(poses);
+    return PoseAligner.similarityScore(userMap, templateMap);
+  }
+
+  /// Evaluation using pre-smoothed landmark maps from live coaching pipeline.
+  TrendyPhotoCoachingResult evaluateFromLandmarks({
+    required Map<PoseLandmarkType, PosePoint3D> landmarks,
+    required double rollAngle,
+    TrendyPhotoTemplate? templateOverride,
+  }) {
+    final activeTemplate = templateOverride ?? template;
+    final poses = activeTemplate?.templatePoses3d ?? const <PosePoint3D>[];
+    final tiltGuidance = analyzeTiltAngle(rollAngle);
+    final isLevel = tiltGuidance == 'OK';
+
+    if (landmarks.isEmpty) {
+      return TrendyPhotoCoachingResult(
+        isLevel: isLevel,
+        poseScore: 0,
+        proportionStatus: '尚未偵測到身體',
+        tiltGuidance: tiltGuidance,
+        bodyPartGuidance: '請站入畫面中央',
+        combinedGuidance: isLevel ? '請站入畫面中央' : tiltGuidance,
+        template: activeTemplate,
+      );
+    }
+
+    final imputed = PoseLandmarkUtils.imputeMissingLandmarks(landmarks);
+    final proportionStatus =
+        PoseAestheticAnalyzer.evaluateFromLandmarks(
+          landmarks: imputed,
+          rollAngle: rollAngle,
+        ).proportionStatus;
+
+    final templateMap = PoseLandmarkUtils.templateToMap(poses);
+    final poseScore = templateMap.isEmpty
+        ? 0
+        : PoseAligner.similarityScore(imputed, templateMap);
+    final poseMatched = poseScore >= posePassScore;
+
+    final bodyPartGuidance = templateMap.isEmpty
+        ? 'OK'
+        : _bodyPartGuidanceFromMaps(imputed, templateMap);
+
+    return TrendyPhotoCoachingResult(
+      isLevel: isLevel,
+      poseScore: poseScore,
+      proportionStatus: proportionStatus,
+      tiltGuidance: tiltGuidance,
+      bodyPartGuidance: bodyPartGuidance,
+      combinedGuidance: _combineGuidance(
+        isLevel: isLevel,
+        tiltGuidance: tiltGuidance,
+        proportionStatus: proportionStatus,
+        bodyPartGuidance: bodyPartGuidance,
+        poseScore: poseScore,
+        poseMatched: poseMatched,
+        hasTemplate: poses.isNotEmpty,
+        shootingTips: activeTemplate?.shootingTips,
+      ),
+      poseMatched: poseMatched,
+      template: activeTemplate,
+      regionScores: templateMap.isEmpty
+          ? const []
+          : scoreBodyRegions(
+              userPoints: imputed,
+              templatePoints: templateMap,
+            ),
+    );
+  }
+
+  String _bodyPartGuidanceFromMaps(
+    Map<PoseLandmarkType, PosePoint3D> userMap,
+    Map<PoseLandmarkType, PosePoint3D> templateMap,
+  ) {
+    final scores = scoreBodyRegions(
+      userPoints: userMap,
+      templatePoints: templateMap,
+    );
+    final worst = scores.where((s) => s.isMisaligned).firstOrNull;
+    if (worst == null) {
+      return 'OK';
+    }
+    return _hintForRegion(worst);
   }
 
   /// Scores each body region; highest-error region drives partial guidance.
