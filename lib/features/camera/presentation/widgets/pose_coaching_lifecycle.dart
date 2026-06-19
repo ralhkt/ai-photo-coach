@@ -96,9 +96,11 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         return;
       }
 
+      final trendyTemplate = ref.read(activeTrendyTemplateProvider);
       final result = await ref.read(poseCoachingServiceProvider).evaluatePreviewFrame(
             bytes: bytes,
             rollAngle: _latestRoll,
+            trendyTemplate: trendyTemplate,
           );
 
       if (!mounted || result == null) {

@@ -4,6 +4,7 @@ import 'package:image/image.dart' as img;
 
 import '../../ml/services/ml_input_image_helper.dart';
 import '../models/pose_coaching_result.dart';
+import '../models/trendy_photo_template.dart';
 import 'pose_coaching_coordinator.dart';
 
 /// Runs ML Kit pose inference on preview snapshots and aesthetic coaching math.
@@ -31,6 +32,7 @@ class PoseCoachingService {
   Future<PoseCoachingResult?> evaluatePreviewFrame({
     required Uint8List bytes,
     required double rollAngle,
+    TrendyPhotoTemplate? trendyTemplate,
     DateTime? now,
   }) async {
     final decoded = img.decodeImage(bytes);
@@ -56,6 +58,7 @@ class PoseCoachingService {
       imageWidth: mlImage.width,
       imageHeight: mlImage.height,
       rollAngle: rollAngle,
+      trendyTemplate: trendyTemplate,
       now: now,
     );
 

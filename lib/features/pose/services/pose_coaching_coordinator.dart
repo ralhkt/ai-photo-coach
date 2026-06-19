@@ -6,8 +6,10 @@ import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import '../data/seated_phone_template_pose.dart';
 import '../models/pose_coaching_result.dart';
 import '../models/pose_point3d.dart';
+import '../models/trendy_photo_template.dart';
 import 'pose_aesthetic_analyzer.dart';
 import 'pose_landmark_utils.dart';
+import 'trendy_photo_analyzer.dart';
 
 /// Serializable snapshot for optional isolate offload.
 @immutable
@@ -74,6 +76,7 @@ class PoseCoachingCoordinator {
     required int imageWidth,
     required int imageHeight,
     required double rollAngle,
+    TrendyPhotoTemplate? trendyTemplate,
     DateTime? now,
   }) async {
     final timestamp = now ?? DateTime.now();
@@ -82,20 +85,30 @@ class PoseCoachingCoordinator {
     }
     _lastEvaluated = timestamp;
 
-    final result = offloadToIsolate && pose != null
-        ? await _evaluateInIsolate(
-            pose: pose,
-            imageWidth: imageWidth,
-            imageHeight: imageHeight,
-            rollAngle: rollAngle,
-          )
-        : PoseAestheticAnalyzer.evaluate(
-            pose: pose,
-            imageWidth: imageWidth,
-            imageHeight: imageHeight,
-            rollAngle: rollAngle,
-            templatePose: templatePose,
-          );
+    final PoseCoachingResult result;
+    if (trendyTemplate != null && trendyTemplate.hasPoseTemplate) {
+      result = TrendyPhotoAnalyzer(template: trendyTemplate).evaluate(
+        pose: pose,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+        rollAngle: rollAngle,
+      );
+    } else if (offloadToIsolate && pose != null) {
+      result = await _evaluateInIsolate(
+        pose: pose,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+        rollAngle: rollAngle,
+      );
+    } else {
+      result = PoseAestheticAnalyzer.evaluate(
+        pose: pose,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+        rollAngle: rollAngle,
+        templatePose: templatePose,
+      );
+    }
 
     _latestResult = result;
     return result;

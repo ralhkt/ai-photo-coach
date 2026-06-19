@@ -4,7 +4,9 @@ import '../../../core/settings/app_settings_provider.dart';
 import '../../../models/shoot_session.dart';
 import '../../camera/providers/live_scene_analysis_provider.dart';
 import '../../session/providers/shoot_session_provider.dart';
+import '../data/trendy_template_catalog.dart';
 import '../models/pose_coaching_result.dart';
+import '../models/trendy_photo_template.dart';
 import '../services/pose_coaching_service.dart';
 
 final poseCoachingServiceProvider = Provider<PoseCoachingService>((ref) {
@@ -13,9 +15,23 @@ final poseCoachingServiceProvider = Provider<PoseCoachingService>((ref) {
   return service;
 });
 
+/// Active trendy template selected from reference sample or crawler ingest.
+final activeTrendyTemplateProvider =
+    StateProvider<TrendyPhotoTemplate?>((ref) => null);
+
 /// Latest unified coaching output for camera overlay chips.
 final poseCoachingResultProvider =
     StateProvider<PoseCoachingResult?>((ref) => null);
+
+/// Loads bundled trendy metadata when user picks a reference sample.
+void loadTrendyTemplateForSample(WidgetRef ref, String sampleId) {
+  ref.read(activeTrendyTemplateProvider.notifier).state =
+      trendyTemplateForSample(sampleId);
+}
+
+void clearActiveTrendyTemplate(WidgetRef ref) {
+  ref.read(activeTrendyTemplateProvider.notifier).state = null;
+}
 
 /// Whether the background pose coaching loop should run.
 bool shouldRunPoseCoaching({

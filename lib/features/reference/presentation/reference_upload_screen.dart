@@ -11,6 +11,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/guidance_text.dart';
 import '../../../core/widgets/app_surface_widgets.dart';
 import '../../../models/scene_type.dart';
+import '../../pose/providers/pose_coaching_provider.dart';
 import '../data/reference_sample_catalog.dart';
 import '../providers/reference_providers.dart';
 import 'analysis_result_screen.dart';
@@ -77,6 +78,7 @@ class _ReferenceUploadScreenState extends ConsumerState<ReferenceUploadScreen> {
     setState(() => _activeSampleId = sample.id);
 
     try {
+      loadTrendyTemplateForSample(ref, sample.id);
       final data = await rootBundle.load(sample.assetPath);
       await _runAnalysis(data.buffer.asUint8List(), sample.sceneType);
     } finally {
