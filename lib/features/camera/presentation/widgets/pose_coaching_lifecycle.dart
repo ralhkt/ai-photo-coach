@@ -35,6 +35,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   bool _tickInFlight = false;
   double _latestRoll = 0;
   DateTime _lastCapture = DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime _lastPublish = DateTime.fromMillisecondsSinceEpoch(0);
   Duration _captureInterval = const Duration(milliseconds: 2000);
   PoseCoachingResult? _lastResult;
   final PosePreviewFrameSource _androidFrameSource = PosePreviewFrameSource();
@@ -44,8 +45,9 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   bool get _useIosNativeSampler =>
       !kIsWeb && Platform.isIOS && NativePreviewFrameService.instance.isSupported;
 
-  static const _iosNativeMinInterval = Duration(milliseconds: 4000);
+  static const _iosNativeMinInterval = Duration(milliseconds: 5000);
   static const _guidedIdleBeforeMl = guidedMlIdleAfterInteraction;
+  static const _guidedMinPublishGap = Duration(milliseconds: 4000);
 
   Duration get _fallbackInterval {
     if (_useIosNativeSampler) {
@@ -102,7 +104,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     if (shouldRun && _timer == null) {
       _androidStreamAttempted = false;
       unawaited(_setSamplerActive(true));
-      _scheduleNextTick(const Duration(milliseconds: 400));
+      _scheduleNextTick(const Duration(milliseconds: 800));
     } else if (!shouldRun && _timer != null) {
       _timer?.cancel();
       _timer = null;
@@ -114,6 +116,15 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
       unawaited(_setSamplerActive(false));
       unawaited(_androidFrameSource.stop(controller));
     }
+  }
+
+  void _deferForUserActivity() {
+    _timer?.cancel();
+    _timer = Timer(_guidedIdleBeforeMl, () {
+      if (mounted) {
+        unawaited(_tick());
+      }
+    });
   }
 
   void _scheduleNextTick(Duration delay) {
@@ -150,7 +161,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         ref.read(cameraSwitchingProvider)) {
       return const Duration(milliseconds: 400);
     }
-    return const Duration(milliseconds: 600);
+    return const Duration(milliseconds: 800);
   }
 
   Duration _effectiveCaptureInterval(Duration schedulerInterval) {
@@ -162,12 +173,19 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         : schedulerInterval;
   }
 
-  bool _shouldPublishResult(PoseCoachingResult result) {
+  bool _shouldPublishResult(PoseCoachingResult result, DateTime now) {
+    if (_isGuidedUserInteracting()) {
+      return false;
+    }
+    if (now.difference(_lastPublish) < _guidedMinPublishGap) {
+      return false;
+    }
+
     final previous = _lastResult;
     if (previous == null) {
       return true;
     }
-    if ((result.poseScore - previous.poseScore).abs() >= 8) {
+    if ((result.poseScore - previous.poseScore).abs() >= 10) {
       return true;
     }
     if (result.combinedGuidance != previous.combinedGuidance) {
@@ -179,11 +197,23 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     return false;
   }
 
-  void _publishIfNeeded(PoseCoachingResult? result) {
-    if (result != null && _shouldPublishResult(result)) {
+  void _publishIfNeeded(PoseCoachingResult? result, DateTime now) {
+    if (result != null && _shouldPublishResult(result, now)) {
       _lastResult = result;
+      _lastPublish = now;
       ref.read(poseCoachingResultProvider.notifier).state = result;
     }
+  }
+
+  void _scheduleAfterTick() {
+    if (!mounted) {
+      return;
+    }
+    if (_isGuidedUserInteracting()) {
+      _deferForUserActivity();
+      return;
+    }
+    _scheduleNextTick(_captureInterval);
   }
 
   Future<void> _ensureAndroidFrameSource(CameraController controller) async {
@@ -205,7 +235,11 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     }
 
     if (_tickInFlight || _isCameraBusy()) {
-      _scheduleNextTick(_busyRetryDelay());
+      if (_isGuidedUserInteracting()) {
+        _deferForUserActivity();
+      } else {
+        _scheduleNextTick(_busyRetryDelay());
+      }
       return;
     }
 
@@ -225,20 +259,20 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
       now: now,
     )) {
       final wait = _captureInterval - now.difference(_lastCapture);
-      _scheduleNextTick(wait < const Duration(milliseconds: 200)
-          ? const Duration(milliseconds: 200)
+      _scheduleNextTick(wait < const Duration(milliseconds: 300)
+          ? const Duration(milliseconds: 300)
           : wait);
       return;
     }
 
     final controller = ref.read(cameraControllerProvider).value;
     if (controller == null || !controller.value.isInitialized) {
-      _scheduleNextTick(const Duration(milliseconds: 600));
+      _scheduleNextTick(const Duration(milliseconds: 800));
       return;
     }
 
-    if (!service.shouldRunInference(now: now)) {
-      _scheduleNextTick(const Duration(milliseconds: 400));
+    if (!service.shouldRunInference(now: now) || _isGuidedUserInteracting()) {
+      _deferForUserActivity();
       return;
     }
 
@@ -249,7 +283,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
 
       if (_useIosNativeSampler) {
         final bytes = await NativePreviewFrameService.instance.latestJpeg();
-        if (!mounted) {
+        if (!mounted || _isGuidedUserInteracting()) {
           return;
         }
         if (bytes == null || bytes.isEmpty) {
@@ -268,7 +302,10 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         if (_androidFrameSource.usesImageStream) {
           final frame = _androidFrameSource.consumeLatest();
           if (frame == null) {
-            _scheduleNextTick(const Duration(milliseconds: 400));
+            _scheduleNextTick(const Duration(milliseconds: 500));
+            return;
+          }
+          if (!mounted || _isGuidedUserInteracting()) {
             return;
           }
           _lastCapture = now;
@@ -287,6 +324,9 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
             _scheduleNextTick(_captureInterval);
             return;
           }
+          if (_isGuidedUserInteracting()) {
+            return;
+          }
           _lastCapture = now;
           result = await service.evaluatePreviewFrame(
             bytes: bytes,
@@ -301,12 +341,10 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
         return;
       }
 
-      _publishIfNeeded(result);
+      _publishIfNeeded(result, DateTime.now());
     } finally {
       _tickInFlight = false;
-      if (mounted) {
-        _scheduleNextTick(_captureInterval);
-      }
+      _scheduleAfterTick();
     }
   }
 
@@ -314,6 +352,12 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   Widget build(BuildContext context) {
     ref.listen<bool>(poseCoachingShouldRunProvider, (_, __) {
       _syncLoop();
+    });
+
+    ref.listen<DateTime?>(guidedUserActivityProvider, (previous, next) {
+      if (next != null && next != previous) {
+        _deferForUserActivity();
+      }
     });
 
     ref.listen<AsyncValue<DeviceAttitude>>(

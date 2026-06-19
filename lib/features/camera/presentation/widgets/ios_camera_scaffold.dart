@@ -77,6 +77,9 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
   bool get _isFreeShootMode =>
       widget.shootSessionMode == ShootSessionMode.free;
 
+  bool get _isGuidedMode =>
+      widget.shootSessionMode == ShootSessionMode.guided;
+
   Future<void> _analyzeLiveScene(BuildContext context) async {
     final l10n = AppLocalizations.of(context)!;
     final previous = ref.read(liveSceneAnalysisProvider).value;
@@ -245,11 +248,19 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
             const IosCameraFlashLayer(),
             const IosCameraCountdownLayer(),
             IosCameraAnalyzingLayer(enabled: _isFreeShootMode),
-            IosCameraTopBarLayer(
-              onClose: () => _handleClose(context),
-              centerLabel: widget.centerTopLabel,
-            ),
-            const IosCameraHistogramLayer(),
+            if (_isGuidedMode)
+              IosCameraGuidedTopBarLayer(
+                onClose: () {
+                  markGuidedUserActivity(ref);
+                  unawaited(_handleClose(context));
+                },
+              )
+            else
+              IosCameraTopBarLayer(
+                onClose: () => _handleClose(context),
+                centerLabel: widget.centerTopLabel,
+              ),
+            if (!_isGuidedMode) const IosCameraHistogramLayer(),
             IosCameraAngleGuidanceLayer(enabled: _isFreeShootMode),
             LiveSceneAnalyzeButtonLayer(
               enabled: _isFreeShootMode,

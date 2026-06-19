@@ -26,6 +26,7 @@ import '../providers/camera_mode_settings_provider.dart';
 import '../providers/camera_providers.dart';
 import '../providers/camera_settings_provider.dart';
 import 'widgets/guided_overlay_tools_sheet.dart';
+import 'widgets/guided_toggle_button.dart';
 import 'widgets/camera_error_view.dart';
 import 'widgets/camera_mode_scope.dart';
 import 'widgets/camera_session_lifecycle.dart';
@@ -192,9 +193,21 @@ class _GuidedToolbar extends ConsumerWidget {
           top: top,
           child: Column(
             children: [
-              _GuidedGridToggleButton(tooltip: l10n.toggleOverlay),
+              GuidedOptimisticToggleButton(
+                visibleProvider: guidedCompositionVisibleProvider,
+                onIcon: Icons.grid_on_rounded,
+                offIcon: Icons.grid_off_rounded,
+                tooltip: l10n.toggleOverlay,
+                onToggle: toggleGuidedCompositionVisible,
+              ),
               const SizedBox(height: 8),
-              _GuidedFrameToggleButton(tooltip: l10n.toggleFrame),
+              GuidedOptimisticToggleButton(
+                visibleProvider: guidedFrameVisibleProvider,
+                onIcon: Icons.crop_free_rounded,
+                offIcon: Icons.crop_free_outlined,
+                tooltip: l10n.toggleFrame,
+                onToggle: toggleGuidedFrameVisible,
+              ),
               const SizedBox(height: 8),
               AppCameraToolButton(
                 icon: Icons.layers_outlined,
@@ -245,38 +258,6 @@ class _GuidedTemplateChip extends StatelessWidget {
   }
 }
 
-class _GuidedGridToggleButton extends ConsumerWidget {
-  const _GuidedGridToggleButton({required this.tooltip});
-
-  final String tooltip;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final visible = ref.watch(guidedCompositionVisibleProvider);
-    return AppCameraToolButton(
-      icon: visible ? Icons.grid_on_rounded : Icons.grid_off_rounded,
-      tooltip: tooltip,
-      onTap: () => toggleGuidedCompositionVisible(ref),
-    );
-  }
-}
-
-class _GuidedFrameToggleButton extends ConsumerWidget {
-  const _GuidedFrameToggleButton({required this.tooltip});
-
-  final String tooltip;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final visible = ref.watch(guidedFrameVisibleProvider);
-    return AppCameraToolButton(
-      icon: visible ? Icons.crop_free_rounded : Icons.crop_free_outlined,
-      tooltip: tooltip,
-      onTap: () => toggleGuidedFrameVisible(ref),
-    );
-  }
-}
-
 class _PoseCoachingChip extends ConsumerWidget {
   const _PoseCoachingChip();
 
@@ -305,16 +286,18 @@ class _PoseCoachingChip extends ConsumerWidget {
       coaching: fullCoaching,
     );
 
-    return AppCoachPill(
-      message: resolvePoseCoachingMessage(
-        l10n: l10n,
-        stability: stability,
-        coaching: fullCoaching,
+    return RepaintBoundary(
+      child: AppCoachPillLite(
+        message: resolvePoseCoachingMessage(
+          l10n: l10n,
+          stability: stability,
+          coaching: fullCoaching,
+        ),
+        icon: aligned
+            ? Icons.check_circle_outline_rounded
+            : Icons.accessibility_outlined,
+        maxLines: 2,
       ),
-      icon: aligned
-          ? Icons.check_circle_outline_rounded
-          : Icons.accessibility_new_rounded,
-      maxLines: 2,
     );
   }
 }

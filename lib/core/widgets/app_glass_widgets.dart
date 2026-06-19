@@ -45,6 +45,52 @@ class AppGlassSurface extends StatelessWidget {
   }
 }
 
+/// Solid coaching pill for camera overlays — no backdrop blur (GPU friendly).
+class AppCoachPillLite extends StatelessWidget {
+  const AppCoachPillLite({
+    super.key,
+    required this.message,
+    this.icon = Icons.lightbulb_outline_rounded,
+    this.maxLines = 1,
+  });
+
+  final String message;
+  final IconData icon;
+  final int maxLines;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.58),
+        borderRadius: BorderRadius.circular(AppDesignTokens.radiusPill),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          children: [
+            Icon(icon, color: AppTheme.coach, size: 16),
+            const SizedBox(width: AppDesignTokens.spaceSm),
+            Expanded(
+              child: Text(
+                message,
+                maxLines: maxLines,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppDesignTokens.textPrimary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.1,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Single-line coaching hint pill (teal accent, not yellow).
 class AppCoachPill extends StatelessWidget {
   const AppCoachPill({

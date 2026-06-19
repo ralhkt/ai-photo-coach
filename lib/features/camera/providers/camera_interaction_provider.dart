@@ -10,7 +10,7 @@ const cameraUiInteractionPause = Duration(seconds: 2);
 /// Last guided-mode UI tap — ML yields until this cools down.
 final guidedUserActivityProvider = StateProvider<DateTime?>((ref) => null);
 
-const guidedMlIdleAfterInteraction = Duration(milliseconds: 2500);
+const guidedMlIdleAfterInteraction = Duration(milliseconds: 4500);
 
 /// Brief UI-busy gate — pauses background ML while chrome is tapped.
 final cameraChromeBusyProvider =

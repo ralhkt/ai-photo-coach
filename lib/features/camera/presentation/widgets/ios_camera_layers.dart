@@ -22,6 +22,7 @@ import 'angle_guidance_overlay.dart';
 import 'ios_camera_grid_overlay.dart';
 import 'ios_camera_preview.dart';
 import 'ios_camera_top_bar.dart';
+import 'ios_camera_ui_kit.dart';
 import 'ios_countdown_overlay.dart';
 import 'ios_histogram_overlay.dart';
 import 'letterboxed_camera_viewport.dart';
@@ -125,6 +126,42 @@ class IosCameraCountdownLayer extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     return IosCountdownOverlay(seconds: countdown);
+  }
+}
+
+/// Guided mode — close button only (no format/flash rebuild cascade).
+class IosCameraGuidedTopBarLayer extends StatelessWidget {
+  const IosCameraGuidedTopBarLayer({
+    super.key,
+    required this.onClose,
+  });
+
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        bottom: false,
+        child: SizedBox(
+          height: IosCameraUiKit.topBarHeight,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: IosCameraTopIconButton(
+                icon: Icons.keyboard_arrow_down_rounded,
+                onTap: onClose,
+                size: 26,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
