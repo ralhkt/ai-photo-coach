@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/utils/coaching_guidance_helper.dart';
 import '../../../../core/utils/pose_coaching_hint.dart';
+import '../../../pose/providers/pose_coaching_provider.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../frames/presentation/photo_frame_overlay.dart';
 import '../../../frames/presentation/poze_wireframe_style.dart';
@@ -29,7 +30,11 @@ class LiveSceneGuidanceFrameOverlay extends ConsumerWidget {
     );
     final ghostBytes = analysis.matchedReferenceImageBytes;
     final stability = ref.watch(sceneStabilityProvider);
-    final poseAligned = isPoseAligned(stability);
+    final coaching = ref.watch(poseCoachingResultProvider);
+    final poseAligned = isPoseCoachingAligned(
+      stability: stability,
+      coaching: coaching,
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {

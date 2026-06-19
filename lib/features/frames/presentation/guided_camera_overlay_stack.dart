@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/guidance_text.dart';
 import '../../../core/utils/pose_coaching_hint.dart';
+import '../../pose/providers/pose_coaching_provider.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../models/body_part_labels.dart';
 import '../../../models/camera_guidance.dart';
@@ -158,6 +159,7 @@ class _FrameOverlayLayer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bodyPartsVisible = ref.watch(bodyPartGuidesVisibleProvider);
     final stability = ref.watch(sceneStabilityProvider);
+    final coaching = ref.watch(poseCoachingResultProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return PhotoFrameOverlay(
@@ -167,7 +169,10 @@ class _FrameOverlayLayer extends ConsumerWidget {
       bodyPartLabels: partLabels,
       showBodyParts: bodyPartsVisible,
       minimalPozeStyle: !bodyPartsVisible,
-      poseAligned: isPoseAligned(stability),
+      poseAligned: isPoseCoachingAligned(
+        stability: stability,
+        coaching: coaching,
+      ),
     );
   }
 }

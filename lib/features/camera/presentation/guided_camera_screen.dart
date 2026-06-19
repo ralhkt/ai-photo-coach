@@ -7,6 +7,7 @@ import '../../../core/widgets/app_glass_widgets.dart';
 import '../../../core/utils/coaching_guidance_helper.dart';
 import '../../../core/utils/guidance_text.dart';
 import '../../../core/utils/pose_coaching_hint.dart';
+import '../../pose/providers/pose_coaching_provider.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
 
 import '../../../models/camera_aspect_ratio.dart';
@@ -179,11 +180,22 @@ class _PoseCoachingChip extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final stability = ref.watch(sceneStabilityProvider);
-    final aligned = isPoseAligned(stability);
+    final coaching = ref.watch(poseCoachingResultProvider);
+    final aligned = isPoseCoachingAligned(
+      stability: stability,
+      coaching: coaching,
+    );
 
     return AppCoachPill(
-      message: poseCoachingHint(l10n, stability),
-      icon: aligned ? Icons.check_circle_outline_rounded : Icons.accessibility_new_rounded,
+      message: resolvePoseCoachingMessage(
+        l10n: l10n,
+        stability: stability,
+        coaching: coaching,
+      ),
+      icon: aligned
+          ? Icons.check_circle_outline_rounded
+          : Icons.accessibility_new_rounded,
+      maxLines: 2,
     );
   }
 }

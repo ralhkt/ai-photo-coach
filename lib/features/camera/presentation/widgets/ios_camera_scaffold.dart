@@ -7,6 +7,9 @@ import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/services/voice_guidance_service.dart';
 import '../../../../core/settings/app_settings_provider.dart';
 import '../../../../core/utils/guidance_text.dart';
+import '../../../../core/utils/pose_coaching_hint.dart';
+import '../../../../core/widgets/app_glass_widgets.dart';
+import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../../models/camera_timer_duration.dart';
 import '../../../../models/captured_photo.dart';
 import '../../../../models/shoot_session.dart';
@@ -17,6 +20,7 @@ import '../../providers/camera_mode_settings_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
+import '../../../pose/providers/pose_coaching_provider.dart';
 import '../burst_review_screen.dart';
 import '../photo_review_screen.dart';
 import 'ios_camera_bottom_bar.dart';
@@ -268,6 +272,16 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
               height: guidedHintHeight,
               child: widget.guidanceChip!,
             ),
+          )
+        else if (_isFreeShootMode && ref.watch(poseCoachingShouldRunProvider))
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: bottomChromeHeight + bottomInset + 8,
+            child: const SizedBox(
+              height: guidedHintHeight,
+              child: _LivePoseCoachingChip(),
+            ),
           ),
         Positioned(
           left: 0,
@@ -423,6 +437,33 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
           isFromGallery: true,
         ),
       ),
+    );
+  }
+}
+
+class _LivePoseCoachingChip extends ConsumerWidget {
+  const _LivePoseCoachingChip();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final stability = ref.watch(sceneStabilityProvider);
+    final coaching = ref.watch(poseCoachingResultProvider);
+    final aligned = isPoseCoachingAligned(
+      stability: stability,
+      coaching: coaching,
+    );
+
+    return AppCoachPill(
+      message: resolvePoseCoachingMessage(
+        l10n: l10n,
+        stability: stability,
+        coaching: coaching,
+      ),
+      icon: aligned
+          ? Icons.check_circle_outline_rounded
+          : Icons.accessibility_new_rounded,
+      maxLines: 2,
     );
   }
 }

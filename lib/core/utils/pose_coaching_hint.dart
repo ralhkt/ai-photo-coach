@@ -1,4 +1,5 @@
 import '../l10n/generated/app_localizations.dart';
+import '../../features/pose/models/pose_coaching_result.dart';
 import '../../features/scene_stabilization/providers/scene_stability_provider.dart';
 
 /// Dynamic Poze-style coaching copy for the camera hint pill.
@@ -16,4 +17,29 @@ String poseCoachingHint(
 
 bool isPoseAligned(SceneStabilityStatus stability) {
   return stability.state == SceneStabilityState.stable;
+}
+
+/// Prefers live pose coaching output; falls back to scene-stability copy.
+String resolvePoseCoachingMessage({
+  required AppLocalizations l10n,
+  required SceneStabilityStatus stability,
+  PoseCoachingResult? coaching,
+}) {
+  if (coaching != null && coaching.combinedGuidance.isNotEmpty) {
+    return coaching.combinedGuidance;
+  }
+  return poseCoachingHint(l10n, stability);
+}
+
+/// True when proportion, level, and template pose all pass (or scene is stable).
+bool isPoseCoachingAligned({
+  required SceneStabilityStatus stability,
+  PoseCoachingResult? coaching,
+}) {
+  if (coaching != null) {
+    return coaching.isLevel &&
+        coaching.proportionStatus == 'OK' &&
+        coaching.poseMatched;
+  }
+  return isPoseAligned(stability);
 }

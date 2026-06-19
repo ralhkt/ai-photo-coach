@@ -8,6 +8,7 @@ import '../../../../models/shoot_session.dart';
 import '../../../ar/providers/ar_providers.dart';
 import '../../../scene_stabilization/services/camera_frame_monitor.dart';
 import '../../../session/providers/shoot_session_provider.dart';
+import 'pose_coaching_lifecycle.dart';
 
 /// Starts/stops Phase 2 AR session + pHash scene monitor with camera lifecycle.
 class CameraSessionLifecycle extends ConsumerStatefulWidget {
@@ -125,5 +126,12 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        widget.child,
+        const PoseCoachingLifecycle(),
+      ],
+    );
+  }
 }
