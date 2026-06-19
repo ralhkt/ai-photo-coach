@@ -6,7 +6,7 @@
 **Repo：** https://github.com/ralhkt/ai-photo-coach  
 **本地路徑：** `/Users/Personal/Documents/Photographer`  
 **最新 commit：** `eec267e`（`main` 已 push）  
-**測試：** 125 項全過
+**測試：** 126 項全過
 
 ---
 
@@ -55,6 +55,11 @@
 - [x] `PhotoFramePainter` — 依 `alignmentScore` 動態 stroke/glow
 - [x] 引導相機 overlay 傳入 `coaching?.poseScore`
 - [x] `ContourSmoother.resampleClosedContour` — RDP 後補點至平滑曲線
+
+### 相機畫質修正（最新）
+- [x] iOS 預覽由 `ResolutionPreset.low`（~352×288）改為 `ResolutionPreset.max`
+- [x] iOS 像素格式改為 `ImageFormatGroup.bgra8888`（原生預覽管線）
+- [x] ML 姿態教練仍內部降頻至 480px，不影響預覽清晰度
 
 ### 部署
 - [x] iPhone release 安裝（裝置 `00008130-001A01610AA0001C`）

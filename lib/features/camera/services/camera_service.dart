@@ -4,6 +4,8 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../core/constants/camera_constants.dart';
+
 class CameraService {
   CameraController? _controller;
 
@@ -75,15 +77,11 @@ class CameraService {
     CameraDescription camera, {
     required FlashMode flashMode,
   }) async {
-    final preset = !kIsWeb && Platform.isIOS
-        ? ResolutionPreset.low
-        : ResolutionPreset.high;
-
     final controller = CameraController(
       camera,
-      preset,
+      CameraConstants.previewResolution,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.jpeg,
+      imageFormatGroup: _preferredImageFormat(),
     );
 
     await controller.initialize();
@@ -98,6 +96,19 @@ class CameraService {
 
     _controller = controller;
     return controller;
+  }
+
+  static ImageFormatGroup _preferredImageFormat() {
+    if (kIsWeb) {
+      return ImageFormatGroup.jpeg;
+    }
+    if (Platform.isIOS) {
+      return ImageFormatGroup.bgra8888;
+    }
+    if (Platform.isAndroid) {
+      return ImageFormatGroup.yuv420;
+    }
+    return ImageFormatGroup.jpeg;
   }
 
   Future<void> dispose() async {
