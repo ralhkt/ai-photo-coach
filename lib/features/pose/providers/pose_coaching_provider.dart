@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/settings/app_settings_provider.dart';
 import '../../../models/shoot_session.dart';
 import '../../reference/services/reference_photo_pose_analyzer.dart';
-import '../../camera/providers/live_scene_analysis_provider.dart';
 import '../../session/providers/shoot_session_provider.dart';
 import '../data/trendy_template_catalog.dart';
 import '../models/pose_coaching_result.dart';
@@ -49,27 +48,21 @@ void loadReferencePoseTemplate(Ref ref, ReferencePoseAnalysis? pose) {
 /// Whether the background pose coaching loop should run.
 bool shouldRunPoseCoaching({
   required ShootSession? session,
-  required bool hasLiveSceneAnalysis,
   required bool powerSaveEnabled,
 }) {
   if (powerSaveEnabled) {
     return false;
   }
 
-  if (session?.mode == ShootSessionMode.guided) {
-    return true;
-  }
-
-  return hasLiveSceneAnalysis;
+  // Only guided mode runs the background capture loop — photo mode must stay fluid.
+  return session?.mode == ShootSessionMode.guided;
 }
 
 final poseCoachingShouldRunProvider = Provider<bool>((ref) {
   final session = ref.watch(shootSessionProvider);
-  final hasLiveAdvice = ref.watch(liveSceneAnalysisProvider).value != null;
   final powerSave = ref.watch(powerSaveEnabledProvider);
   return shouldRunPoseCoaching(
     session: session,
-    hasLiveSceneAnalysis: hasLiveAdvice,
     powerSaveEnabled: powerSave,
   );
 });

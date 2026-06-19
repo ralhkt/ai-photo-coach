@@ -15,6 +15,7 @@ import '../../../models/camera_timer_duration.dart';
 import '../../../models/captured_photo.dart';
 import '../../../models/focus_indicator_state.dart';
 import '../../scene_stabilization/services/camera_frame_monitor.dart';
+import '../models/preview_capture_request.dart';
 import '../services/camera_service.dart';
 import 'camera_capture_provider.dart';
 import 'camera_interaction_provider.dart';
@@ -295,7 +296,9 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
   }
 
   /// Captures the current preview frame for on-device analysis (no gallery save).
-  Future<Uint8List?> capturePreviewFrame() async {
+  Future<Uint8List?> capturePreviewFrame([
+    PreviewCaptureRequest request = const PreviewCaptureRequest(),
+  ]) async {
     if (ref.read(isCameraUiInteractionPausedProvider)) {
       return null;
     }
@@ -304,6 +307,7 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     if (controller == null ||
         !controller.value.isInitialized ||
         controller.value.isTakingPicture ||
+        controller.value.isStreamingImages ||
         ref.read(cameraSwitchingProvider)) {
       return null;
     }
@@ -312,16 +316,21 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
       final savedFlash = ref.read(flashModeProvider);
       ref.read(isPreviewSamplingProvider.notifier).state = true;
       try {
-        await controller.setFlashMode(FlashMode.off);
-
-        if (!kIsWeb && Platform.isIOS) {
-          await Future<void>.delayed(const Duration(milliseconds: 40));
+        if (!request.lightweight || savedFlash != FlashMode.off) {
+          try {
+            await controller.setFlashMode(FlashMode.off);
+          } catch (_) {}
         }
 
-        try {
-          await controller.setFocusMode(FocusMode.auto);
-          await controller.setExposureMode(ExposureMode.auto);
-        } catch (_) {}
+        if (!request.lightweight) {
+          if (!kIsWeb && Platform.isIOS) {
+            await Future<void>.delayed(const Duration(milliseconds: 40));
+          }
+          try {
+            await controller.setFocusMode(FocusMode.auto);
+            await controller.setExposureMode(ExposureMode.auto);
+          } catch (_) {}
+        }
 
         const maxAttempts = 2;
         for (var attempt = 0; attempt < maxAttempts; attempt++) {
@@ -336,7 +345,11 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
                   await File(file.path).delete();
                 } catch (_) {}
               }
-              return ImageDownscaler.downscale(bytes, maxSide: 720, jpegQuality: 78);
+              return ImageDownscaler.downscaleAsync(
+                bytes,
+                maxSide: request.maxSide,
+                jpegQuality: 76,
+              );
             }
           } catch (error) {
             debugPrint(
@@ -351,9 +364,11 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
         }
         return null;
       } finally {
-        try {
-          await controller.setFlashMode(savedFlash);
-        } catch (_) {}
+        if (!request.lightweight || savedFlash != FlashMode.off) {
+          try {
+            await controller.setFlashMode(savedFlash);
+          } catch (_) {}
+        }
         ref.read(isPreviewSamplingProvider.notifier).state = false;
       }
     });

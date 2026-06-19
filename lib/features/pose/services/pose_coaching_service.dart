@@ -1,4 +1,8 @@
+import 'dart:ui';
+
+import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
+import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:google_mlkit_pose_detection/google_mlkit_pose_detection.dart';
 import 'package:image/image.dart' as img;
 
@@ -47,6 +51,30 @@ class PoseCoachingService {
     return !_coordinator.isThrottled(now ?? DateTime.now());
   }
 
+  /// Runs pose inference on a live BGRA camera frame (iOS image stream path).
+  Future<PoseCoachingResult?> evaluateCameraImage({
+    required CameraImage image,
+    required int sensorOrientation,
+    required double rollAngle,
+    TrendyPhotoTemplate? trendyTemplate,
+    DateTime? now,
+  }) async {
+    final timestamp = now ?? DateTime.now();
+    if (_coordinator.isThrottled(timestamp)) {
+      return null;
+    }
+
+    final input = _inputFromCameraImage(image, sensorOrientation);
+    return _evaluateInputImage(
+      input: input,
+      imageWidth: image.width,
+      imageHeight: image.height,
+      rollAngle: rollAngle,
+      trendyTemplate: trendyTemplate,
+      timestamp: timestamp,
+    );
+  }
+
   /// Decodes a JPEG/PNG preview frame, detects pose, returns throttled coaching.
   Future<PoseCoachingResult?> evaluatePreviewFrame({
     required Uint8List bytes,
@@ -66,7 +94,40 @@ class PoseCoachingService {
 
     final mlImage = _downscaleForMl(decoded);
     final input = MlInputImageHelper.fromDecodedImage(mlImage);
+    return _evaluateInputImage(
+      input: input,
+      imageWidth: mlImage.width,
+      imageHeight: mlImage.height,
+      rollAngle: rollAngle,
+      trendyTemplate: trendyTemplate,
+      timestamp: timestamp,
+    );
+  }
 
+  InputImage _inputFromCameraImage(CameraImage image, int sensorOrientation) {
+    final plane = image.planes.first;
+    final rotation = InputImageRotationValue.fromRawValue(sensorOrientation) ??
+        InputImageRotation.rotation0deg;
+
+    return InputImage.fromBytes(
+      bytes: plane.bytes,
+      metadata: InputImageMetadata(
+        size: Size(image.width.toDouble(), image.height.toDouble()),
+        rotation: rotation,
+        format: InputImageFormat.bgra8888,
+        bytesPerRow: plane.bytesPerRow,
+      ),
+    );
+  }
+
+  Future<PoseCoachingResult?> _evaluateInputImage({
+    required InputImage input,
+    required int imageWidth,
+    required int imageHeight,
+    required double rollAngle,
+    TrendyPhotoTemplate? trendyTemplate,
+    required DateTime timestamp,
+  }) async {
     List<Pose> poses;
     try {
       poses = await _poseDetector.processImage(input);
@@ -78,15 +139,15 @@ class PoseCoachingService {
 
     final pose = _subjectTracker.selectPrimary(
       poses,
-      imageWidth: mlImage.width,
-      imageHeight: mlImage.height,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
     );
 
     if (pose == null) {
       return _coordinator.evaluateFromPose(
         pose: null,
-        imageWidth: mlImage.width,
-        imageHeight: mlImage.height,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
         rollAngle: rollAngle,
         trendyTemplate: trendyTemplate,
         now: timestamp,
@@ -95,15 +156,15 @@ class PoseCoachingService {
 
     final rawLandmarks = PoseLandmarkUtils.poseToNormalizedMap(
       pose,
-      imageWidth: mlImage.width,
-      imageHeight: mlImage.height,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
     );
     final smoothed = _jointSmoother.smooth(rawLandmarks);
 
     return _coordinator.evaluateFromLandmarks(
       landmarks: smoothed,
-      imageWidth: mlImage.width,
-      imageHeight: mlImage.height,
+      imageWidth: imageWidth,
+      imageHeight: imageHeight,
       rollAngle: rollAngle,
       trendyTemplate: trendyTemplate,
       now: timestamp,

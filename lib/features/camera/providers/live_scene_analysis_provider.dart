@@ -11,6 +11,7 @@ import '../../../models/photo_analysis_result.dart';
 import '../../overlays/providers/overlay_providers.dart';
 import '../../reference/providers/reference_providers.dart';
 import '../../scene_stabilization/providers/scene_stability_provider.dart';
+import '../models/preview_capture_request.dart';
 import 'camera_capture_provider.dart';
 import 'camera_interaction_provider.dart';
 import 'camera_providers.dart';
@@ -118,7 +119,9 @@ class LiveSceneAnalysisNotifier
       }
 
       final bytes =
-          await ref.read(cameraControllerProvider.notifier).capturePreviewFrame();
+          await ref
+              .read(cameraControllerProvider.notifier)
+              .capturePreviewFrame(const PreviewCaptureRequest());
 
       if (bytes == null || bytes.isEmpty) {
         throw LiveSceneAnalysisException(

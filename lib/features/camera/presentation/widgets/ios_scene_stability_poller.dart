@@ -10,6 +10,7 @@ import '../../../../core/settings/app_settings_provider.dart';
 import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../scene_stabilization/services/scene_change_detector.dart';
 import '../../../../models/shoot_session.dart';
+import '../../models/preview_capture_request.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_providers.dart';
@@ -37,7 +38,7 @@ class _IosSceneStabilityPollerState extends ConsumerState<IosSceneStabilityPolle
   void initState() {
     super.initState();
     if (!kIsWeb && Platform.isIOS) {
-      _timer = Timer.periodic(const Duration(milliseconds: 3200), (_) {
+      _timer = Timer.periodic(const Duration(milliseconds: 5000), (_) {
         unawaited(_tick());
       });
     }
@@ -96,8 +97,9 @@ class _IosSceneStabilityPollerState extends ConsumerState<IosSceneStabilityPolle
 
     _tickInFlight = true;
     try {
-      final bytes =
-          await ref.read(cameraControllerProvider.notifier).capturePreviewFrame();
+      final bytes = await ref
+          .read(cameraControllerProvider.notifier)
+          .capturePreviewFrame(PreviewCaptureRequest.scene);
       if (!mounted || bytes == null || bytes.isEmpty) {
         return;
       }

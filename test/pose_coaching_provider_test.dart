@@ -19,14 +19,13 @@ void main() {
             startedAt: DateTime(2026),
             captures: const [],
           ),
-          hasLiveSceneAnalysis: false,
           powerSaveEnabled: false,
         ),
         isTrue,
       );
     });
 
-    test('runs in free mode when live scene analysis is active', () {
+    test('does not run in free mode even with live scene analysis', () {
       expect(
         shouldRunPoseCoaching(
           session: ShootSession(
@@ -35,10 +34,9 @@ void main() {
             startedAt: DateTime(2026),
             captures: const [],
           ),
-          hasLiveSceneAnalysis: true,
           powerSaveEnabled: false,
         ),
-        isTrue,
+        isFalse,
       );
     });
 
@@ -51,7 +49,6 @@ void main() {
             startedAt: DateTime(2026),
             captures: const [],
           ),
-          hasLiveSceneAnalysis: true,
           powerSaveEnabled: true,
         ),
         isFalse,
