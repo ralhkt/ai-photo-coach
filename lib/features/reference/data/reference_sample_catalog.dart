@@ -20,7 +20,7 @@ class ReferenceSample {
 }
 
 const referenceSampleCatalog = <ReferenceSample>[
-  // pexels:7968332 — cheerful Asian woman café selfie
+  // pexels:5709520 — Asian woman café standing selfie
   ReferenceSample(
     id: 'checkin_cafe',
     assetPath: 'assets/reference_samples/checkin_cafe.jpg',
@@ -28,7 +28,7 @@ const referenceSampleCatalog = <ReferenceSample>[
     titleKey: 'referenceSampleCheckinCafe',
     subtitleKey: 'referenceSampleCheckinCafeHint',
   ),
-  // pexels:3760850 — neon night mood portrait
+  // pexels:19461244 — neon night street portrait
   ReferenceSample(
     id: 'checkin_neon_city',
     assetPath: 'assets/reference_samples/checkin_neon_city.jpg',
@@ -36,7 +36,7 @@ const referenceSampleCatalog = <ReferenceSample>[
     titleKey: 'referenceSampleCheckinNeon',
     subtitleKey: 'referenceSampleCheckinNeonHint',
   ),
-  // pexels:8788701 — mirror OOTD full-body selfie
+  // pexels:8989509 — boutique mirror full-body OOTD
   ReferenceSample(
     id: 'checkin_street_portrait',
     assetPath: 'assets/reference_samples/checkin_street_portrait.jpg',
@@ -52,7 +52,7 @@ const referenceSampleCatalog = <ReferenceSample>[
     titleKey: 'referenceSampleCheckinBrunch',
     subtitleKey: 'referenceSampleCheckinBrunchHint',
   ),
-  // pexels:1557802 — woman scenic mountain vista
+  // pexels:1271619 — hiker overlooking mountain vista
   ReferenceSample(
     id: 'checkin_travel_alps',
     assetPath: 'assets/reference_samples/checkin_travel_alps.jpg',
@@ -60,7 +60,7 @@ const referenceSampleCatalog = <ReferenceSample>[
     titleKey: 'referenceSampleCheckinTravel',
     subtitleKey: 'referenceSampleCheckinTravelHint',
   ),
-  // pexels:2671078 — beach sunset mood portrait
+  // pexels:2486169 — beach sunset backlit silhouette
   ReferenceSample(
     id: 'checkin_beach_sunset',
     assetPath: 'assets/reference_samples/checkin_beach_sunset.jpg',

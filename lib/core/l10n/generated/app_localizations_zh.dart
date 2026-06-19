@@ -147,22 +147,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get uploadOwnPhotoSection => '上传相片';
 
   @override
-  String get referenceSampleCheckinCafe => '咖啡厅人像';
+  String get referenceSampleCheckinCafe => '咖啡厅自拍';
 
   @override
-  String get referenceSampleCheckinCafeHint => '室内自然光，半身构图';
+  String get referenceSampleCheckinCafeHint => '暖色吊灯，站姿自拍';
 
   @override
-  String get referenceSampleCheckinNeon => '霓虹夜景';
+  String get referenceSampleCheckinNeon => '霓虹街拍';
 
   @override
-  String get referenceSampleCheckinNeonHint => '低光源，侧光人像';
+  String get referenceSampleCheckinNeonHint => '夜景侧光，招牌氛围';
 
   @override
-  String get referenceSampleCheckinPortrait => '镜面全身';
+  String get referenceSampleCheckinPortrait => '镜前穿搭';
 
   @override
-  String get referenceSampleCheckinPortraitHint => '垂直构图，全身展示';
+  String get referenceSampleCheckinPortraitHint => '全身镜，试衣间自然光';
 
   @override
   String get referenceSampleCheckinBrunch => '窗边座位';
@@ -171,16 +171,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get referenceSampleCheckinBrunchHint => '柔和侧光，坐姿人像';
 
   @override
-  String get referenceSampleCheckinTravel => '山景人像';
+  String get referenceSampleCheckinTravel => '山顶远眺';
 
   @override
-  String get referenceSampleCheckinTravelHint => '开阔背景，远景构图';
+  String get referenceSampleCheckinTravelHint => '人小景大，登山背影';
 
   @override
   String get referenceSampleCheckinBeach => '海边日落';
 
   @override
-  String get referenceSampleCheckinBeachHint => '逆光剪影，低角度';
+  String get referenceSampleCheckinBeachHint => '背影剪影，海岸岩石';
 
   @override
   String get analyzingImage => '正在分析图片...';
@@ -1197,22 +1197,22 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get uploadOwnPhotoSection => '上傳相片';
 
   @override
-  String get referenceSampleCheckinCafe => '咖啡廳人像';
+  String get referenceSampleCheckinCafe => '咖啡廳自拍';
 
   @override
-  String get referenceSampleCheckinCafeHint => '室內自然光，半身構圖';
+  String get referenceSampleCheckinCafeHint => '暖色吊燈，站姿自拍';
 
   @override
-  String get referenceSampleCheckinNeon => '霓虹夜景';
+  String get referenceSampleCheckinNeon => '霓虹街拍';
 
   @override
-  String get referenceSampleCheckinNeonHint => '低光源，側光人像';
+  String get referenceSampleCheckinNeonHint => '夜景側光，招牌氛圍';
 
   @override
-  String get referenceSampleCheckinPortrait => '鏡面全身';
+  String get referenceSampleCheckinPortrait => '鏡前穿搭';
 
   @override
-  String get referenceSampleCheckinPortraitHint => '垂直構圖，全身展示';
+  String get referenceSampleCheckinPortraitHint => '全身鏡，試衣間自然光';
 
   @override
   String get referenceSampleCheckinBrunch => '窗邊座位';
@@ -1221,16 +1221,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get referenceSampleCheckinBrunchHint => '柔和側光，坐姿人像';
 
   @override
-  String get referenceSampleCheckinTravel => '山景人像';
+  String get referenceSampleCheckinTravel => '山頂遠眺';
 
   @override
-  String get referenceSampleCheckinTravelHint => '開闊背景，遠景構圖';
+  String get referenceSampleCheckinTravelHint => '人小景大，登山背影';
 
   @override
   String get referenceSampleCheckinBeach => '海邊日落';
 
   @override
-  String get referenceSampleCheckinBeachHint => '逆光剪影，低角度';
+  String get referenceSampleCheckinBeachHint => '背影剪影，海岸岩石';
 
   @override
   String get analyzingImage => '正在分析圖片...';

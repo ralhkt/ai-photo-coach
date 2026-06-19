@@ -151,23 +151,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get uploadOwnPhotoSection => 'Upload a photo';
 
   @override
-  String get referenceSampleCheckinCafe => 'Café portrait';
+  String get referenceSampleCheckinCafe => 'Café selfie';
 
   @override
   String get referenceSampleCheckinCafeHint =>
-      'Indoor light, half-length framing';
+      'Warm pendant lamp, standing pose';
 
   @override
-  String get referenceSampleCheckinNeon => 'Neon night';
+  String get referenceSampleCheckinNeon => 'Neon street';
 
   @override
-  String get referenceSampleCheckinNeonHint => 'Low light, side-lit portrait';
+  String get referenceSampleCheckinNeonHint => 'Night side light, sign glow';
 
   @override
-  String get referenceSampleCheckinPortrait => 'Mirror full-length';
+  String get referenceSampleCheckinPortrait => 'Mirror OOTD';
 
   @override
-  String get referenceSampleCheckinPortraitHint => 'Vertical frame, full-body';
+  String get referenceSampleCheckinPortraitHint =>
+      'Full-length mirror, fitting room';
 
   @override
   String get referenceSampleCheckinBrunch => 'Window seat';
@@ -176,17 +177,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get referenceSampleCheckinBrunchHint => 'Soft side light, seated pose';
 
   @override
-  String get referenceSampleCheckinTravel => 'Mountain vista';
+  String get referenceSampleCheckinTravel => 'Summit view';
 
   @override
   String get referenceSampleCheckinTravelHint =>
-      'Open background, scenic depth';
+      'Small figure, hiking back view';
 
   @override
   String get referenceSampleCheckinBeach => 'Beach sunset';
 
   @override
-  String get referenceSampleCheckinBeachHint => 'Backlit silhouette, low angle';
+  String get referenceSampleCheckinBeachHint => 'Back silhouette, rocky shore';
 
   @override
   String get analyzingImage => 'Analyzing image...';

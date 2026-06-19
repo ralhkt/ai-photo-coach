@@ -378,37 +378,37 @@ abstract class AppLocalizations {
   /// No description provided for @referenceSampleCheckinCafe.
   ///
   /// In en, this message translates to:
-  /// **'Café portrait'**
+  /// **'Café selfie'**
   String get referenceSampleCheckinCafe;
 
   /// No description provided for @referenceSampleCheckinCafeHint.
   ///
   /// In en, this message translates to:
-  /// **'Indoor light, half-length framing'**
+  /// **'Warm pendant lamp, standing pose'**
   String get referenceSampleCheckinCafeHint;
 
   /// No description provided for @referenceSampleCheckinNeon.
   ///
   /// In en, this message translates to:
-  /// **'Neon night'**
+  /// **'Neon street'**
   String get referenceSampleCheckinNeon;
 
   /// No description provided for @referenceSampleCheckinNeonHint.
   ///
   /// In en, this message translates to:
-  /// **'Low light, side-lit portrait'**
+  /// **'Night side light, sign glow'**
   String get referenceSampleCheckinNeonHint;
 
   /// No description provided for @referenceSampleCheckinPortrait.
   ///
   /// In en, this message translates to:
-  /// **'Mirror full-length'**
+  /// **'Mirror OOTD'**
   String get referenceSampleCheckinPortrait;
 
   /// No description provided for @referenceSampleCheckinPortraitHint.
   ///
   /// In en, this message translates to:
-  /// **'Vertical frame, full-body'**
+  /// **'Full-length mirror, fitting room'**
   String get referenceSampleCheckinPortraitHint;
 
   /// No description provided for @referenceSampleCheckinBrunch.
@@ -426,13 +426,13 @@ abstract class AppLocalizations {
   /// No description provided for @referenceSampleCheckinTravel.
   ///
   /// In en, this message translates to:
-  /// **'Mountain vista'**
+  /// **'Summit view'**
   String get referenceSampleCheckinTravel;
 
   /// No description provided for @referenceSampleCheckinTravelHint.
   ///
   /// In en, this message translates to:
-  /// **'Open background, scenic depth'**
+  /// **'Small figure, hiking back view'**
   String get referenceSampleCheckinTravelHint;
 
   /// No description provided for @referenceSampleCheckinBeach.
@@ -444,7 +444,7 @@ abstract class AppLocalizations {
   /// No description provided for @referenceSampleCheckinBeachHint.
   ///
   /// In en, this message translates to:
-  /// **'Backlit silhouette, low angle'**
+  /// **'Back silhouette, rocky shore'**
   String get referenceSampleCheckinBeachHint;
 
   /// No description provided for @analyzingImage.

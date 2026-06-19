@@ -10,7 +10,7 @@ void main() {
   const imageWidth = 1080;
   const imageHeight = 1920;
 
-  final template = trendyTemplateCatalog['checkin_cafe']!;
+  final template = trendyTemplateCatalog['checkin_brunch']!;
   final analyzer = TrendyPhotoAnalyzer(template: template);
 
   group('normalizeAndAlign + similarity', () {
