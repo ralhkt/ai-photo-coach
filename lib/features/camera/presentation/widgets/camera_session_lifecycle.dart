@@ -12,6 +12,7 @@ import '../../../ar/providers/ar_providers.dart';
 import '../../../scene_stabilization/services/camera_frame_monitor.dart';
 import '../../../session/providers/shoot_session_provider.dart';
 import 'ios_scene_stability_poller.dart';
+import 'live_scene_auto_analyzer.dart';
 import 'pose_coaching_lifecycle.dart';
 
 /// Starts/stops Phase 2 AR session + pHash scene monitor with camera lifecycle.
@@ -137,11 +138,13 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
 
   @override
   Widget build(BuildContext context) {
+    final isFreeShoot = widget.shootSessionMode == ShootSessionMode.free;
     return Stack(
       children: [
         widget.child,
         const PoseCoachingLifecycle(),
         const IosSceneStabilityPoller(),
+        if (isFreeShoot) const LiveSceneAutoAnalyzer(),
       ],
     );
   }

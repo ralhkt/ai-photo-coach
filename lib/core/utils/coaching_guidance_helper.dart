@@ -49,7 +49,7 @@ class CoachingGuidanceHelper {
     final smoothed = stabilizer?.stabilize(guidance) ?? guidance;
     final skeleton = smoothed.subjectPoseSkeleton;
     if (skeleton != null &&
-        skeleton.length >= 4 &&
+        skeleton.length >= 2 &&
         smoothed.subjectSilhouettePoints != null &&
         smoothed.subjectSilhouettePoints!.isNotEmpty) {
       return smoothed;

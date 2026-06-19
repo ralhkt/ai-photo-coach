@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/l10n/generated/app_localizations.dart';
 import '../../../../core/settings/app_settings_provider.dart';
+import '../../../../core/widgets/app_glass_widgets.dart';
 import '../../../../models/camera_aspect_ratio.dart';
 import '../../../ar/presentation/ar_horizon_overlay.dart';
 import '../../../ar/presentation/ar_status_chip.dart';
@@ -13,6 +14,7 @@ import '../../../scene_stabilization/providers/scene_stability_provider.dart';
 import '../../../reference/providers/guided_frame_providers.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_interaction_provider.dart';
+import '../../providers/live_scene_analysis_provider.dart';
 import '../../providers/camera_mode_settings_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
@@ -353,6 +355,47 @@ class IosCameraAnalyzingLayer extends ConsumerWidget {
     return LiveSceneAnalyzingOverlay(
       visible: isLiveAnalyzing,
       autoTriggered: !isManualRun,
+    );
+  }
+}
+
+/// Manual ✨ analyze — free-shoot mode only; isolated from preview rebuilds.
+class LiveSceneAnalyzeButtonLayer extends ConsumerWidget {
+  const LiveSceneAnalyzeButtonLayer({
+    super.key,
+    required this.enabled,
+    required this.onAnalyze,
+  });
+
+  final bool enabled;
+  final VoidCallback onAnalyze;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!enabled) {
+      return const SizedBox.shrink();
+    }
+
+    final l10n = AppLocalizations.of(context)!;
+    final isAnalyzing = ref.watch(liveSceneAnalyzingProvider);
+    final top = MediaQuery.paddingOf(context).top + 56;
+
+    return Positioned(
+      right: 12,
+      top: top,
+      child: AppCameraToolButton(
+        icon: isAnalyzing
+            ? Icons.hourglass_top_rounded
+            : Icons.auto_awesome_rounded,
+        tooltip: l10n.liveSceneAnalyze,
+        onTap: () {
+          if (isAnalyzing) {
+            return;
+          }
+          markCameraUiInteraction(ref);
+          onAnalyze();
+        },
+      ),
     );
   }
 }

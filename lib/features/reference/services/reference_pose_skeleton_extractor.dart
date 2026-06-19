@@ -33,5 +33,5 @@ abstract final class ReferencePoseSkeletonExtractor {
   }
 
   /// Matches [ReferencePhotoPoseAnalyzer.referenceMinLikelihood].
-  static const defaultMinLikelihood = 0.32;
+  static const defaultMinLikelihood = 0.22;
 }

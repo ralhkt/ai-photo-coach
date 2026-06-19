@@ -15,6 +15,7 @@ import '../../../models/photo_analysis_result.dart';
 import '../../../models/photo_frame_template.dart';
 import '../../../models/scene_type.dart';
 import '../../../models/subject_shape_kind.dart';
+import '../../../core/utils/coaching_guidance_helper.dart';
 import '../../../core/utils/image_bytes_normalizer.dart';
 import '../../ml/services/heuristic_vision_analyzer.dart';
 import '../../ml/services/vision_analyzer.dart';
@@ -76,9 +77,7 @@ class ImageAnalyzerService {
     final brightness = _averageBrightness(decoded);
 
     final mlFuture = _analyzeWithMlFallback(normalizedBytes, width, height);
-    final poseFuture = forLiveCoaching
-        ? Future.value(const ReferencePoseAnalysis.empty())
-        : _referencePoseAnalyzer.analyze(normalizedBytes);
+    final poseFuture = _referencePoseAnalyzer.analyze(normalizedBytes);
     final results = await Future.wait([mlFuture, poseFuture]);
     final mlDetection = results[0] as MlDetectionResult;
     final referencePose = results[1] as ReferencePoseAnalysis;
@@ -130,7 +129,10 @@ class ImageAnalyzerService {
     BodyPartGuides? bodyPartGuides = mlDetection.bodyPartGuides;
 
     List<Offset>? silhouettePoints;
-    List<List<Offset>>? poseSkeleton;
+    final poseSkeleton = _resolvePoseSkeleton(
+      referencePose: referencePose,
+      mlDetection: mlDetection,
+    );
     var subjectShape = SubjectShapeKind.rectangle;
     if (prefersHuman) {
       bodyPartGuides ??= _bodyPartGuideService.derive(
@@ -145,11 +147,6 @@ class ImageAnalyzerService {
         bodyPartGuides: bodyPartGuides,
       );
       subjectShape = SubjectShapeKind.humanSilhouette;
-      if (referencePose.hasSkeleton) {
-        poseSkeleton = referencePose.skeletonSegments;
-      } else if (mlDetection.poseSkeletonSegments.isNotEmpty) {
-        poseSkeleton = mlDetection.poseSkeletonSegments;
-      }
     }
 
     final guidance = _buildGuidance(
@@ -190,15 +187,70 @@ class ImageAnalyzerService {
       subjectDetectionReliable: subjectDetectionReliable,
     );
 
-    if (!forLiveCoaching) {
+    if (forLiveCoaching) {
+      result = await _safeReferenceMatch(result);
+    } else {
       result = await _safeAgentEnrich(result);
     }
 
-    if (forLiveCoaching) {
-      result = await _safeReferenceMatch(result);
+    return _ensurePoseGuideData(result);
+  }
+
+  List<List<Offset>>? _resolvePoseSkeleton({
+    required ReferencePoseAnalysis referencePose,
+    required MlDetectionResult mlDetection,
+  }) {
+    if (referencePose.hasSkeleton) {
+      return referencePose.skeletonSegments;
+    }
+    if (mlDetection.poseSkeletonSegments.length >= 2) {
+      return mlDetection.poseSkeletonSegments;
+    }
+    return null;
+  }
+
+  PhotoAnalysisResult _ensurePoseGuideData(PhotoAnalysisResult result) {
+    if (!result.subjectDetectionReliable) {
+      return result;
     }
 
-    return result;
+    final guidance = result.guidance;
+    if (guidance.subjectPoseSkeleton != null &&
+        guidance.subjectPoseSkeleton!.length >= 2 &&
+        guidance.subjectSilhouettePoints != null &&
+        guidance.bodyPartGuides != null) {
+      return result;
+    }
+
+    final skeleton = guidance.subjectPoseSkeleton ??
+        _resolvePoseSkeleton(
+          referencePose: _lastReferencePoseAnalysis ??
+              const ReferencePoseAnalysis.empty(),
+          mlDetection: result.mlDetection ??
+              const MlDetectionResult(source: 'none', inferenceMs: 0),
+        );
+    final ensured = CoachingGuidanceHelper().ensureHumanSilhouette(guidance);
+    final mergedGuidance = skeleton != null && skeleton.length >= 2
+        ? ensured.copyWith(subjectPoseSkeleton: skeleton)
+        : ensured;
+
+    return PhotoAnalysisResult(
+      sourceAspectRatio: result.sourceAspectRatio,
+      brightness: result.brightness,
+      subjectFillRatio: result.subjectFillRatio,
+      recommendedFrame: result.recommendedFrame,
+      guidance: mergedGuidance,
+      sceneTypeKey: result.sceneTypeKey,
+      imageBytes: result.imageBytes,
+      userSceneType: result.userSceneType,
+      deepInsights: result.deepInsights,
+      mlDetection: result.mlDetection,
+      matchedReferenceSampleId: result.matchedReferenceSampleId,
+      matchedReferenceTitleKey: result.matchedReferenceTitleKey,
+      matchedReferenceImageBytes: result.matchedReferenceImageBytes,
+      exif: result.exif,
+      subjectDetectionReliable: result.subjectDetectionReliable,
+    );
   }
 
   Future<PhotoAnalysisResult> _safeAgentEnrich(PhotoAnalysisResult result) async {

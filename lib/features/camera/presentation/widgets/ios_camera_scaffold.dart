@@ -251,6 +251,10 @@ class _IosCameraScaffoldState extends ConsumerState<IosCameraScaffold> {
             ),
             const IosCameraHistogramLayer(),
             IosCameraAngleGuidanceLayer(enabled: _isFreeShootMode),
+            LiveSceneAnalyzeButtonLayer(
+              enabled: _isFreeShootMode,
+              onAnalyze: () => _analyzeLiveScene(context),
+            ),
           ],
         ),
         IosCameraCoachBannerLayer(

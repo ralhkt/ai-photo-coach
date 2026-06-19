@@ -25,7 +25,7 @@ class ReferencePhotoPoseAnalyzer {
         _subjectTracker = subjectTracker ?? SubjectPoseTracker();
 
   static const int maxAnalysisSide = 1280;
-  static const double referenceMinLikelihood = 0.32;
+  static const double referenceMinLikelihood = 0.22;
 
   final PoseDetector _poseDetector;
   final SubjectPoseTracker _subjectTracker;
