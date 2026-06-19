@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -13,13 +14,14 @@ import '../../../pose/providers/pose_coaching_provider.dart';
 import '../../../pose/services/pose_preview_frame_source.dart';
 import '../../../../core/settings/app_settings_provider.dart';
 import '../../models/preview_capture_request.dart';
+import '../../platform/native_preview_frame_service.dart';
 import '../../providers/camera_capture_provider.dart';
 import '../../providers/camera_interaction_provider.dart';
 import '../../providers/camera_providers.dart';
 import '../../providers/camera_settings_provider.dart';
 import '../../providers/live_scene_analysis_provider.dart';
 
-/// Polls preview frames + attitude for live pose coaching (iOS-safe).
+/// Polls preview frames + attitude for live pose coaching.
 class PoseCoachingLifecycle extends ConsumerStatefulWidget {
   const PoseCoachingLifecycle({super.key});
 
@@ -33,12 +35,19 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   bool _tickInFlight = false;
   double _latestRoll = 0;
   DateTime _lastCapture = DateTime.fromMillisecondsSinceEpoch(0);
-  Duration _captureInterval = const Duration(milliseconds: 1400);
+  Duration _captureInterval = const Duration(milliseconds: 2000);
   PoseCoachingResult? _lastResult;
-  final PosePreviewFrameSource _frameSource = PosePreviewFrameSource();
-  bool _streamAttempted = false;
+  final PosePreviewFrameSource _androidFrameSource = PosePreviewFrameSource();
+  bool _androidStreamAttempted = false;
+  bool _iosSamplerAttached = false;
+
+  bool get _useIosNativeSampler =>
+      !kIsWeb && Platform.isIOS && NativePreviewFrameService.instance.isSupported;
 
   Duration get _fallbackInterval {
+    if (_useIosNativeSampler) {
+      return const Duration(milliseconds: 2200);
+    }
     if (kIsWeb) {
       return const Duration(milliseconds: 1500);
     }
@@ -58,8 +67,27 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
   void dispose() {
     _timer?.cancel();
     final controller = ref.read(cameraControllerProvider).value;
-    unawaited(_frameSource.stop(controller));
+    if (_useIosNativeSampler) {
+      unawaited(NativePreviewFrameService.instance.detach());
+    } else {
+      unawaited(_androidFrameSource.stop(controller));
+    }
     super.dispose();
+  }
+
+  Future<void> _setSamplerActive(bool active) async {
+    if (!_useIosNativeSampler) {
+      return;
+    }
+    if (active && !_iosSamplerAttached) {
+      await NativePreviewFrameService.instance.attach();
+      _iosSamplerAttached = true;
+      return;
+    }
+    if (!active && _iosSamplerAttached) {
+      await NativePreviewFrameService.instance.detach();
+      _iosSamplerAttached = false;
+    }
   }
 
   void _syncLoop() {
@@ -69,18 +97,20 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
 
     final shouldRun = ref.read(poseCoachingShouldRunProvider);
     if (shouldRun && _timer == null) {
-      _streamAttempted = false;
-      _scheduleNextTick(const Duration(milliseconds: 120));
+      _androidStreamAttempted = false;
+      unawaited(_setSamplerActive(true));
+      _scheduleNextTick(const Duration(milliseconds: 200));
       unawaited(_tick());
     } else if (!shouldRun && _timer != null) {
       _timer?.cancel();
       _timer = null;
       _lastResult = null;
-      _streamAttempted = false;
+      _androidStreamAttempted = false;
       ref.read(poseCoachingResultProvider.notifier).state = null;
       ref.read(poseCoachingServiceProvider).reset();
       final controller = ref.read(cameraControllerProvider).value;
-      unawaited(_frameSource.stop(controller));
+      unawaited(_setSamplerActive(false));
+      unawaited(_androidFrameSource.stop(controller));
     }
   }
 
@@ -118,12 +148,19 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     return false;
   }
 
-  Future<void> _ensureFrameSource(CameraController controller) async {
-    if (_streamAttempted || _frameSource.usesImageStream) {
+  void _publishIfNeeded(PoseCoachingResult? result) {
+    if (result != null && _shouldPublishResult(result)) {
+      _lastResult = result;
+      ref.read(poseCoachingResultProvider.notifier).state = result;
+    }
+  }
+
+  Future<void> _ensureAndroidFrameSource(CameraController controller) async {
+    if (_useIosNativeSampler || _androidStreamAttempted) {
       return;
     }
-    _streamAttempted = true;
-    await _frameSource.tryStartStream(controller);
+    _androidStreamAttempted = true;
+    await _androidFrameSource.tryStartStream(controller);
   }
 
   Future<void> _tick() async {
@@ -137,7 +174,7 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     }
 
     if (_tickInFlight || _isCameraBusy()) {
-      _scheduleNextTick(const Duration(milliseconds: 300));
+      _scheduleNextTick(const Duration(milliseconds: 350));
       return;
     }
 
@@ -155,8 +192,8 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
       now: now,
     )) {
       final wait = _captureInterval - now.difference(_lastCapture);
-      _scheduleNextTick(wait < const Duration(milliseconds: 120)
-          ? const Duration(milliseconds: 120)
+      _scheduleNextTick(wait < const Duration(milliseconds: 150)
+          ? const Duration(milliseconds: 150)
           : wait);
       return;
     }
@@ -168,36 +205,22 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
     }
 
     if (!service.shouldRunInference(now: now)) {
-      _scheduleNextTick(const Duration(milliseconds: 250));
+      _scheduleNextTick(const Duration(milliseconds: 300));
       return;
     }
 
     _tickInFlight = true;
     try {
-      await _ensureFrameSource(controller);
       final trendyTemplate = ref.read(activeTrendyTemplateProvider);
       PoseCoachingResult? result;
 
-      if (_frameSource.usesImageStream) {
-        final frame = _frameSource.consumeLatest();
-        if (frame == null) {
-          _scheduleNextTick(const Duration(milliseconds: 250));
+      if (_useIosNativeSampler) {
+        final bytes = await NativePreviewFrameService.instance.latestJpeg();
+        if (!mounted) {
           return;
         }
-        _lastCapture = now;
-        result = await service.evaluateCameraImage(
-          image: frame,
-          sensorOrientation: controller.description.sensorOrientation,
-          rollAngle: _latestRoll,
-          trendyTemplate: trendyTemplate,
-          now: now,
-        );
-      } else {
-        final bytes = await ref
-            .read(cameraControllerProvider.notifier)
-            .capturePreviewFrame(PreviewCaptureRequest.coaching);
-        if (!mounted || bytes == null || bytes.isEmpty) {
-          _scheduleNextTick(_captureInterval);
+        if (bytes == null || bytes.isEmpty) {
+          _scheduleNextTick(const Duration(milliseconds: 400));
           return;
         }
         _lastCapture = now;
@@ -207,16 +230,45 @@ class _PoseCoachingLifecycleState extends ConsumerState<PoseCoachingLifecycle> {
           trendyTemplate: trendyTemplate,
           now: now,
         );
+      } else {
+        await _ensureAndroidFrameSource(controller);
+        if (_androidFrameSource.usesImageStream) {
+          final frame = _androidFrameSource.consumeLatest();
+          if (frame == null) {
+            _scheduleNextTick(const Duration(milliseconds: 300));
+            return;
+          }
+          _lastCapture = now;
+          result = await service.evaluateCameraImage(
+            image: frame,
+            sensorOrientation: controller.description.sensorOrientation,
+            rollAngle: _latestRoll,
+            trendyTemplate: trendyTemplate,
+            now: now,
+          );
+        } else {
+          final bytes = await ref
+              .read(cameraControllerProvider.notifier)
+              .capturePreviewFrame(PreviewCaptureRequest.coaching);
+          if (!mounted || bytes == null || bytes.isEmpty) {
+            _scheduleNextTick(_captureInterval);
+            return;
+          }
+          _lastCapture = now;
+          result = await service.evaluatePreviewFrame(
+            bytes: bytes,
+            rollAngle: _latestRoll,
+            trendyTemplate: trendyTemplate,
+            now: now,
+          );
+        }
       }
 
       if (!mounted) {
         return;
       }
 
-      if (result != null && _shouldPublishResult(result)) {
-        _lastResult = result;
-        ref.read(poseCoachingResultProvider.notifier).state = result;
-      }
+      _publishIfNeeded(result);
     } finally {
       _tickInFlight = false;
       if (mounted) {

@@ -31,6 +31,7 @@
 		C1A2B302ED2DC5600515902 /* NativeCameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B312ED2DC5600515902 /* NativeCameraPreviewView.swift */; };
 		C1A2B303ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B313ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift */; };
 		C1A2B304ED2DC5600515904 /* NativeCameraPreviewHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B314ED2DC5600515904 /* NativeCameraPreviewHandler.swift */; };
+		C1A2B305ED2DC5600515905 /* PreviewFrameSamplerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B315ED2DC5600515905 /* PreviewFrameSamplerHandler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +96,7 @@
 		C1A2B312ED2DC5600515902 /* NativeCameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewView.swift; sourceTree = "<group>"; };
 		C1A2B313ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewPlatformView.swift; sourceTree = "<group>"; };
 		C1A2B314ED2DC5600515904 /* NativeCameraPreviewHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeCameraPreviewHandler.swift; sourceTree = "<group>"; };
+		C1A2B315ED2DC5600515905 /* PreviewFrameSamplerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewFrameSamplerHandler.swift; sourceTree = "<group>"; };
 		E5DC37B16CE6C134B89B3395 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		E64A9E2EFBBA37498FE11CE9 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -226,6 +228,7 @@
 				C1A2B312ED2DC5600515902 /* NativeCameraPreviewView.swift */,
 				C1A2B313ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift */,
 				C1A2B314ED2DC5600515904 /* NativeCameraPreviewHandler.swift */,
+				C1A2B315ED2DC5600515905 /* PreviewFrameSamplerHandler.swift */,
 			);
 			path = CameraPreview;
 			sourceTree = "<group>";
@@ -457,6 +460,7 @@
 				C1A2B302ED2DC5600515902 /* NativeCameraPreviewView.swift in Sources */,
 				C1A2B303ED2DC5600515903 /* NativeCameraPreviewPlatformView.swift in Sources */,
 				C1A2B304ED2DC5600515904 /* NativeCameraPreviewHandler.swift in Sources */,
+				C1A2B305ED2DC5600515905 /* PreviewFrameSamplerHandler.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
 			);

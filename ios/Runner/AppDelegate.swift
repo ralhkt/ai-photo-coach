@@ -38,6 +38,8 @@ import UIKit
         binaryMessenger: messenger,
         registrar: registrar
       )
+
+      PreviewFrameSamplerHandler.shared.register(binaryMessenger: messenger)
     }
 
     if #available(iOS 15.0, *) {

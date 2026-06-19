@@ -307,8 +307,11 @@ class CameraControllerNotifier extends AsyncNotifier<CameraController?> {
     if (controller == null ||
         !controller.value.isInitialized ||
         controller.value.isTakingPicture ||
-        controller.value.isStreamingImages ||
         ref.read(cameraSwitchingProvider)) {
+      return null;
+    }
+
+    if (!kIsWeb && Platform.isIOS && controller.value.isStreamingImages) {
       return null;
     }
 

@@ -37,7 +37,8 @@ class _IosSceneStabilityPollerState extends ConsumerState<IosSceneStabilityPolle
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb && Platform.isIOS) {
+    // iOS uses takePicture for pHash — skip entirely to keep preview fluid.
+    if (!kIsWeb && !Platform.isIOS) {
       _timer = Timer.periodic(const Duration(milliseconds: 5000), (_) {
         unawaited(_tick());
       });

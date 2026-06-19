@@ -1,4 +1,7 @@
+import 'dart:io' show Platform;
+
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -75,7 +78,10 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
     await _frameMonitor.start(widget.controller);
 
     final powerSave = ref.read(powerSaveEnabledProvider);
-    final shouldRunAr = widget.enableAr && !powerSave;
+    // ARKit + AVCaptureSession together tanks preview FPS on iOS.
+    final shouldRunAr = widget.enableAr &&
+        !powerSave &&
+        !( !kIsWeb && Platform.isIOS);
     if (shouldRunAr) {
       await _arNotifier.start();
     }
@@ -98,7 +104,10 @@ class _CameraSessionLifecycleState extends ConsumerState<CameraSessionLifecycle>
     await _frameMonitor.start(widget.controller);
 
     final powerSave = ref.read(powerSaveEnabledProvider);
-    if (widget.enableAr && !powerSave) {
+    final shouldRunAr = widget.enableAr &&
+        !powerSave &&
+        !( !kIsWeb && Platform.isIOS);
+    if (shouldRunAr) {
       await _arNotifier.start();
     }
   }
