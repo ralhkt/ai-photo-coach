@@ -22,8 +22,7 @@ import '../../reference/providers/reference_providers.dart';
 import '../../reference/providers/reference_skeleton_providers.dart';
 import '../../reference/services/frame_generator_service.dart';
 import 'photo_frame_overlay.dart';
-import 'poze_wireframe_style.dart';
-import 'reference_ghost_overlay.dart';
+import 'reference_guided_overlay.dart';
 
 /// Guided-mode overlays isolated from the camera preview repaint path.
 class GuidedCameraOverlayStack extends ConsumerStatefulWidget {
@@ -88,9 +87,11 @@ class _GuidedCameraOverlayStackState
             fit: StackFit.expand,
             children: [
               const _CompositionOverlayLayer(),
-              _GhostOverlayLayer(
+              _ReferenceGuidedLayer(
                 imageBytes: widget.imageBytes,
                 frameSpec: frameSpec,
+                selectionContour:
+                    widget.guidance.subjectSilhouettePoints ?? const [],
               ),
               _FrameOverlayLayer(
                 frameSpec: frameSpec,
@@ -135,24 +136,34 @@ class _CompositionOverlayLayer extends ConsumerWidget {
   }
 }
 
-class _GhostOverlayLayer extends ConsumerWidget {
-  const _GhostOverlayLayer({
+class _ReferenceGuidedLayer extends ConsumerWidget {
+  const _ReferenceGuidedLayer({
     required this.imageBytes,
     required this.frameSpec,
+    required this.selectionContour,
   });
 
   final Uint8List imageBytes;
   final GeneratedFrameSpec frameSpec;
+  final List<Offset> selectionContour;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ghostVisible = ref.watch(referenceGhostVisibleProvider);
     final frameVisible = ref.watch(guidedFrameVisibleProvider);
-    return ReferenceGhostOverlay(
+    final coachingScore =
+        ref.watch(poseCoachingResultProvider.select((r) => r?.poseScore));
+    final coaching = ref.read(poseCoachingResultProvider);
+
+    return ReferenceGuidedOverlay(
       imageBytes: imageBytes,
       frameSpec: frameSpec,
-      visible: ghostVisible && frameVisible,
-      opacity: PozeWireframeStyle.ghostOpacity,
+      selectionContour: selectionContour,
+      visible: frameVisible,
+      showGhost: ghostVisible,
+      showOutline: selectionContour.length >= 8,
+      poseAligned: coaching?.poseMatched ?? false,
+      alignmentScore: coachingScore,
     );
   }
 }
@@ -187,7 +198,7 @@ class _FrameOverlayLayer extends ConsumerWidget {
       minimalPozeStyle: !bodyPartsVisible,
       poseAligned: coaching?.poseMatched ?? false,
       alignmentScore: coachingScore,
-      renderHumanSilhouette: true,
+      renderHumanSilhouette: false,
       skeletonStrokeWidth: skeletonStrokeWidth,
     );
   }

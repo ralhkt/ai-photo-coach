@@ -3,9 +3,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import '../../../core/utils/viewport_letterbox.dart';
+import '../../../core/utils/reference_cover_fit_mapper.dart';
 import '../../reference/services/frame_generator_service.dart';
 import 'poze_wireframe_style.dart';
+import 'reference_image_cache.dart';
 
 /// Faint reference image inside the crop area to help match pose.
 class ReferenceGhostOverlay extends StatefulWidget {
@@ -26,8 +27,6 @@ class ReferenceGhostOverlay extends StatefulWidget {
   State<ReferenceGhostOverlay> createState() => _ReferenceGhostOverlayState();
 }
 
-final _ghostImageCache = <String, ui.Image>{};
-
 class _ReferenceGhostOverlayState extends State<ReferenceGhostOverlay> {
   ui.Image? _image;
 
@@ -46,23 +45,9 @@ class _ReferenceGhostOverlayState extends State<ReferenceGhostOverlay> {
   }
 
   Future<void> _decode() async {
-    final key = '${widget.imageBytes.length}:${widget.imageBytes.hashCode}';
-    final cached = _ghostImageCache[key];
-    if (cached != null) {
-      if (mounted) {
-        setState(() => _image = cached);
-      }
-      return;
-    }
-
-    final codec = await ui.instantiateImageCodec(
-      widget.imageBytes,
-      targetWidth: 540,
-    );
-    final frame = await codec.getNextFrame();
-    _ghostImageCache[key] = frame.image;
+    final image = await decodeReferenceImage(widget.imageBytes);
     if (mounted) {
-      setState(() => _image = frame.image);
+      setState(() => _image = image);
     }
   }
 
@@ -98,16 +83,16 @@ class _ReferenceGhostPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final imageAspect = image.width / image.height;
+    final dest = ReferenceCoverFitMapper.imageDestRect(
+      cropRect: cropRect,
+      imageAspectRatio: imageAspect,
+    );
     final src = Rect.fromLTWH(
       0,
       0,
       image.width.toDouble(),
       image.height.toDouble(),
-    );
-    final imageAspect = image.width / image.height;
-    final dest = ViewportLetterbox.coverFitDestRect(
-      cropRect: cropRect,
-      imageAspectRatio: imageAspect,
     );
     final paint = Paint()
       ..color = Colors.white.withValues(alpha: opacity)

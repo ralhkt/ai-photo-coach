@@ -3,9 +3,8 @@ import 'dart:ui';
 
 import 'package:ai_photo_coach/core/utils/coaching_guidance_helper.dart';
 import 'package:ai_photo_coach/core/utils/pose_contour_stabilizer.dart';
-import 'package:ai_photo_coach/core/utils/silhouette_anchor.dart';
-import 'package:ai_photo_coach/core/utils/viewport_letterbox.dart';
-import 'package:ai_photo_coach/features/reference/services/frame_generator_service.dart';
+import 'package:ai_photo_coach/core/utils/reference_cover_fit_mapper.dart';
+import 'package:ai_photo_coach/features/frames/presentation/reference_image_cache.dart';
 import 'package:ai_photo_coach/features/reference/services/image_analyzer_service.dart';
 import 'package:ai_photo_coach/models/body_part_guides.dart';
 import 'package:ai_photo_coach/models/camera_guidance.dart';
@@ -16,16 +15,18 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/fake_ml_vision_analyzer.dart';
 
-Offset _centroid(Iterable<Offset> points) {
-  var sx = 0.0;
-  var sy = 0.0;
-  var count = 0;
+Rect _bounds(List<Offset> points) {
+  var minX = double.infinity;
+  var maxX = -double.infinity;
+  var minY = double.infinity;
+  var maxY = -double.infinity;
   for (final point in points) {
-    sx += point.dx;
-    sy += point.dy;
-    count++;
+    minX = minX < point.dx ? minX : point.dx;
+    maxX = maxX > point.dx ? maxX : point.dx;
+    minY = minY < point.dy ? minY : point.dy;
+    maxY = maxY > point.dy ? maxY : point.dy;
   }
-  return Offset(sx / count, sy / count);
+  return Rect.fromLTRB(minX, minY, maxX, maxY);
 }
 
 void main() {
@@ -39,7 +40,7 @@ void main() {
   ];
 
   for (final name in samples) {
-    test('$name anchored viewport silhouette stays centered', () async {
+    test('$name Photoshop-style outline stays on decoded photo', () async {
       final bytes =
           await File('assets/reference_samples/$name.jpg').readAsBytes();
       final analysis = await ImageAnalyzerService(
@@ -54,39 +55,27 @@ void main() {
       expect(silhouette, isNotNull);
       expect(silhouette!.length, greaterThan(8));
 
-      const viewport = Size(390, 844);
-      const targetAspect = 3 / 4;
-      final spec = FrameGeneratorService().generate(
-        template: guidance.frameTemplate,
-        guidance: guidance,
-        viewportSize: viewport,
-        viewportIsCropArea: true,
-        sourceAspectRatio: analysis.sourceAspectRatio,
-        targetAspectRatio: targetAspect,
-      );
+      final image = await decodeReferenceImage(bytes);
+      expect(image, isNotNull);
 
-      final viewportCenter = _centroid(spec.viewportSilhouettePoints);
-      final subjectViewportCenter = _centroid([
-        for (final point in SilhouetteAnchor.alignToSubject(
-          silhouette,
-          guidance.subjectTargetRect,
-        ))
-          ViewportLetterbox.mapNormalizedPointCoverFit(
-            point,
-            sourceAspectRatio: analysis.sourceAspectRatio,
-            targetAspectRatio: targetAspect,
-          ),
-      ]);
-
-      expect(
-        (viewportCenter - subjectViewportCenter).distance,
-        lessThan(0.05),
-        reason: 'anchored outline should track subject for $name',
+      const cropRect = Rect.fromLTWH(0, 0, 390, 844);
+      final dest = ReferenceCoverFitMapper.imageDestRect(
+        cropRect: cropRect,
+        imageAspectRatio: image!.width / image.height,
       );
-      for (final point in spec.viewportSilhouettePoints) {
-        expect(point.dx, inInclusiveRange(0, 1));
-        expect(point.dy, inInclusiveRange(0, 1));
+      final mapped = ReferenceCoverFitMapper.mapContour(silhouette, dest);
+
+      for (final point in mapped) {
+        expect(dest.contains(point), isTrue);
       }
+
+      final bounds = _bounds(mapped);
+      expect(
+        bounds.width > dest.width * 0.05 || bounds.height > dest.height * 0.05,
+        isTrue,
+        reason: 'selection should span a visible subject region for $name',
+      );
+      expect(dest.overlaps(bounds.inflate(4)), isTrue);
     });
   }
 
